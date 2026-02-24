@@ -33,20 +33,33 @@ app.use(cors({
 app.use(bodyParser.json());
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI)
+const MONGODB_URI = process.env.MONGODB_URI;
+mongoose.connect(MONGODB_URI, {
+    dbName: 'vvv_ngo' // Explicitly target the correct database
+})
     .then(() => {
         const dbName = mongoose.connection.name;
-        console.log(`Connected to MongoDB database: ${dbName}`);
+        const host = mongoose.connection.host;
+        console.log(`[MongoDB] Connected to host: ${host}`);
+        console.log(`[MongoDB] Active Database: ${dbName}`);
         ensurePlans(); // Initialize Plans on DB connection
     })
-    .catch(err => console.error('MongoDB connection error:', err));
+    .catch(err => {
+        console.error('MongoDB connection error:', err);
+        process.exit(1); // Exit if DB connection fails in production
+    });
 
-// Cloudinary Config
-cloudinary.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET
-});
+// Cloudinary Config Check
+if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
+    console.warn('[Cloudinary] WARNING: Missing configuration environment variables!');
+} else {
+    cloudinary.config({
+        cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+        api_key: process.env.CLOUDINARY_API_KEY,
+        api_secret: process.env.CLOUDINARY_API_SECRET
+    });
+    console.log('[Cloudinary] Configured successfully');
+}
 
 // Multer Setup
 const photoStorage = new CloudinaryStorage({
@@ -502,14 +515,18 @@ app.post('/api/user/upload-photo', uploadPhoto.single('photo'), async (req, res)
         return res.status(400).json({ error: 'Missing email or photo' });
     }
     try {
+        if (!req.file) throw new Error('Cloudinary upload failed - No file received');
+
         const user = await User.findOneAndUpdate(
             { email },
             { picture: req.file.path },
             { new: true, upsert: true }
         );
+        console.log(`[Upload] Photo updated for ${email}: ${req.file.path}`);
         res.json({ status: 'success', url: req.file.path });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('[Upload Error] Photo:', err.message);
+        res.status(500).json({ error: 'Image upload failed. Please verify Cloudinary settings.' });
     }
 });
 
@@ -520,14 +537,18 @@ app.post('/api/user/upload-document', uploadDoc.single('document'), async (req, 
         return res.status(400).json({ error: 'Missing email or document' });
     }
     try {
+        if (!req.file) throw new Error('Cloudinary upload failed - No file received');
+
         await Volunteer.findOneAndUpdate(
             { email },
             { $push: { documents: { name: docName || req.file.originalname, url: req.file.path, cloudinary_id: req.file.filename } } },
             { upsert: true }
         );
+        console.log(`[Upload] Document added for ${email}: ${docName || req.file.originalname}`);
         res.json({ status: 'success', url: req.file.path });
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        console.error('[Upload Error] Document:', err.message);
+        res.status(500).json({ error: 'Document upload failed. Please verify Cloudinary settings.' });
     }
 });
 
