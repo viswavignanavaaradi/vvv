@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import axios from '../api/axios';
+import axios, { API_BASE_URL } from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
@@ -110,7 +110,7 @@ const Admin = () => {
             alert('No certificate ID found for this donation.');
             return;
         }
-        window.open(`/api/user/download-certificate?certId=${certId}`, '_blank');
+        window.open(`${API_BASE_URL}/api/user/download-certificate?certId=${certId}`, '_blank');
     };
 
     if (!loggedIn) {

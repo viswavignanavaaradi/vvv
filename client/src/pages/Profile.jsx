@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import axios from '../api/axios';
+import axios, { API_BASE_URL } from '../api/axios';
 import { useNavigate } from 'react-router-dom';
 
 const Profile = () => {
@@ -104,12 +104,12 @@ const Profile = () => {
     };
 
     const handleDownloadID = async () => {
-        window.open(`/api/user/download-id-card?email=${user.email}`, '_blank');
+        window.open(`${API_BASE_URL}/api/user/download-id-card?email=${user.email}`, '_blank');
     };
 
     const handleDownloadCertificate = async (certId) => {
         const url = certId ? `/api/user/download-certificate?email=${user.email}&certId=${certId}` : `/api/user/download-certificate?email=${user.email}`;
-        window.open(url, '_blank');
+        window.open(`${API_BASE_URL}${url}`, '_blank');
     };
 
     const handleLogout = () => {

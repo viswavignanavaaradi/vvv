@@ -35,7 +35,8 @@ app.use(bodyParser.json());
 // MongoDB Connection
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => {
-        console.log('Connected to MongoDB');
+        const dbName = mongoose.connection.name;
+        console.log(`Connected to MongoDB database: ${dbName}`);
         ensurePlans(); // Initialize Plans on DB connection
     })
     .catch(err => console.error('MongoDB connection error:', err));
