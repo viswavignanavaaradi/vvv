@@ -14,9 +14,10 @@ To ensure Google Login works on your live website, you must update your "Authori
 Scroll down to the **Authorized JavaScript origins** and **Authorized redirect URIs** sections and add these exact values:
 
 ### 1. Authorized JavaScript origins
-Add these two (one for local testing, one for production):
+Add these three (one for local testing, one for production, and your specific Vercel deployment):
 - `http://localhost:5173`
-- `https://vvv.vercel.app` (Replace with your actual Vercel URL)
+- `https://vvv.vercel.app`
+- `https://vvv-six-tawny.vercel.app` (This is your current active URL)
 
 ### 2. Authorized redirect URIs
 Add the same two:
