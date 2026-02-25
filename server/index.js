@@ -510,8 +510,34 @@ app.get('/api/user/download-certificate', async (req, res) => {
             return res.status(404).json({ error: 'Donation record not found' });
         }
 
-        generateCertificate(donation, (filePath) => {
-            res.download(filePath, `Certificate_${donation.certificate_id || 'Donor'}.pdf`);
+        generateCertificate(donation, async (err, filePath) => {
+            if (err) {
+                console.error('[Certificate API] Generation Error:', err);
+                return res.status(500).json({ error: 'Failed to generate certificate PDF' });
+            }
+
+            try {
+                // Upload to Cloudinary as a raw file (PDF)
+                const result = await cloudinary.uploader.upload(filePath, {
+                    folder: 'vvv_certificates',
+                    resource_type: 'raw',
+                    public_id: `CERT_${donation.certificate_id || Date.now()}`
+                });
+
+                console.log('[Certificate API] Cloudinary Upload Success:', result.secure_url);
+
+                // Redirect user to the Cloudinary URL for download
+                res.redirect(result.secure_url);
+
+                // Cleanup local temp file
+                fs.unlink(filePath, (unlinkErr) => {
+                    if (unlinkErr) console.warn('[Certificate API] Local cleanup failed:', unlinkErr);
+                });
+            } catch (uploadErr) {
+                console.error('[Certificate API] Cloudinary Upload Error:', uploadErr);
+                // Fallback to local download if upload fails
+                res.download(filePath, `Certificate_${donation.certificate_id || 'Donor'}.pdf`);
+            }
         });
     } catch (err) {
         console.error('[Certificate API] Error:', err);
