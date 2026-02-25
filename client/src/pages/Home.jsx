@@ -105,7 +105,7 @@ const Contact = () => (
                             <div style={{ width: '48px', height: '48px', background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', fontSize: '1.2rem' }}>📍</div>
                             <div>
                                 <h4 style={{ marginBottom: '0.4rem', fontFamily: 'Inter, sans-serif' }}>Headquarters</h4>
-                                <p style={{ color: 'var(--text-body)' }}>Plot 45, Jubilee Hills, Hyderabad<br />Telangana, India - 500033</p>
+                                <p style={{ color: 'var(--text-body)' }}>14-15-171/17/SF-1/YEGUVAPETA VEEDI WARD NO-1, Bakkannapalem, VISAKHAPATNAM<br />AndhraPradesh, India - 531163</p>
                             </div>
                         </div>
                         <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'flex-start' }}>
