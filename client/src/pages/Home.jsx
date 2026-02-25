@@ -53,8 +53,8 @@ const Missions = () => (
                     { icon: '📖', title: 'Mission Medha', desc: 'Providing scholarships and digital learning tools to gifted students in rural government schools.' },
                     { icon: '⚖️', title: 'Nyaya Sadan', desc: 'Nyaya Sadan addresses this gap by transforming legal awareness into legal empowerment.' },
                     { icon: '🍛', title: 'Mission Trupti', desc: 'Daily nutritional support for the elderly and abandoned, ensuring no one sleeps hungry.' },
-                    { icon: '𝚿🧠', title: 'Mission Mano Swasthya', desc: 'A strong nation requires not only educated citizens, but emotionally balanced and mentally healthy individuals.' },
-                    { icon: '🚜👨‍🌾', title: 'Mission Jeeva Dhara', desc: 'Mission Jeevadhara bridges this gap by connecting youth innovation with grassroots necessity.' }
+                    { icon: '🧠', title: 'Mission Mano Swasthya', desc: 'A strong nation requires not only educated citizens, but emotionally balanced and mentally healthy individuals.' },
+                    { icon: '🔬', title: 'Mission Jeeva Dhara', desc: 'Mission Jeevadhara is the rural innovation and technological empowerment wing dedicated to bringing sustainable, practical, and locally adaptable solutions to rural and tribal communities.' }
                 ].map((mission, index) => (
                     <motion.div
                         key={index}
