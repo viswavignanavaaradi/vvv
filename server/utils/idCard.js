@@ -62,10 +62,20 @@ function generateIDCard(volunteer) {
             }
 
             // ── Org name + tagline (right of logo) ───────────────────────
+            // Dynamically scale font so "VISWA VIGNANA VAARADHI" stays on one line
+            const orgTitle = 'VISWA VIGNANA VAARADHI';
+            let titleFontSize = 13.5;
+            doc.font('Helvetica-Bold').fontSize(titleFontSize);
+
+            while (doc.widthOfString(orgTitle) > 160 && titleFontSize > 8) {
+                titleFontSize -= 0.5;
+                doc.fontSize(titleFontSize);
+            }
+
             doc.fillColor(tealMid)
                 .font('Helvetica-Bold')
-                .fontSize(13.5)
-                .text('VISWA VIGNANA VAARADHI', 76, 32, { width: 160, lineBreak: false });
+                .fontSize(titleFontSize)
+                .text(orgTitle, 76, 32, { width: 160, lineBreak: false });
 
             // Tagline in an elegant serif italic to match image
             doc.fillColor(tealMid)
