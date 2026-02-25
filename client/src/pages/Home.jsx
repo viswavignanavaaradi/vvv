@@ -151,7 +151,7 @@ const Footer = () => (
                 <div>
                     <h3 style={{ color: '#fff', marginBottom: '1.5rem', fontFamily: 'Merriweather, serif' }}>Viswa Vignana Vaaradi</h3>
                     <p style={{ lineHeight: '1.8' }}>
-                        A registered non-profit organization dedicated to holistic rural development since 2010.
+                        A registered non-profit organization dedicated to holistic rural development since 2023.
                     </p>
                 </div>
                 <div>
