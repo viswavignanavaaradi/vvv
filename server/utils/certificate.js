@@ -1,6 +1,4 @@
-const fs = require('fs');
-const PDFDocument = require('pdfkit');
-const path = require('path');
+const os = require('os');
 
 /**
  * Generates a Patronage Certificate PDF and saves it locally.
@@ -20,13 +18,9 @@ function generateCertificate(data) {
                 autoFirstPage: true
             });
 
+            // Use system temp directory for reliability on Render
             const fileName = `Certificate_${(data.certificate_id || Date.now())}_${Date.now()}.pdf`;
-            const outputDir = path.join(__dirname, '../certificates');
-            const filePath = path.join(outputDir, fileName);
-
-            if (!fs.existsSync(outputDir)) {
-                fs.mkdirSync(outputDir, { recursive: true });
-            }
+            const filePath = path.join(os.tmpdir(), fileName);
 
             const stream = fs.createWriteStream(filePath);
             doc.pipe(stream);
@@ -90,14 +84,20 @@ function generateCertificate(data) {
             doc.text('PRESIDENT', sigX, sigY + 12, { width: 200, align: 'center' });
 
             doc.end();
-            stream.on('finish', () => resolve(filePath));
-            stream.on('error', reject);
+            stream.on('finish', () => {
+                const memAfter = process.memoryUsage().heapUsed / 1024 / 1024;
+                console.log(`[Certificate] Success! File at: ${filePath}. Heap: ${memAfter.toFixed(2)}MB`);
+                resolve(filePath);
+            });
+            stream.on('error', (err) => {
+                console.error('[Certificate] Stream Error:', err.message);
+                reject(err);
+            });
         } catch (err) {
+            console.error('[Certificate] Catch Error:', err.message);
             reject(err);
         }
     });
 }
-
-module.exports = { generateCertificate };
 
 module.exports = { generateCertificate };

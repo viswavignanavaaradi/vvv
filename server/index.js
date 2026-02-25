@@ -511,16 +511,21 @@ app.get('/api/user/download-certificate', async (req, res) => {
         }
 
         const filePath = await generateCertificate(donation);
-        const downloadName = `Certificate_${(donation.donor_name || 'Patron').replace(/ /g, '_')}.pdf`;
+        const timestamp = Date.now();
+        const downloadName = `Certificate_${(donation.donor_name || 'Patron').replace(/ /g, '_')}_${timestamp}.pdf`;
+
+        // Force browser to see it as a PDF
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
 
         res.download(filePath, downloadName, (err) => {
             if (err) {
                 console.error('[Certificate API] Send Error:', err);
                 if (!res.headersSent) res.status(500).send('Error downloading certificate');
             }
-            // Optional: Cleanup temp file after download
+            // Cleanup temp file after download
             try {
-                fs.unlinkSync(filePath);
+                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
             } catch (cleanupErr) {
                 console.error('[Certificate API] Cleanup Error:', cleanupErr.message);
             }
