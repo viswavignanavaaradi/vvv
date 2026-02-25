@@ -80,13 +80,13 @@ function generateCertificate(data) {
                 .rect(43, 43, W - 86, H - 86).stroke();
 
             // ─── 4. HEADER: LOGO LEFT + TITLE/TAGLINE ────────────────────
+            // FIX: increased org name font from 32 → 38, adjusted logo size & spacing
             const headerTop = 55;
-            const logoW = 82;
+            const logoW = 90;
             const logoLeft = 62;
-            const textLeft = logoLeft + logoW + 20;
+            const textLeft = logoLeft + logoW + 18;
             const textWidth = W - textLeft - 62;
 
-            // Logo
             if (logoExists) {
                 try {
                     doc.image(bestLogo, logoLeft, headerTop, { width: logoW });
@@ -95,14 +95,14 @@ function generateCertificate(data) {
                 }
             }
 
-            // Organisation name
+            // Organisation name — bigger font
             doc.fillColor(primaryTeal)
                 .font('Times-Bold')
-                .fontSize(32)
-                .text('VISWA VIGNANA VAARADHI', textLeft, headerTop + 4, {
+                .fontSize(38)
+                .text('VISWA VIGNANA VAARADHI', textLeft, headerTop + 2, {
                     width: textWidth,
                     align: 'left',
-                    characterSpacing: 0.8,
+                    characterSpacing: 0.5,
                     lineBreak: false
                 });
 
@@ -110,7 +110,7 @@ function generateCertificate(data) {
             doc.fillColor(textDark)
                 .font('Times-Roman')
                 .fontSize(15)
-                .text('foundation  for  a  better  tomorrow', textLeft, headerTop + 46, {
+                .text('foundation  for  a  better  tomorrow', textLeft, headerTop + 50, {
                     width: textWidth,
                     align: 'left',
                     characterSpacing: 2.2,
@@ -118,7 +118,7 @@ function generateCertificate(data) {
                 });
 
             // ─── 5. DIVIDER LINE + DIAMONDS ──────────────────────────────
-            const divY = 152;
+            const divY = 158;
             const lineL = 62;
             const lineR = W - 62;
             const gapHalf = 13;
@@ -132,12 +132,14 @@ function generateCertificate(data) {
             drawDiamond(midX + 8, divY, 5, 5);
 
             // ─── 6. CERTIFICATE TITLE ────────────────────────────────────
+            // FIX: reduced from 42 → 38 so it never clips the borders,
+            //      and constrained width with padding so text stays well inside
             doc.fillColor(primaryTeal)
                 .font('Times-Bold')
-                .fontSize(42)
-                .text('CERTIFICATE OF PATRONAGE', 0, 172, {
+                .fontSize(38)
+                .text('CERTIFICATE OF PATRONAGE', 80, 178, {
                     align: 'center',
-                    width: W,
+                    width: W - 160,   // 80px padding each side — well clear of border
                     characterSpacing: 2,
                     lineBreak: false
                 });
@@ -195,7 +197,7 @@ function generateCertificate(data) {
             // ─── 10. SEAL (centred) ───────────────────────────────────────
             const sealSize = 100;
             const sealX = (W - sealSize) / 2;
-            const sealY = 438;
+            const sealY = 440;
 
             try {
                 if (fs.existsSync(sealPath)) {
@@ -214,11 +216,14 @@ function generateCertificate(data) {
             }
 
             // ─── 11. SIGNATURE BLOCK (right side) ────────────────────────
+            // FIX: increased sigImgY gap so the signature image, underline,
+            //      and PRESIDENT label are clearly separated and don't collide.
             const sigW = 140;
             const sigRight = W - 68;
             const sigX = sigRight - sigW;
-            const sigImgY = 443;
-            const sigLineY = sigImgY + 55;
+            const sigImgY = 438;   // signature image starts here
+            const sigLineY = sigImgY + 62;  // underline: 62px below image top (well below sig)
+            const labelY = sigLineY + 8;  // PRESIDENT label: 8px below underline
 
             try {
                 if (fs.existsSync(sigPath)) {
@@ -233,11 +238,11 @@ function generateCertificate(data) {
                 .lineTo(sigX + sigW, sigLineY)
                 .lineWidth(1.2).strokeColor(primaryTeal).stroke();
 
-            // PRESIDENT label
+            // PRESIDENT label — clearly below underline, not overlapping it
             doc.fillColor(primaryTeal)
                 .font('Times-Bold')
                 .fontSize(14)
-                .text('PRESIDENT', sigX, sigLineY + 6, {
+                .text('PRESIDENT', sigX, labelY, {
                     width: sigW,
                     align: 'center',
                     lineBreak: false
