@@ -43,8 +43,12 @@ function generateCertificate(data) {
             const brandingText = 'VISWA VIGNANA VAARADHI';
             const headerY = 75;
 
-            if (fs.existsSync(logoPath)) {
-                doc.image(logoPath, 110, headerY, { width: 85 });
+            try {
+                if (fs.existsSync(logoPath) && fs.statSync(logoPath).size > 1000) {
+                    doc.image(logoPath, 110, headerY, { width: 85 });
+                }
+            } catch (e) {
+                console.error('[Certificate] Logo fail:', e.message);
             }
 
             doc.fillColor(primaryTeal).font('Times-Bold').fontSize(42).text(brandingText, 215, headerY + 15, { characterSpacing: 1 });
@@ -52,7 +56,8 @@ function generateCertificate(data) {
 
             // Horizontal Divider
             doc.moveTo(220, 185).lineTo(620, 185).lineWidth(1.5).strokeColor('#cbd5e1').stroke();
-            doc.fillColor(primaryTeal).rect(415, 178, 12, 12).rotate(45, { origin: [421, 184] }).fill().rotate(-45, { origin: [421, 184] });
+            // Draw a diamond without complex rotate chain to be safe
+            doc.save().translate(421, 184).rotate(45).rect(-6, -6, 12, 12).fill(primaryTeal).restore();
 
             // 3. MAIN TITLES
             doc.fillColor(primaryTeal).font('Times-Bold').fontSize(62).text('CERTIFICATE OF PATRONAGE', 0, 210, { align: 'center', characterSpacing: 1 });
@@ -62,11 +67,10 @@ function generateCertificate(data) {
             const rawName = (data.donor_name || 'Valued Patron').toUpperCase();
             const displayName = `[ ${rawName} ]`;
 
-            // Dynamic scaling logic
             let nameFontSize = 54;
             doc.font('Times-Bold').fontSize(nameFontSize);
             let nameWidth = doc.widthOfString(displayName);
-            while (nameWidth > (canvasWidth - 200) && nameFontSize > 24) {
+            while (nameWidth > (canvasWidth - 150) && nameFontSize > 20) {
                 nameFontSize -= 2;
                 doc.fontSize(nameFontSize);
                 nameWidth = doc.widthOfString(displayName);
@@ -81,10 +85,16 @@ function generateCertificate(data) {
             const sealPath = path.join(__dirname, '../../client/src/assets/seal.png');
             const sealX = (canvasWidth - 110) / 2;
             const sealY = 485;
-            if (fs.existsSync(sealPath)) {
-                doc.image(sealPath, sealX, sealY, { width: 110 });
-            } else {
-                // Fallback drawing if asset missing
+
+            try {
+                // Ensure it's a real image, not my placeholder text
+                if (fs.existsSync(sealPath) && fs.statSync(sealPath).size > 1000) {
+                    doc.image(sealPath, sealX, sealY, { width: 110 });
+                } else {
+                    doc.save().circle(canvasWidth / 2, sealY + 50, 45).fill('#D4AF37').restore();
+                }
+            } catch (e) {
+                console.error('[Certificate] Seal fail:', e.message);
                 doc.save().circle(canvasWidth / 2, sealY + 50, 45).fill('#D4AF37').restore();
             }
 
@@ -93,17 +103,16 @@ function generateCertificate(data) {
             const sigX = canvasWidth - 280;
             const sigY = 480;
 
-            if (fs.existsSync(sigPath)) {
-                doc.image(sigPath, sigX + 10, sigY, { width: 180 });
+            try {
+                if (fs.existsSync(sigPath) && fs.statSync(sigPath).size > 1000) {
+                    doc.image(sigPath, sigX + 10, sigY, { width: 180 });
+                }
+            } catch (e) {
+                console.error('[Certificate] Sig fail:', e.message);
             }
 
             doc.moveTo(sigX, sigY + 55).lineTo(sigX + 220, sigY + 55).lineWidth(2).strokeColor(primaryTeal).stroke();
             doc.fillColor(primaryTeal).font('Times-Bold').fontSize(22).text('PRESIDENT', sigX, sigY + 65, { width: 220, align: 'center' });
-
-            // Watermark (Very faint)
-            if (fs.existsSync(logoPath)) {
-                doc.save().opacity(0.02).image(logoPath, (canvasWidth - 400) / 2, (canvasHeight - 400) / 2, { width: 400 }).restore();
-            }
 
             doc.end();
             stream.on('finish', () => {
