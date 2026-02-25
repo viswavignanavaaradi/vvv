@@ -7,6 +7,7 @@ import logo from '../assets/logo.png';
 const Navbar = ({ onDonateClick }) => {
     const [scrolled, setScrolled] = useState(false);
     const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
+    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [user, setUser] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
@@ -28,6 +29,11 @@ const Navbar = ({ onDonateClick }) => {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
+    // Close mobile menu on route change
+    useEffect(() => {
+        setMobileMenuOpen(false);
+    }, [location]);
+
     const handleNavClick = (item) => {
         if (item === 'Home') {
             if (location.pathname !== '/') {
@@ -41,16 +47,20 @@ const Navbar = ({ onDonateClick }) => {
             navigate('/get-involved');
         } else if (item === 'Gallery') {
             navigate('/gallery');
+        } else if (item === 'Legal Aid') {
+            navigate('/legal-aid');
         } else {
             if (location.pathname !== '/') {
                 navigate('/', { state: { target: item.toLowerCase() } });
             }
         }
+        setMobileMenuOpen(false); // Close mobile menu after navigation
     };
 
     const handleAboutClick = (tab) => {
         navigate('/about', { state: { tab } });
         setAboutDropdownOpen(false);
+        setMobileMenuOpen(false);
     };
 
     useEffect(() => {
@@ -109,6 +119,7 @@ const Navbar = ({ onDonateClick }) => {
                 </div>
             </div>
 
+            {/* DESKTOP MENU */}
             <div className="desktop-menu" style={{ display: 'flex', gap: '2rem', alignItems: 'center' }}>
 
                 {/* Navigation Links */}
@@ -175,6 +186,7 @@ const Navbar = ({ onDonateClick }) => {
                                                         e.stopPropagation();
                                                         handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'));
                                                     }}
+                                                    className="dropdown-item"
                                                     style={{
                                                         padding: '0.6rem 1rem',
                                                         color: 'var(--text-body)',
@@ -185,14 +197,6 @@ const Navbar = ({ onDonateClick }) => {
                                                         display: 'block',
                                                         textAlign: 'left',
                                                         transition: 'all 0.2s'
-                                                    }}
-                                                    onMouseEnter={(e) => {
-                                                        e.target.style.background = '#f1f5f9';
-                                                        e.target.style.color = 'var(--primary-royal)';
-                                                    }}
-                                                    onMouseLeave={(e) => {
-                                                        e.target.style.background = 'white';
-                                                        e.target.style.color = 'var(--text-body)';
                                                     }}
                                                 >
                                                     {subItem}
@@ -336,101 +340,143 @@ const Navbar = ({ onDonateClick }) => {
                 </div>
             </div>
 
-            {/* Mobile Toggle */}
-            <div className="mobile-toggle" onClick={() => setAboutDropdownOpen(!aboutDropdownOpen)} style={{ display: 'none', cursor: 'pointer' }}>
-                <div style={{ width: '25px', height: '2px', background: '#333', marginBottom: '5px' }}></div>
-                <div style={{ width: '25px', height: '2px', background: '#333', marginBottom: '5px' }}></div>
-                <div style={{ width: '25px', height: '2px', background: '#333' }}></div>
+            {/* MOBILE TOGGLE BAR */}
+            <div className="mobile-toggle" onClick={() => setMobileMenuOpen(true)} style={{ display: 'none', cursor: 'pointer', padding: '10px' }}>
+                <div style={{ width: '22px', height: '2px', background: '#111', marginBottom: '5px' }}></div>
+                <div style={{ width: '18px', height: '2px', background: '#111', marginBottom: '5px' }}></div>
+                <div style={{ width: '22px', height: '2px', background: '#111' }}></div>
             </div>
 
-            {/* Mobile Menu */}
+            {/* MOBILE SIDE DRAWER */}
             <AnimatePresence>
-                {aboutDropdownOpen && (
-                    <motion.div
-                        className="mobile-menu"
-                        initial={{ opacity: 0, height: 0 }}
-                        animate={{ opacity: 1, height: 'auto' }}
-                        exit={{ opacity: 0, height: 0 }}
-                        style={{
-                            position: 'absolute',
-                            top: '100%',
-                            left: 0,
-                            width: '100%',
-                            background: 'white',
-                            borderTop: '1px solid #eee',
-                            boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-                            overflow: 'hidden',
-                            display: 'none'
-                        }}
-                    >
-                        <div style={{ padding: '1rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                            {['Home', 'Missions', 'Get Involved', 'Gallery', 'Legal Aid', 'Contact'].map(item => (
-                                <span key={item} onClick={() => { handleNavClick(item); setAboutDropdownOpen(false); }} style={{ padding: '0.5rem', fontWeight: '500', color: 'var(--text-body)' }}>{item}</span>
-                            ))}
-
-                            <div style={{ padding: '0.5rem', fontWeight: '500', color: 'var(--primary-royal)' }}>About Us</div>
-                            <div style={{ paddingLeft: '1rem', display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                                {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership', 'Partnered Influencers'].map((subItem) => (
-                                    <span key={subItem} onClick={() => { handleAboutClick(subItem.toLowerCase().replace(/ /g, '_')); setAboutDropdownOpen(false); }} style={{ fontSize: '0.9rem', color: '#666' }}>
-                                        {subItem}
-                                    </span>
-                                ))}
+                {mobileMenuOpen && (
+                    <>
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setMobileMenuOpen(false)}
+                            style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                width: '100%',
+                                height: '100vh',
+                                background: 'rgba(0,0,0,0.5)',
+                                zIndex: 1100
+                            }}
+                        />
+                        <motion.div
+                            initial={{ x: '100%' }}
+                            animate={{ x: 0 }}
+                            exit={{ x: '100%' }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+                            style={{
+                                position: 'fixed',
+                                top: 0,
+                                right: 0,
+                                width: '80%',
+                                maxWidth: '300px',
+                                height: '100vh',
+                                background: 'white',
+                                zIndex: 1200,
+                                boxShadow: '-10px 0 30px rgba(0,0,0,0.1)',
+                                padding: '2rem 1.5rem',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                overflowY: 'auto'
+                            }}
+                        >
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2.5rem' }}>
+                                <span style={{ fontWeight: '900', color: 'var(--primary-royal)', fontSize: '1.1rem' }}>MENU</span>
+                                <div onClick={() => setMobileMenuOpen(false)} style={{ cursor: 'pointer', fontSize: '1.5rem', color: '#666' }}>×</div>
                             </div>
 
-                            <button
-                                onClick={() => { navigate('/login'); setAboutDropdownOpen(false); }}
-                                style={{
-                                    padding: '0.8rem',
-                                    marginTop: '1rem',
-                                    borderRadius: '4px',
-                                    background: 'var(--primary-royal)',
-                                    color: 'white',
-                                    border: 'none',
-                                    width: '100%',
-                                    fontWeight: '600'
-                                }}
-                            >
-                                Login / Join Us
-                            </button>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+                                {['Home', 'Missions', 'Get Involved', 'Gallery', 'Legal Aid', 'Contact'].map(item => (
+                                    <div
+                                        key={item}
+                                        onClick={() => handleNavClick(item)}
+                                        style={{
+                                            padding: '0.75rem 0',
+                                            fontWeight: '600',
+                                            color: 'var(--text-main)',
+                                            fontSize: '1.1rem',
+                                            borderBottom: '1px solid #f1f5f9'
+                                        }}
+                                    >
+                                        {item}
+                                    </div>
+                                ))}
 
-                            <button
-                                onClick={() => { onDonateClick(); setAboutDropdownOpen(false); }}
-                                style={{
-                                    padding: '0.8rem',
-                                    marginTop: '0.5rem',
-                                    borderRadius: '4px',
-                                    background: 'var(--accent-emerald)',
-                                    color: 'white',
-                                    border: 'none',
-                                    width: '100%',
-                                    fontWeight: '600'
-                                }}
-                            >
-                                Donate Now
-                            </button>
-                        </div>
-                    </motion.div>
+                                <div style={{ marginTop: '1rem' }}>
+                                    <div style={{ fontWeight: '700', color: 'var(--accent-emerald)', fontSize: '0.9rem', marginBottom: '1rem', textTransform: 'uppercase' }}>About VVV</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                        {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership'].map((subItem) => (
+                                            <div
+                                                key={subItem}
+                                                onClick={() => handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'))}
+                                                style={{ fontSize: '1rem', color: '#4b5563', fontWeight: '500' }}
+                                            >
+                                                {subItem}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                {!user ? (
+                                    <button
+                                        onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
+                                        className="btn btn-outline"
+                                        style={{ width: '100%', borderColor: 'var(--primary-royal)' }}
+                                    >
+                                        Join Us
+                                    </button>
+                                ) : (
+                                    <div onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
+                                        <img src={user.picture || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt="user" />
+                                        <span style={{ fontWeight: '700' }}>{user.name.split(' ')[0]}</span>
+                                    </div>
+                                )}
+                                <button
+                                    onClick={() => { onDonateClick(); setMobileMenuOpen(false); }}
+                                    className="btn btn-primary"
+                                    style={{ width: '100%', background: 'var(--accent-emerald)' }}
+                                >
+                                    Donate Now
+                                </button>
+                            </div>
+                        </motion.div>
+                    </>
                 )}
             </AnimatePresence>
 
             <style>{`
-        .nav-link { transition: color 0.2s; }
-        .nav-link:hover { color: var(--primary-royal) !important; }
-        
-        @media (max-width: 1024px) {
-            .desktop-menu { display: none !important; }
-            .mobile-toggle { display: block !important; }
-            .mobile-menu { display: block !important; }
-            nav { padding: 1rem 1.5rem !important; height: 80px !important; }
-        }
+                .nav-link { transition: color 0.2s; position: relative; }
+                .nav-link:hover { color: var(--primary-royal) !important; }
+                .dropdown-item:hover { background: #f1f5f9 !important; color: var(--primary-royal) !important; }
+                
+                @media (max-width: 1100px) {
+                    .desktop-menu { display: none !important; }
+                    .mobile-toggle { display: block !important; }
+                    nav { padding: 1rem 1.5rem !important; height: 85px !important; }
+                }
 
-        @media (max-width: 500px) {
-            .logo-text { fontSize: 0.9rem !important; }
-            .logo-img { height: 45px !important; width: 45px !important; }
-        }
-      `}</style>
+                @media (max-width: 600px) {
+                    .logo-text { font-size: 1rem !important; white-space: normal !important; max-width: 150px; }
+                    .logo-img { height: 50px !important; width: 50px !important; }
+                    nav { height: 75px !important; }
+                }
+
+                @media (max-width: 380px) {
+                    .logo-text { font-size: 0.85rem !important; }
+                }
+            `}</style>
         </nav>
     );
 };
+
 
 export default Navbar;

@@ -6,12 +6,11 @@ const Hero = ({ onDonate }) => (
     <section id="home" className="hero" style={{
         position: 'relative',
         width: '100%',
-        minHeight: '600px',
+        height: 'min(600px, 80vh)', // Responsive height
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden'
-        // marginTop removed, handled by Layout
     }}>
         <video
             autoPlay
@@ -20,9 +19,9 @@ const Hero = ({ onDonate }) => (
             playsInline
             style={{
                 width: '100%',
-                height: 'auto',
+                height: '100%',
                 display: 'block',
-                objectFit: 'contain'
+                objectFit: 'cover' // Changed from contain for better mobile fill
             }}
         >
             <source src={heroVideo} type="video/mp4" />
@@ -37,6 +36,12 @@ const Hero = ({ onDonate }) => (
             background: 'rgba(0,0,0,0.5)',
             zIndex: 1
         }}></div>
+
+        <style>{`
+            @media (max-width: 600px) {
+                .hero { height: 50vh !important; }
+            }
+        `}</style>
     </section>
 );
 
