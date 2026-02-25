@@ -12,13 +12,17 @@ function generateCertificate(data) {
     return new Promise((resolve, reject) => {
         try {
             const memBefore = process.memoryUsage().heapUsed / 1024 / 1024;
-            console.log(`[Certificate] Starting Refinement for: ${data.donor_name}. Heap: ${memBefore.toFixed(2)}MB`);
+            console.log(`[Certificate] Starting reliability flow for: ${data.donor_name}. Current Heap: ${memBefore.toFixed(2)}MB`);
 
             const doc = new PDFDocument({
                 layout: 'landscape',
                 size: 'A4',
                 margin: 0,
-                autoFirstPage: true
+                autoFirstPage: true,
+                info: {
+                    Title: 'Certificate of Patronage',
+                    Author: 'Viswa Vignana Vaaradhi'
+                }
             });
 
             const fileName = `Certificate_${(data.certificate_id || Date.now())}_${Date.now()}.pdf`;
@@ -38,17 +42,24 @@ function generateCertificate(data) {
             doc.lineWidth(12).strokeColor(primaryTeal).rect(40, 40, canvasWidth - 80, canvasHeight - 80).stroke();
             doc.lineWidth(2).strokeColor('#e5e7eb').rect(55, 55, canvasWidth - 110, canvasHeight - 110).stroke();
 
-            // 2. HEADER ASSETS
+            // 2. HEADER
             const logoPath = path.join(__dirname, '../../client/src/assets/logo.png');
             const brandingText = 'VISWA VIGNANA VAARADHI';
             const headerY = 75;
 
+            // Memory-Safe Logo Loading
             try {
-                if (fs.existsSync(logoPath) && fs.statSync(logoPath).size > 1000) {
-                    doc.image(logoPath, 110, headerY, { width: 85 });
+                if (fs.existsSync(logoPath)) {
+                    const stats = fs.statSync(logoPath);
+                    // RENDER OOM PROTECT: Skip images > 500KB to prevent 502 crashes
+                    if (stats.size < 500000) {
+                        doc.image(logoPath, 110, headerY, { width: 85 });
+                    } else {
+                        console.warn(`[Certificate] Logo skipped (Size: ${(stats.size / 1024 / 1024).toFixed(2)}MB > 0.5MB limit)`);
+                    }
                 }
-            } catch (e) {
-                console.error('[Certificate] Logo fail:', e.message);
+            } catch (err) {
+                console.error('[Certificate] Logo fail:', err.message);
             }
 
             doc.fillColor(primaryTeal).font('Times-Bold').fontSize(42).text(brandingText, 215, headerY + 15, { characterSpacing: 1 });
@@ -56,7 +67,6 @@ function generateCertificate(data) {
 
             // Horizontal Divider
             doc.moveTo(220, 185).lineTo(620, 185).lineWidth(1.5).strokeColor('#cbd5e1').stroke();
-            // Draw a diamond without complex rotate chain to be safe
             doc.save().translate(421, 184).rotate(45).rect(-6, -6, 12, 12).fill(primaryTeal).restore();
 
             // 3. MAIN TITLES
@@ -81,34 +91,44 @@ function generateCertificate(data) {
             // 5. RECOGNITION TEXT
             doc.fillColor(textColor).font('Times-Roman').fontSize(22).text('in recognition of their invaluable contribution to the vision of VVV', 0, 445, { align: 'center' });
 
-            // 6. SEAL (Bottom Center)
+            // 6. SEAL
             const sealPath = path.join(__dirname, '../../client/src/assets/seal.png');
             const sealX = (canvasWidth - 110) / 2;
             const sealY = 485;
 
             try {
-                // Ensure it's a real image, not my placeholder text
-                if (fs.existsSync(sealPath) && fs.statSync(sealPath).size > 1000) {
-                    doc.image(sealPath, sealX, sealY, { width: 110 });
+                if (fs.existsSync(sealPath)) {
+                    const stats = fs.statSync(sealPath);
+                    if (stats.size < 500000) {
+                        doc.image(sealPath, sealX, sealY, { width: 110 });
+                    } else {
+                        console.warn(`[Certificate] Seal skipped (Size: ${(stats.size / 1024 / 1024).toFixed(2)}MB > 0.5MB limit)`);
+                        doc.save().circle(canvasWidth / 2, sealY + 50, 45).fill('#D4AF37').restore();
+                    }
                 } else {
                     doc.save().circle(canvasWidth / 2, sealY + 50, 45).fill('#D4AF37').restore();
                 }
-            } catch (e) {
-                console.error('[Certificate] Seal fail:', e.message);
+            } catch (err) {
+                console.error('[Certificate] Seal fail:', err.message);
                 doc.save().circle(canvasWidth / 2, sealY + 50, 45).fill('#D4AF37').restore();
             }
 
-            // 7. SIGNATURE (Bottom Right)
+            // 7. SIGNATURE
             const sigPath = path.join(__dirname, '../../client/src/assets/signature.png');
             const sigX = canvasWidth - 280;
             const sigY = 480;
 
             try {
-                if (fs.existsSync(sigPath) && fs.statSync(sigPath).size > 1000) {
-                    doc.image(sigPath, sigX + 10, sigY, { width: 180 });
+                if (fs.existsSync(sigPath)) {
+                    const stats = fs.statSync(sigPath);
+                    if (stats.size < 500000) {
+                        doc.image(sigPath, sigX + 10, sigY, { width: 180 });
+                    } else {
+                        console.warn(`[Certificate] Signature skipped (Size: ${(stats.size / 1024 / 1024).toFixed(2)}MB > 0.5MB limit)`);
+                    }
                 }
-            } catch (e) {
-                console.error('[Certificate] Sig fail:', e.message);
+            } catch (err) {
+                console.error('[Certificate] Sig fail:', err.message);
             }
 
             doc.moveTo(sigX, sigY + 55).lineTo(sigX + 220, sigY + 55).lineWidth(2).strokeColor(primaryTeal).stroke();
@@ -117,15 +137,15 @@ function generateCertificate(data) {
             doc.end();
             stream.on('finish', () => {
                 const memAfter = process.memoryUsage().heapUsed / 1024 / 1024;
-                console.log(`[Certificate] Success! File at: ${filePath}. Heap: ${memAfter.toFixed(2)}MB`);
+                console.log(`[Certificate] Generated Successfully! File: ${fileName}. Heap: ${memAfter.toFixed(2)}MB`);
                 resolve(filePath);
             });
             stream.on('error', (err) => {
-                console.error('[Certificate] Stream Error:', err.message);
+                console.error('[Certificate] WriteStream Error:', err.message);
                 reject(err);
             });
         } catch (err) {
-            console.error('[Certificate] Refinement Error:', err);
+            console.error('[Certificate] Critical Generation Error:', err);
             reject(err);
         }
     });
