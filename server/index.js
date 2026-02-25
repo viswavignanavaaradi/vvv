@@ -510,39 +510,19 @@ app.get('/api/user/download-certificate', async (req, res) => {
             return res.status(404).json({ error: 'Donation record not found' });
         }
 
-        // Create a Cloudinary upload stream
-        const uploadStream = cloudinary.uploader.upload_stream(
-            {
-                folder: 'vvv_certificates',
-                resource_type: 'raw',
-                public_id: `CERT_${donation.certificate_id || Date.now()}`
-            },
-            (error, result) => {
-                if (error) {
-                    console.error('[Certificate API] Cloudinary Stream Error:', error);
-                    // Fallback or error response
-                    if (!res.headersSent) {
-                        return res.status(500).json({ error: 'Cloudinary upload failed' });
-                    }
-                    return;
-                }
+        const filePath = await generateCertificate(donation);
+        const downloadName = `Certificate_${(donation.donor_name || 'Patron').replace(/ /g, '_')}.pdf`;
 
-                console.log('[Certificate API] Streaming Upload Success:', result.secure_url);
-                if (!res.headersSent) {
-                    res.redirect(result.secure_url);
-                }
-            }
-        );
-
-        // Generate and pipe to the upload stream
-        generateCertificate(donation, uploadStream, (err) => {
+        res.download(filePath, downloadName, (err) => {
             if (err) {
-                console.error('[Certificate API] Generation Error:', err);
-                if (!res.headersSent) {
-                    res.status(500).json({ error: 'Failed to generate certificate PDF due to memory limits' });
-                }
-            } else {
-                console.log('[Certificate API] Generation call finished (callback)');
+                console.error('[Certificate API] Send Error:', err);
+                if (!res.headersSent) res.status(500).send('Error downloading certificate');
+            }
+            // Optional: Cleanup temp file after download
+            try {
+                fs.unlinkSync(filePath);
+            } catch (cleanupErr) {
+                console.error('[Certificate API] Cleanup Error:', cleanupErr.message);
             }
         });
     } catch (err) {
