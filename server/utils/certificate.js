@@ -106,14 +106,14 @@ function generateCertificate(data) {
                     lineBreak: false
                 });
 
-            // Tagline
+            // Tagline — centred across full page, slightly larger
             doc.fillColor(textDark)
                 .font('Times-Roman')
-                .fontSize(15)
-                .text('foundation  for  a  better  tomorrow', textLeft, headerTop + 50, {
-                    width: textWidth,
-                    align: 'left',
-                    characterSpacing: 2.2,
+                .fontSize(17)
+                .text('foundation  for  a  better  tomorrow', 0, headerTop + 52, {
+                    width: W,
+                    align: 'center',
+                    characterSpacing: 2.5,
                     lineBreak: false
                 });
 
@@ -147,7 +147,7 @@ function generateCertificate(data) {
             // ─── 7. "PRESENTED TO" LINE ──────────────────────────────────
             doc.fillColor(textDark)
                 .font('Times-Roman')
-                .fontSize(16)
+                .fontSize(19)
                 .text('This certificate is proudly presented to', 0, 248, {
                     align: 'center',
                     width: W,
@@ -187,7 +187,7 @@ function generateCertificate(data) {
             // ─── 9. RECOGNITION LINE ─────────────────────────────────────
             doc.fillColor(textDark)
                 .font('Times-Roman')
-                .fontSize(16)
+                .fontSize(19)
                 .text('in recognition of their invaluable contribution to the vision of VVV', 0, 368, {
                     align: 'center',
                     width: W,
