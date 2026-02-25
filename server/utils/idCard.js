@@ -30,13 +30,11 @@ function generateIDCard(volunteer) {
             doc.pipe(stream);
 
             // ── COLOURS ──────────────────────────────────────────────────
-            const teal = '#006D63';
-            const tealMid = '#00867D';
-            const tealDark = '#004D40';
-            const cream = '#FDFBEB';
+            const tealMid = '#007A74'; // Adjusted to match the deep teal in the image
+            const cream = '#F5F4E6';
             const white = '#FFFFFF';
             const nearBlack = '#111827';
-            const darkText = '#1F2937';
+            const redBlood = '#D32F2F';
 
             // ── ASSET PATHS ───────────────────────────────────────────────
             const logoPath = path.join(__dirname, 'logo_small.png');
@@ -47,47 +45,43 @@ function generateIDCard(volunteer) {
                 : fs.existsSync(origLogo) ? origLogo
                     : null;
 
-            // Header height — tall enough for logo + text to breathe
-            const HEADER_H = 105;
-
             // ═══════════════════════════════════════════════════════════
             // 1. CREAM HEADER BACKGROUND
             // ═══════════════════════════════════════════════════════════
+            const HEADER_H = 95;
             doc.rect(0, 0, CW, HEADER_H).fill(cream);
 
-            // Lanyard notch (dark pill at top centre)
-            doc.fillColor(nearBlack).roundedRect(CW / 2 - 20, 10, 40, 7, 3.5).fill();
+            // Lanyard notch (dark pill at top centre, moved higher up)
+            doc.fillColor(nearBlack).roundedRect(CW / 2 - 20, 8, 40, 7, 3.5).fill();
 
-            // ── Logo (left) — large to match Image 2 ─────────────────
+            // ── Logo (left) ──────────────────────────────────────────────
             if (bestLogo) {
-                try { doc.image(bestLogo, 8, 18, { width: 68 }); } catch (e) { }
+                try { doc.image(bestLogo, 12, 18, { width: 60 }); } catch (e) { }
             } else {
-                doc.rect(8, 18, 68, 68).fill('#E5E7EB');
+                doc.rect(12, 18, 60, 60).fill('#E5E7EB');
             }
 
-            // ── Org name + tagline (right of logo) ───────────────────
-            // "VISWA VIGNANA VAARADHI" on ONE line — font sized to fit
-            doc.fillColor(teal)
+            // ── Org name + tagline (right of logo) ───────────────────────
+            doc.fillColor(tealMid)
                 .font('Helvetica-Bold')
-                .fontSize(14)
-                .text('VISWA VIGNANA VAARADHI', 74, 36, { width: 162, lineBreak: false });
+                .fontSize(13.5)
+                .text('VISWA VIGNANA VAARADHI', 76, 32, { width: 160, lineBreak: false });
 
-            // Tagline in italic directly below org name
-            doc.fillColor(teal)
-                .font('Helvetica-Oblique')
-                .fontSize(8.5)
-                .text('foundation for a better tomorrow', 74, 58, { width: 162, lineBreak: false });
-            // ── NO sub-caption under logo ─────────────────────────────
+            // Tagline in an elegant serif italic to match image
+            doc.fillColor(tealMid)
+                .font('Times-Italic')
+                .fontSize(11)
+                .text('foundation for a better tomorrow', 76, 52, { width: 160, lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 2. THICK TEAL DIVIDER BAR
+            // 2. PARTIAL TEAL DIVIDER BAR (Only goes halfway across)
             // ═══════════════════════════════════════════════════════════
-            doc.rect(0, HEADER_H, CW, 5).fill(tealMid);
+            doc.rect(0, HEADER_H, 125, 6).fill(tealMid);
 
             // ═══════════════════════════════════════════════════════════
             // 3. WHITE BODY BACKGROUND
             // ═══════════════════════════════════════════════════════════
-            doc.rect(0, HEADER_H + 5, CW, CH - HEADER_H - 5).fill(white);
+            doc.rect(0, HEADER_H + 6, CW, CH - HEADER_H - 6).fill(white);
 
             // ═══════════════════════════════════════════════════════════
             // 4. "DIGITAL IDENTITY CARD" TITLE
@@ -95,20 +89,20 @@ function generateIDCard(volunteer) {
             doc.fillColor(tealMid)
                 .font('Helvetica-Bold')
                 .fontSize(10.5)
-                .text('DIGITAL IDENTITY CARD', 0, HEADER_H + 12, { align: 'center', width: CW, lineBreak: false });
+                .text('DIGITAL IDENTITY CARD', 0, 112, { align: 'center', width: CW, lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 5. PHOTO (centred, rounded with teal border)
+            // 5. PHOTO (centred, rounded with thick teal border)
             // ═══════════════════════════════════════════════════════════
-            const photoSize = 80;
-            const photoX = (CW - photoSize) / 2;        // centred
-            const photoY = HEADER_H + 28;                // below title
-            const radius = 14;
+            const photoSize = 85;
+            const photoX = (CW - photoSize) / 2;
+            const photoY = 135;
+            const radius = 16;
 
-            // Teal rounded border
+            // Thick Teal rounded border
             doc.save()
-                .roundedRect(photoX - 4, photoY - 4, photoSize + 8, photoSize + 8, radius + 2)
-                .lineWidth(3).strokeColor(tealMid).stroke();
+                .roundedRect(photoX - 3, photoY - 3, photoSize + 6, photoSize + 6, radius + 2)
+                .lineWidth(3.5).strokeColor(tealMid).stroke();
 
             // Photo or placeholder
             try {
@@ -124,97 +118,112 @@ function generateIDCard(volunteer) {
                     .roundedRect(photoX, photoY, photoSize, photoSize, radius)
                     .fill('#E5E7EB').restore();
                 doc.fillColor('#9CA3AF').font('Helvetica-Bold').fontSize(9)
-                    .text('PHOTO', photoX, photoY + 35, { width: photoSize, align: 'center', lineBreak: false });
+                    .text('PHOTO', photoX, photoY + 38, { width: photoSize, align: 'center', lineBreak: false });
             }
             doc.restore();
 
             // ═══════════════════════════════════════════════════════════
             // 6. BLOOD GROUP (top-right area, beside photo)
             // ═══════════════════════════════════════════════════════════
-            const dropX = 196;
-            const dropY = HEADER_H + 35;
+            const dropX = 186;
+            const dropY = 126;
 
-            // Blood drop icon
-            doc.save().fillColor('#EF4444')
+            // Curved blood drop icon
+            doc.save().fillColor(redBlood)
                 .moveTo(dropX, dropY)
-                .bezierCurveTo(dropX - 6, dropY + 8, dropX - 6, dropY + 14, dropX, dropY + 14)
-                .bezierCurveTo(dropX + 6, dropY + 14, dropX + 6, dropY + 8, dropX, dropY)
+                .bezierCurveTo(dropX - 4, dropY + 6, dropX - 5, dropY + 11, dropX, dropY + 11)
+                .bezierCurveTo(dropX + 5, dropY + 11, dropX + 4, dropY + 6, dropX, dropY)
                 .fill().restore();
 
-            doc.fillColor(teal).font('Helvetica-Bold').fontSize(11)
-                .text(': ' + (volunteer.bloodGroup || 'B+'), dropX + 9, dropY + 2, { lineBreak: false });
+            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(11)
+                .text(': ' + (volunteer.bloodGroup || 'B+'), dropX + 8, dropY, { lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 7. EMERGENCY PHONE
+            // 7. EMERGENCY PHONE (Teal color applied to number too)
             // ═══════════════════════════════════════════════════════════
             doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(8.5)
-                .text('EMERGENCY PHONE NO.:', 18, HEADER_H + 121, { lineBreak: false });
-            doc.fillColor(darkText).font('Helvetica-Bold').fontSize(11)
-                .text(volunteer.phone || '+91 9515574466', 18, HEADER_H + 133, { lineBreak: false });
+                .text('EMERGENCY PHONE NO.:', 20, 226, { lineBreak: false });
+            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(11)
+                .text(volunteer.phone || '+91 1234567890', 20, 238, { lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 8. TEAL RULE + NAME + ROLE
+            // 8. THICK TEAL RULE + NAME + ROLE
             // ═══════════════════════════════════════════════════════════
-            doc.rect(18, HEADER_H + 152, CW - 36, 1.5).fill(tealMid);
+            doc.rect(20, 256, CW - 40, 3).fill(tealMid);
 
-            // Name — auto-shrink if long
-            const vName = (volunteer.fullName || 'Volunteer Name').toUpperCase();
-            let nameFontSize = 15;
+            // Name
+            const vName = (volunteer.fullName || 'VANTAKU VINOD').toUpperCase();
+            let nameFontSize = 14;
             doc.font('Helvetica-Bold').fontSize(nameFontSize);
-            while (doc.widthOfString(vName) > CW - 36 && nameFontSize > 9) {
+            while (doc.widthOfString(vName) > CW - 40 && nameFontSize > 9) {
                 nameFontSize -= 0.5;
                 doc.fontSize(nameFontSize);
             }
-            doc.fillColor(tealDark).font('Helvetica-Bold').fontSize(nameFontSize)
-                .text(vName, 18, HEADER_H + 160, { width: CW - 36, lineBreak: false });
+            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(nameFontSize)
+                .text(vName, 20, 266, { width: CW - 40, lineBreak: false });
 
             // Role
-            const role = (volunteer.role || volunteer.designation || 'VOLUNTEER').toUpperCase();
-            doc.fillColor(teal).font('Helvetica').fontSize(10)
-                .text(role, 18, HEADER_H + 160 + nameFontSize + 3, { width: CW - 36, lineBreak: false });
+            const role = (volunteer.role || volunteer.designation || 'VOLUNTEER LEAD').toUpperCase();
+            doc.fillColor(tealMid).font('Helvetica').fontSize(10.5)
+                .text(role, 20, 282, { width: CW - 40, lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 9. SIGNATURE + PRESIDENT  |  WEBSITE (right)
+            // 9. SIGNATURE + PRESIDENT  |  WEBSITE & DATE (right)
             // ═══════════════════════════════════════════════════════════
-            const sigImgY = HEADER_H + 195;
-            const sigLineY = sigImgY + 24;
+            const sigLineY = 328;
 
-            // Signature image or fallback line
+            // Signature image
             let sigAdded = false;
             try {
                 if (fs.existsSync(sigPath) && fs.statSync(sigPath).size < 1000000) {
-                    doc.image(sigPath, 18, sigImgY, { width: 80 });
+                    doc.image(sigPath, 20, sigLineY - 24, { width: 60 });
                     sigAdded = true;
                 }
             } catch (e) { }
 
-            if (!sigAdded) {
-                doc.moveTo(18, sigLineY).lineTo(98, sigLineY).lineWidth(1).strokeColor(tealMid).stroke();
-            }
-
             // Underline below signature
-            doc.moveTo(18, sigLineY + 2).lineTo(98, sigLineY + 2)
-                .lineWidth(1).strokeColor(tealMid).stroke();
+            doc.moveTo(20, sigLineY).lineTo(90, sigLineY)
+                .lineWidth(1.5).strokeColor(tealMid).stroke();
 
-            doc.fillColor(tealDark).font('Helvetica-Bold').fontSize(9)
-                .text('PRESIDENT', 18, sigLineY + 5, { lineBreak: false });
+            // "PRESIDENT" text aligned under line
+            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(9)
+                .text('PRESIDENT', 20, sigLineY + 4, { width: 70, align: 'center', lineBreak: false });
 
-            // Website — right aligned
-            doc.fillColor(teal).font('Helvetica-Bold').fontSize(7)
-                .text('VISWAVIGNANAVAARADHI.ORG', 100, sigLineY + 5, {
-                    width: CW - 118,
-                    align: 'right',
-                    lineBreak: false
+            // Website (regular font) & Date (bold font) — right aligned
+            doc.fillColor(tealMid).font('Helvetica').fontSize(7.5)
+                .text('VISWAVIGNANAVAARADHI.ORG', CW - 150, sigLineY - 6, {
+                    width: 130, align: 'right', lineBreak: false
+                });
+            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(7.5)
+                .text('JANUARY, 2026', CW - 150, sigLineY + 4, {
+                    width: 130, align: 'right', lineBreak: false
                 });
 
-            doc.rect(14, 348, CW - 28, 15).fill(tealMid);
+            // ═══════════════════════════════════════════════════════════
+            // 10. CHEVRON BANNER
+            // ═══════════════════════════════════════════════════════════
+            const bx = 20, by = 345, bw = CW - 40, bh = 14;
+
+            // Draw polygon shape to create notched ribbons
+            doc.fillColor(tealMid)
+                .moveTo(bx, by)
+                .lineTo(bx + bw, by)
+                .lineTo(bx + bw - 5, by + bh / 2) // Right inward notch
+                .lineTo(bx + bw, by + bh)
+                .lineTo(bx, by + bh)
+                .lineTo(bx + 5, by + bh / 2)      // Left inward notch
+                .fill();
+
             doc.fillColor(white).font('Helvetica-Bold').fontSize(5.8)
-                .text('BRIDGING THE GAP THROUGH EDUCATION AND EMPOWERMENT', 14, 353, {
-                    align: 'center', width: CW - 28, lineBreak: false
+                .text('BRIDGING THE GAP THROUGH EDUCATION AND EMPOWERMENT', bx + 5, by + 4.5, {
+                    align: 'center', width: bw - 10, lineBreak: false
                 });
 
+            // ═══════════════════════════════════════════════════════════
+            // 11. REGISTERED OFFICE
+            // ═══════════════════════════════════════════════════════════
             doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(7)
-                .text('REGISTERED OFFICE: VISAKHAPATNAM, ANDHRA PRADESH', 0, 367, {
+                .text('REGISTERED OFFICE: VISAKHAPATNAM, ANDHRA PRADESH', 0, 365, {
                     align: 'center', width: CW, lineBreak: false
                 });
 
