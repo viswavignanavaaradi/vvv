@@ -203,7 +203,15 @@ const About = () => {
 
     // Hero Section
     const HeroSection = () => (
-        <section className="hero" style={{ height: '85vh', position: 'relative', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', overflow: 'hidden', color: 'white' }}>
+        <section className="hero" style={{
+            height: 'clamp(50vh, 70vh, 85vh)',
+            position: 'relative',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'flex-start',
+            overflow: 'hidden',
+            color: 'white'
+        }}>
             <AnimatePresence mode='wait'>
                 <motion.div
                     key={activeTab}
@@ -225,7 +233,7 @@ const About = () => {
                 </motion.div>
             </AnimatePresence>
 
-            <div className="container mx-auto px-12 relative z-10 max-w-7xl">
+            <div className="container mx-auto px-6 md:px-12 relative z-10 max-w-7xl">
                 <AnimatePresence mode='wait'>
                     <motion.div
                         key={activeTab}
@@ -233,13 +241,26 @@ const About = () => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
                         transition={{ duration: 0.8, ease: "backOut" }}
-                        className="max-w-3xl"
+                        className="max-w-3xl pt-20 md:pt-0"
                     >
                         <motion.span
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ delay: 0.2 }}
-                            style={{ background: 'rgba(16, 185, 129, 0.2)', backdropFilter: 'blur(8px)', color: '#10b981', padding: '8px 20px', borderRadius: '100px', fontWeight: '900', textTransform: 'uppercase', fontSize: '12px', letterSpacing: '4px', display: 'inline-block', marginBottom: '32px', border: '1px solid rgba(16, 185, 129, 0.3)' }}
+                            style={{
+                                background: 'rgba(16, 185, 129, 0.2)',
+                                backdropFilter: 'blur(8px)',
+                                color: '#10b981',
+                                padding: '6px 16px',
+                                borderRadius: '100px',
+                                fontWeight: '900',
+                                textTransform: 'uppercase',
+                                fontSize: '10px',
+                                letterSpacing: '3px',
+                                display: 'inline-block',
+                                marginBottom: '24px',
+                                border: '1px solid rgba(16, 185, 129, 0.3)'
+                            }}
                         >
                             {aboutContent[activeTab]?.tag}
                         </motion.span>
@@ -288,9 +309,9 @@ const About = () => {
         const renderDetails = () => {
             if (activeTab === 'what_is_vvv') {
                 return (
-                    <div className="max-w-6xl mx-auto space-y-16">
+                    <div className="max-w-6xl mx-auto space-y-8 md:space-y-16">
                         {/* 1. Executive Summary & Motto */}
-                        <section className="bg-slate-50 border border-slate-200 rounded-3xl p-10 md:p-14">
+                        <section className="bg-slate-50 border border-slate-200 rounded-2xl md:rounded-3xl p-6 md:p-14">
                             <div className="grid lg:grid-cols-12 gap-12 items-start">
                                 <div className="lg:col-span-8">
                                     <div className="flex items-center gap-3 mb-6">
@@ -340,7 +361,7 @@ const About = () => {
                         </div>
 
                         {/* 3. Vision 2047 Framework */}
-                        <section className="bg-white border border-slate-200 rounded-[2.5rem] p-12 overflow-hidden relative">
+                        <section className="bg-white border border-slate-200 rounded-[1.5rem] md:rounded-[2.5rem] p-6 md:p-12 overflow-hidden relative">
                             <div className="absolute top-0 right-0 w-32 h-32 bg-slate-50 rotate-45 -mr-16 -mt-16" />
                             <div className="relative z-10">
                                 <div className="flex items-center gap-4 mb-8">
@@ -380,9 +401,9 @@ const About = () => {
                                 </p>
                             </div>
 
-                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
                                 {data.missions.pillars.map((m, i) => (
-                                    <div key={i} className="group p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-emerald-200 hover:shadow-lg transition-all duration-300">
+                                    <div key={i} className="group p-6 md:p-8 rounded-2xl bg-slate-50 border border-slate-100 hover:bg-white hover:border-emerald-200 hover:shadow-lg transition-all duration-300">
                                         <h4 className="text-base font-black text-slate-900 uppercase tracking-tight mb-4 group-hover:text-emerald-700 transition-colors flex items-center justify-between">
                                             {m.title}
                                             <span className="text-xs opacity-20">0{i + 1}</span>
@@ -479,8 +500,8 @@ const About = () => {
                             viewport={{ once: true }}
                             className="relative group"
                         >
-                            <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/5 to-royal-blue-500/5 rounded-[4rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                            <div className="relative bg-white border border-slate-100 rounded-[3rem] p-10 md:p-20 shadow-2xl shadow-slate-200/50 overflow-hidden">
+                            <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/5 to-royal-blue-500/5 rounded-[2rem] md:rounded-[4rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                            <div className="relative bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[3rem] p-6 md:p-20 shadow-2xl shadow-slate-200/50 overflow-hidden">
                                 <div className="absolute top-0 right-0 w-96 h-96 bg-slate-50 rounded-full -mr-48 -mt-48 mix-blend-multiply opacity-50" />
                                 <div className="grid lg:grid-cols-12 gap-16 items-center">
                                     <div className="lg:col-span-5">
@@ -488,7 +509,7 @@ const About = () => {
                                             <div className="w-12 h-1 bg-emerald-500 rounded-full" />
                                             <span className="text-xs font-black text-emerald-600 uppercase tracking-[0.4em]">Presidential Profile</span>
                                         </div>
-                                        <h3 className="text-5xl md:text-7xl font-black text-slate-900 font-merriweather mb-8 leading-[1.05] tracking-tighter italic">
+                                        <h3 className="text-4xl md:text-7xl font-black text-slate-900 font-merriweather mb-6 md:mb-8 leading-[1.05] tracking-tighter italic">
                                             {president.name}
                                         </h3>
                                         <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 border-l-4 border-slate-100 pl-6">{president.role}</p>
@@ -557,10 +578,9 @@ const About = () => {
 
             if (activeTab === 'impact_timeline') {
                 return (
-                    <div className="max-w-4xl mx-auto py-10 px-6">
-                        <div className="relative space-y-16 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-emerald-500 before:via-slate-200 before:to-slate-100">
+                    <div className="max-w-4xl mx-auto py-4 md:py-10 px-0 md:px-6">
+                        <div className="relative space-y-12 md:space-y-16 before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-emerald-500 before:via-slate-200 before:to-slate-100">
                             {data.timeline.map((event, i) => {
-                                const isEven = i % 2 === 0;
                                 return (
                                     <motion.div
                                         key={i}
@@ -575,12 +595,12 @@ const About = () => {
                                         </div>
 
                                         {/* Content Card */}
-                                        <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] p-8 rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-500">
-                                            <div className="flex flex-wrap items-center justify-between gap-4 mb-4">
-                                                <span className="text-[10px] font-black text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full uppercase tracking-widest">
+                                        <div className="w-[calc(100%-3rem)] ml-12 md:ml-0 md:w-[calc(50%-2.5rem)] p-5 md:p-8 rounded-2xl md:rounded-3xl bg-white border border-slate-100 shadow-sm hover:shadow-xl hover:border-emerald-100 transition-all duration-500">
+                                            <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4 mb-3 md:mb-4">
+                                                <span className="text-[9px] md:text-[10px] font-black text-emerald-600 bg-emerald-50 px-2 md:px-3 py-1 rounded-full uppercase tracking-widest whitespace-nowrap">
                                                     {event.date}
                                                 </span>
-                                                <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${event.cat === 'Education' ? 'text-blue-600 bg-blue-50 border-blue-100' :
+                                                <span className={`text-[8px] md:text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border ${event.cat === 'Education' ? 'text-blue-600 bg-blue-50 border-blue-100' :
                                                     event.cat === 'Legal' ? 'text-purple-600 bg-purple-50 border-purple-100' :
                                                         event.cat === 'Reform' ? 'text-orange-600 bg-orange-50 border-orange-100' :
                                                             event.cat === 'Partnership' ? 'text-indigo-600 bg-indigo-50 border-indigo-100' :
@@ -589,10 +609,10 @@ const About = () => {
                                                     {event.cat}
                                                 </span>
                                             </div>
-                                            <h4 className="text-xl font-black text-slate-900 font-merriweather mb-3 leading-snug tracking-tight group-hover:text-emerald-700 transition-colors">
+                                            <h4 className="text-lg md:text-xl font-black text-slate-900 font-merriweather mb-2 md:mb-3 leading-snug tracking-tight group-hover:text-emerald-700 transition-colors">
                                                 {event.title}
                                             </h4>
-                                            <p className="text-sm text-slate-500 leading-relaxed font-merriweather opacity-90">
+                                            <p className="text-xs md:text-sm text-slate-500 leading-relaxed font-merriweather opacity-90">
                                                 {event.detail}
                                             </p>
                                         </div>
@@ -624,15 +644,15 @@ const About = () => {
         const isBento = activeTab === 'core_values' || activeTab === 'people_behind_vvv';
 
         return (
-            <section id="details-section" className="py-40 bg-white overflow-hidden">
-                <div className={`container mx-auto px-12 ${isBento ? 'max-w-7xl' : 'max-w-6xl'}`}>
-                    <div className={`flex flex-col ${isBento ? 'items-start' : 'lg:flex-row gap-20'}`}>
-                        <div className={`${isBento ? 'max-w-4xl mb-24' : 'lg:w-1/3 text-left'}`}>
-                            <div className="w-16 h-2 bg-emerald-500 mb-10 rounded-full shadow-lg shadow-emerald-500/20" />
-                            <h2 className="text-4xl md:text-6xl font-black text-slate-900 leading-[1.1] mb-8 font-merriweather tracking-tight">
+            <section id="details-section" className="py-16 md:py-40 bg-white overflow-hidden">
+                <div className={`container mx-auto px-6 md:px-12 ${isBento ? 'max-w-7xl' : 'max-w-6xl'}`}>
+                    <div className={`flex flex-col ${isBento ? 'items-start' : 'lg:flex-row gap-8 md:gap-20'}`}>
+                        <div className={`${isBento ? 'max-w-4xl mb-12 md:mb-24' : 'lg:w-1/3 text-left mb-12 lg:mb-0'}`}>
+                            <div className="w-12 md:w-16 h-1 md:h-2 bg-emerald-500 mb-6 md:submit-10 rounded-full shadow-lg shadow-emerald-500/20" />
+                            <h2 className="text-3xl md:text-6xl font-black text-slate-900 leading-[1.1] mb-6 md:mb-8 font-merriweather tracking-tight">
                                 {data.title}
                             </h2>
-                            <p className="text-slate-600 leading-relaxed font-medium text-lg max-w-2xl opacity-90 border-l-3 border-emerald-500/20 pl-6">
+                            <p className="text-slate-600 leading-relaxed font-medium text-base md:text-lg max-w-2xl opacity-90 border-l-3 border-emerald-500/20 pl-4 md:pl-6">
                                 {data.desc}
                             </p>
                         </div>
@@ -657,7 +677,7 @@ const About = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-10 py-8 text-[11px] font-black uppercase tracking-[0.3em] transition-all relative group ${activeTab === tab ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-900'}`}
+                                className={`px-4 md:px-10 py-5 md:py-8 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all relative group ${activeTab === tab ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-900'}`}
                             >
                                 <span className="relative z-10">{aboutContent[tab].title}</span>
                                 {activeTab === tab ? (
