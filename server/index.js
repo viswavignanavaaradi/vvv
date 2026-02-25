@@ -71,8 +71,8 @@ mongoose.connect(MONGODB_URI, {
         ensurePlans(); // Initialize Plans on DB connection
     })
     .catch(err => {
-        console.error('MongoDB connection error:', err);
-        process.exit(1); // Exit if DB connection fails in production
+        console.error('MongoDB connection error:', err.message);
+        // Do not process.exit(1) here during deployment as it prevents Render from seeing the port open
     });
 
 // Cloudinary Config Check
@@ -661,6 +661,6 @@ app.get('/api/legal/status/:requestId', async (req, res) => {
     }
 });
 
-app.listen(PORT, () => {
-    console.log(`[TRACE_VER_3] Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`[TRACE_VER_4] Server running on 0.0.0.0:${PORT}`);
 });
