@@ -35,6 +35,7 @@ const allowedOrigins = [
 
 app.use(cors({
     origin: function (origin, callback) {
+        console.log(`[CORS Request] Origin: ${origin}`);
         // allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         const isVercel = origin.endsWith('.vercel.app');
@@ -43,12 +44,18 @@ app.use(cors({
         if (isVercel || isLocal || isCustomDomain) {
             return callback(null, true);
         }
+        console.warn(`[CORS Blocked] Origin: ${origin}`);
         return callback(new Error('Not allowed by CORS'), false);
     },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
+
+app.get('/api/ping', (req, res) => {
+    res.json({ status: 'ok', time: new Date().toISOString() });
+});
+
 app.use(bodyParser.json());
 
 // MongoDB Connection
