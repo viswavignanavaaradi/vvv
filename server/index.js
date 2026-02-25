@@ -39,7 +39,8 @@ app.use(cors({
         if (!origin) return callback(null, true);
         const isVercel = origin.endsWith('.vercel.app');
         const isLocal = origin.includes('localhost');
-        if (isVercel || isLocal) {
+        const isCustomDomain = origin.endsWith('viswavignanavaaradhi.org');
+        if (isVercel || isLocal || isCustomDomain) {
             return callback(null, true);
         }
         return callback(new Error('Not allowed by CORS'), false);
