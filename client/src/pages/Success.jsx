@@ -20,7 +20,7 @@ const Success = () => {
 
                 <h1 className="text-primary-royal text-4xl md:text-5xl font-merriweather font-bold mb-4">Transaction Successful</h1>
                 <p className="text-gray-600 text-lg mb-10 leading-relaxed">
-                    Thank you for your generosity. A tax-deductible receipt has been generated for your records.
+                    Thank you so much for your generous contribution. Your support truly means a lot to us and to the people we serve. Because of you, we are one step closer to making a real difference.
                 </p>
 
                 {certificateId && (
