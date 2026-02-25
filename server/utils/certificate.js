@@ -12,7 +12,7 @@ function generateCertificate(data) {
     return new Promise((resolve, reject) => {
         try {
             const memBefore = process.memoryUsage().heapUsed / 1024 / 1024;
-            console.log(`[Certificate] Refining Branding & Watermark for: ${data.donor_name}. Heap: ${memBefore.toFixed(2)}MB`);
+            console.log(`[Certificate] Memory-Safe optimized flow for: ${data.donor_name}. Heap: ${memBefore.toFixed(2)}MB`);
 
             const doc = new PDFDocument({
                 layout: 'landscape',
@@ -37,16 +37,20 @@ function generateCertificate(data) {
             const canvasWidth = 841.89;
             const canvasHeight = 595.28;
 
-            // 1. BACKGROUND RECT (Draw FIRST)
+            // 1. BACKGROUND RECT
             doc.rect(0, 0, canvasWidth, canvasHeight).fill('#ffffff');
 
-            // 2. BACKGROUND WATERMARK (Larger & More Visible 0.1 Opacity)
-            const logoPath = path.join(__dirname, '../../client/src/assets/logo.png');
+            // 2. BACKGROUND WATERMARK (Using Optimized Small Logo)
+            // Priority: Small logo (33KB) > Original logo (3MB) fallback
+            const logoSmall = path.join(__dirname, 'logo_small.png');
+            const logoOriginal = path.join(__dirname, '../../client/src/assets/logo.png');
+            const bestLogo = fs.existsSync(logoSmall) ? logoSmall : logoOriginal;
+
             try {
-                if (fs.existsSync(logoPath)) {
+                if (fs.existsSync(bestLogo)) {
                     doc.save()
-                        .opacity(0.1) // Increased visibility (10%)
-                        .image(logoPath, (canvasWidth - 550) / 2, (canvasHeight - 550) / 2, { width: 550 })
+                        .opacity(0.12) // Slightly higher for the smaller/crisper logo
+                        .image(bestLogo, (canvasWidth - 550) / 2, (canvasHeight - 550) / 2, { width: 550 })
                         .restore();
                 }
             } catch (e) {
@@ -68,11 +72,10 @@ function generateCertificate(data) {
             const titleWidth = doc.widthOfString(brandingText, { characterSpacing: 1 });
             const titleX = (canvasWidth - titleWidth) / 2;
 
-            // Handle Header Logo (Positioned precisely to the left of the centered title)
+            // Header Logo (Safety First)
             try {
-                if (fs.existsSync(logoPath)) {
-                    // Remove size check to satisfy large 3.2MB file
-                    doc.image(logoPath, titleX - logoWidth - logoMargin, headerY, { width: logoWidth });
+                if (fs.existsSync(bestLogo)) {
+                    doc.image(bestLogo, titleX - logoWidth - logoMargin, headerY, { width: logoWidth });
                 }
             } catch (err) {
                 console.error('[Certificate] Header Logo Fail:', err.message);
@@ -81,7 +84,7 @@ function generateCertificate(data) {
             // Centered Branding Title
             doc.fillColor(primaryTeal).font('Times-Bold').fontSize(36).text(brandingText, 0, headerY + 12, { align: 'center', characterSpacing: 1 });
 
-            // Centered Tagline: Extended precisely to match title width
+            // Centered Tagline: Precisely matched to title width
             doc.fillColor(textColor).font('Times-Roman').fontSize(16);
             const rawTaglineWidth = doc.widthOfString(taglineText);
             const tagNeededSpacing = (titleWidth - rawTaglineWidth) / (taglineText.length - 1);
@@ -149,7 +152,7 @@ function generateCertificate(data) {
             stream.on('finish', () => resolve(filePath));
             stream.on('error', reject);
         } catch (err) {
-            console.error('[Certificate] Layout Error:', err);
+            console.error('[Certificate] Optimized Layout Error:', err);
             reject(err);
         }
     });
