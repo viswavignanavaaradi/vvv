@@ -1,32 +1,24 @@
 const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const path = require('path');
-const os = require('os');
 
 /**
- * Generates a Patronage Certificate PDF.
+ * Generates a Patronage Certificate PDF and pipes it to the provided stream.
  * @param {Object} data - Donation/Patron data from DB.
- * @param {Function} callback - Callback with (err, filePath).
+ * @param {Stream} outputStream - A writeable stream (e.g., Cloudinary upload stream).
+ * @param {Function} callback - Callback with (err).
  */
-function generateCertificate(data, callback) {
+function generateCertificate(data, outputStream, callback) {
     try {
+        console.log('[Certificate] Starting generation for:', data.certificate_id);
         const doc = new PDFDocument({
             layout: 'landscape',
             size: 'A4',
             margin: 0
         });
 
-        const fileName = `CERT_${data.certificate_id || Date.now()}.pdf`;
-        // Use OS temp dir for cloud compatibility (Render/Vercel)
-        const outputDir = path.join(os.tmpdir(), 'vvv_certs');
-        const filePath = path.join(outputDir, fileName);
-
-        if (!fs.existsSync(outputDir)) {
-            fs.mkdirSync(outputDir, { recursive: true });
-        }
-
-        const stream = fs.createWriteStream(filePath);
-        doc.pipe(stream);
+        // Pipe to the provided destination (Cloudinary or Response)
+        doc.pipe(outputStream);
 
         // 1. COLORS & FONTS
         const primaryTeal = '#0d7c74';
@@ -38,7 +30,7 @@ function generateCertificate(data, callback) {
         doc.rect(0, 0, canvasWidth, canvasHeight).fill('#fdfdfd');
         doc.lineWidth(8).strokeColor(primaryTeal).rect(40, 40, canvasWidth - 80, canvasHeight - 80).stroke();
 
-        // 3. HEADER (Side-by-side Centered Block)
+        // 3. HEADER
         const logoWidth = 85;
         const brandingText = 'VISWA VIGNANA VAARADHI';
         doc.font('Times-Bold').fontSize(42);
@@ -48,7 +40,7 @@ function generateCertificate(data, callback) {
         const headerX = (canvasWidth - headerTotalWidth) / 2;
         const headerY = 75;
 
-        // Note: Paths might vary on Render, using relative path check
+        // Robust path for Render
         const logoPath = path.join(__dirname, '../../client/src/assets/logo.png');
         if (fs.existsSync(logoPath)) {
             doc.image(logoPath, headerX, headerY, { width: logoWidth });
@@ -74,14 +66,13 @@ function generateCertificate(data, callback) {
             .fontSize(22)
             .text('This certificate is proudly presented to', 0, 305, { align: 'center' });
 
-        // 6. RECIPIENT NAME (LARGE & CENTERED)
+        // 6. RECIPIENT NAME
         const patronName = (data.donor_name || 'Patron Name').toUpperCase();
         doc.fillColor(primaryTeal)
             .font('Times-Bold')
             .fontSize(52)
             .text(patronName, 0, 350, { align: 'center' });
 
-        // Name Underline (Precise length based on text)
         const nameWidth = doc.widthOfString(patronName);
         const linePadding = 50;
         const lineLength = nameWidth + (linePadding * 2);
@@ -94,7 +85,7 @@ function generateCertificate(data, callback) {
             .fontSize(22)
             .text('in recognition of their invaluable contribution to the vision of VVV', 0, 440, { align: 'center' });
 
-        // 8. SEAL (Bottom Center, Absolute Position style)
+        // 8. SEAL
         const sealX = canvasWidth / 2;
         const sealY = 530;
         doc.save()
@@ -107,7 +98,7 @@ function generateCertificate(data, callback) {
             .text('SEAL', sealX - 35, sealY - 18, { align: 'center', width: 70 })
             .restore();
 
-        // 9. SIGNATURE AREA (Bottom Right)
+        // 9. SIGNATURE AREA
         const sigX = canvasWidth - 280;
         const sigY = 510;
         doc.fillColor(primaryTeal)
@@ -117,7 +108,7 @@ function generateCertificate(data, callback) {
         doc.moveTo(sigX, sigY).lineTo(sigX + 220, sigY).lineWidth(3).stroke(primaryTeal);
         doc.text('PRESIDENT', sigX, sigY + 15, { width: 220, align: 'center' });
 
-        // Subtle Watermark
+        // Watermark
         if (fs.existsSync(logoPath)) {
             doc.save()
                 .opacity(0.03)
@@ -126,19 +117,11 @@ function generateCertificate(data, callback) {
         }
 
         doc.end();
-
-        stream.on('finish', () => {
-            console.log(`[Certificate] Successfully generated: ${fileName}`);
-            callback(null, filePath);
-        });
-
-        stream.on('error', (err) => {
-            console.error('[Certificate] Stream Error:', err);
-            callback(err);
-        });
+        console.log('[Certificate] Doc generation finished, stream flushing...');
+        callback(null);
 
     } catch (err) {
-        console.error('[Certificate] Generation Crash:', err);
+        console.error('[Certificate] Critical Generation Error:', err);
         callback(err);
     }
 }

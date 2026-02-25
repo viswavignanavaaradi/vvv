@@ -510,38 +510,44 @@ app.get('/api/user/download-certificate', async (req, res) => {
             return res.status(404).json({ error: 'Donation record not found' });
         }
 
-        generateCertificate(donation, async (err, filePath) => {
+        // Create a Cloudinary upload stream
+        const uploadStream = cloudinary.uploader.upload_stream(
+            {
+                folder: 'vvv_certificates',
+                resource_type: 'raw',
+                public_id: `CERT_${donation.certificate_id || Date.now()}`
+            },
+            (error, result) => {
+                if (error) {
+                    console.error('[Certificate API] Cloudinary Stream Error:', error);
+                    // Fallback or error response
+                    if (!res.headersSent) {
+                        return res.status(500).json({ error: 'Cloudinary upload failed' });
+                    }
+                    return;
+                }
+
+                console.log('[Certificate API] Streaming Upload Success:', result.secure_url);
+                if (!res.headersSent) {
+                    res.redirect(result.secure_url);
+                }
+            }
+        );
+
+        // Generate and pipe to the upload stream
+        generateCertificate(donation, uploadStream, (err) => {
             if (err) {
                 console.error('[Certificate API] Generation Error:', err);
-                return res.status(500).json({ error: 'Failed to generate certificate PDF' });
-            }
-
-            try {
-                // Upload to Cloudinary as a raw file (PDF)
-                const result = await cloudinary.uploader.upload(filePath, {
-                    folder: 'vvv_certificates',
-                    resource_type: 'raw',
-                    public_id: `CERT_${donation.certificate_id || Date.now()}`
-                });
-
-                console.log('[Certificate API] Cloudinary Upload Success:', result.secure_url);
-
-                // Redirect user to the Cloudinary URL for download
-                res.redirect(result.secure_url);
-
-                // Cleanup local temp file
-                fs.unlink(filePath, (unlinkErr) => {
-                    if (unlinkErr) console.warn('[Certificate API] Local cleanup failed:', unlinkErr);
-                });
-            } catch (uploadErr) {
-                console.error('[Certificate API] Cloudinary Upload Error:', uploadErr);
-                // Fallback to local download if upload fails
-                res.download(filePath, `Certificate_${donation.certificate_id || 'Donor'}.pdf`);
+                if (!res.headersSent) {
+                    res.status(500).json({ error: 'Failed to generate certificate' });
+                }
             }
         });
     } catch (err) {
-        console.error('[Certificate API] Error:', err);
-        res.status(500).json({ error: err.message });
+        console.error('[Certificate API] Critical Catch:', err);
+        if (!res.headersSent) {
+            res.status(500).json({ error: err.message });
+        }
     }
 });
 
