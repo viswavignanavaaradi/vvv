@@ -18,10 +18,10 @@ async function initializeDatabase() {
 
         const collections = [
             { name: 'Users', model: User, data: { name: 'System Admin', email: 'admin@viswavignanavaaradhi.org' } },
-            { name: 'Volunteers', model: Volunteer, data: { name: 'Initial Volunteer', email: 'volunteer@test.com', phone: '0000000000' } },
-            { name: 'Donations', model: Donation, data: { name: 'First Donor', email: 'donor@test.com', amount: 1, transactionId: 'init_tx' } },
-            { name: 'Subscriptions', model: Subscription, data: { name: 'First Patron', email: 'patron@test.com', amount: 1, razorpay_subscription_id: 'init_sub' } },
-            { name: 'LegalRequests', model: LegalRequest, data: { name: 'First Request', email: 'legal@test.com', issue: 'Initialization' } }
+            { name: 'Volunteers', model: Volunteer, data: { fullName: 'Initial Volunteer', email: 'volunteer@test.com', phone: '0000000000' } },
+            { name: 'Donations', model: Donation, data: { donor_name: 'First Donor', email: 'donor@test.com', amount: 1 } },
+            { name: 'Subscriptions', model: Subscription, data: { customer_name: 'First Patron', email: 'patron@test.com', amount: 1, subscription_id: 'init_sub_id', plan_id: 'plan_init' } },
+            { name: 'LegalRequests', model: LegalRequest, data: { fullName: 'First Request', email: 'legal@test.com', phone: '0000000000', address: 'System Init', message: 'Initialization', requestId: 'REQ-INIT-001' } }
         ];
 
         for (const col of collections) {
