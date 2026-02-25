@@ -14,261 +14,211 @@ function generateIDCard(volunteer) {
             console.log('[ID Generator] Starting for:', volunteer?.fullName);
             if (!volunteer) return reject(new Error('Volunteer data is missing'));
 
-            // ── Card dimensions ───────────────────────────────────────
-            const CW = 252;   // slightly wider for better proportions
-            const CH = 390;
+            // Card dimensions (portrait ID card)
+            const CW = 242;
+            const CH = 380;
 
             const doc = new PDFDocument({ size: [CW, CH], margin: 0 });
 
             const fileName = `ID_${volunteer._id || Date.now()}_${Date.now()}.pdf`;
             const outputDir = path.join(__dirname, '../certificates');
             const filePath = path.join(outputDir, fileName);
+
             if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
             const stream = fs.createWriteStream(filePath);
             doc.pipe(stream);
 
-            // ── PALETTE ───────────────────────────────────────────────
+            // ── COLOURS ──────────────────────────────────────────────────
             const teal = '#006D63';
             const tealMid = '#00867D';
             const tealDark = '#004D40';
-            const tealLight = '#E0F2F1';
-            const cream = '#F5F9F0';
+            const cream = '#FDFBEB';
             const white = '#FFFFFF';
-            const charcoal = '#1A1A2E';
+            const nearBlack = '#111827';
             const darkText = '#1F2937';
 
-            // ── FONTS (built-in PDFKit — no Times) ───────────────────
-            // Helvetica family: 'Helvetica', 'Helvetica-Bold',
-            //                   'Helvetica-Oblique', 'Helvetica-BoldOblique'
-            // Courier family:   'Courier', 'Courier-Bold'
-
-            // ── ASSET PATHS ───────────────────────────────────────────
+            // ── ASSET PATHS ───────────────────────────────────────────────
             const logoPath = path.join(__dirname, 'logo_small.png');
             const origLogo = path.join(__dirname, '../../client/src/assets/logo.png');
             const sigPath = path.join(__dirname, '../../client/src/assets/signature.png');
+
             const bestLogo = fs.existsSync(logoPath) ? logoPath
-                : fs.existsSync(origLogo) ? origLogo : null;
+                : fs.existsSync(origLogo) ? origLogo
+                    : null;
 
-            // ── HEADER HEIGHT ─────────────────────────────────────────
-            const HDR = 108;   // cream header zone
+            // Header height — tall enough for logo + text to breathe
+            const HEADER_H = 105;
 
-            // ════════════════════════════════════════════════════════
+            // ═══════════════════════════════════════════════════════════
             // 1. CREAM HEADER BACKGROUND
-            // ════════════════════════════════════════════════════════
-            doc.rect(0, 0, CW, HDR).fill(cream);
+            // ═══════════════════════════════════════════════════════════
+            doc.rect(0, 0, CW, HEADER_H).fill(cream);
 
-            // Lanyard notch
-            doc.fillColor(charcoal).roundedRect(CW / 2 - 22, 9, 44, 8, 4).fill();
+            // Lanyard notch (dark pill at top centre)
+            doc.fillColor(nearBlack).roundedRect(CW / 2 - 20, 10, 40, 7, 3.5).fill();
 
-            // ── Logo ─────────────────────────────────────────────────
-            const logoW = 70;
-            const logoX = 10;
-            const logoY = 20;
+            // ── Logo (left) — large to match Image 2 ─────────────────
             if (bestLogo) {
-                try { doc.image(bestLogo, logoX, logoY, { width: logoW }); } catch (e) { }
+                try { doc.image(bestLogo, 8, 18, { width: 68 }); } catch (e) { }
             } else {
-                doc.roundedRect(logoX, logoY, logoW, logoW, 6).fill('#E5E7EB');
+                doc.rect(8, 18, 68, 68).fill('#E5E7EB');
             }
 
-            // ── Org name: auto-shrink to guarantee single line ────────
-            const orgName = 'VISWA VIGNANA VAARADHI';
-            const txtX = logoX + logoW + 10;   // text starts after logo
-            const txtMaxW = CW - txtX - 8;        // max available width
-
-            let orgSize = 13.5;
-            doc.font('Helvetica-Bold').fontSize(orgSize);
-            while (doc.widthOfString(orgName) > txtMaxW && orgSize > 8) {
-                orgSize -= 0.25;
-                doc.fontSize(orgSize);
-            }
-
+            // ── Org name + tagline (right of logo) ───────────────────
+            // "VISWA VIGNANA VAARADHI" on ONE line — font sized to fit
             doc.fillColor(teal)
                 .font('Helvetica-Bold')
-                .fontSize(orgSize)
-                .text(orgName, txtX, 36, { width: txtMaxW, lineBreak: false });
+                .fontSize(14)
+                .text('VISWA VIGNANA VAARADHI', 74, 36, { width: 162, lineBreak: false });
 
-            // Tagline
+            // Tagline in italic directly below org name
             doc.fillColor(teal)
                 .font('Helvetica-Oblique')
-                .fontSize(8)
-                .text('foundation for a better tomorrow', txtX, 36 + orgSize + 5, {
-                    width: txtMaxW,
-                    lineBreak: false
-                });
+                .fontSize(8.5)
+                .text('foundation for a better tomorrow', 74, 58, { width: 162, lineBreak: false });
+            // ── NO sub-caption under logo ─────────────────────────────
 
-            // ── Small label under logo ────────────────────────────────
-            doc.fillColor(teal)
-                .font('Helvetica')
-                .fontSize(5.5)
-                .text('VISWA VIGNANA\n— VAARADHI —', logoX, logoY + logoW + 2, {
-                    width: logoW,
-                    align: 'center'
-                });
+            // ═══════════════════════════════════════════════════════════
+            // 2. THICK TEAL DIVIDER BAR
+            // ═══════════════════════════════════════════════════════════
+            doc.rect(0, HEADER_H, CW, 5).fill(tealMid);
 
-            // ════════════════════════════════════════════════════════
-            // 2. TEAL ACCENT BAR (thick)
-            // ════════════════════════════════════════════════════════
-            doc.rect(0, HDR, CW, 6).fill(tealMid);
+            // ═══════════════════════════════════════════════════════════
+            // 3. WHITE BODY BACKGROUND
+            // ═══════════════════════════════════════════════════════════
+            doc.rect(0, HEADER_H + 5, CW, CH - HEADER_H - 5).fill(white);
 
-            // ════════════════════════════════════════════════════════
-            // 3. WHITE BODY
-            // ════════════════════════════════════════════════════════
-            doc.rect(0, HDR + 6, CW, CH - HDR - 6).fill(white);
-
-            // ════════════════════════════════════════════════════════
-            // 4. "DIGITAL IDENTITY CARD" — spaced title
-            // ════════════════════════════════════════════════════════
+            // ═══════════════════════════════════════════════════════════
+            // 4. "DIGITAL IDENTITY CARD" TITLE
+            // ═══════════════════════════════════════════════════════════
             doc.fillColor(tealMid)
                 .font('Helvetica-Bold')
-                .fontSize(10)
-                .text('DIGITAL IDENTITY CARD', 0, HDR + 13, {
-                    align: 'center',
-                    width: CW,
-                    characterSpacing: 0.8,
-                    lineBreak: false
-                });
+                .fontSize(10.5)
+                .text('DIGITAL IDENTITY CARD', 0, HEADER_H + 12, { align: 'center', width: CW, lineBreak: false });
 
-            // ════════════════════════════════════════════════════════
-            // 5. PHOTO — left-aligned like Image 2
-            // ════════════════════════════════════════════════════════
-            const photoSize = 82;
-            const photoX = 18;
-            const photoY = HDR + 30;
-            const radius = 13;
+            // ═══════════════════════════════════════════════════════════
+            // 5. PHOTO (centred, rounded with teal border)
+            // ═══════════════════════════════════════════════════════════
+            const photoSize = 80;
+            const photoX = (CW - photoSize) / 2;        // centred
+            const photoY = HEADER_H + 28;                // below title
+            const radius = 14;
 
             // Teal rounded border
             doc.save()
-                .roundedRect(photoX - 3, photoY - 3, photoSize + 6, photoSize + 6, radius + 2)
+                .roundedRect(photoX - 4, photoY - 4, photoSize + 8, photoSize + 8, radius + 2)
                 .lineWidth(3).strokeColor(tealMid).stroke();
 
+            // Photo or placeholder
             try {
                 const photoUrl = volunteer.profilePhoto || volunteer.picture
                     || 'https://res.cloudinary.com/dp9qhgckr/image/upload/v1710150000/default_avatar.png';
-                const resp = await axios.get(photoUrl, { responseType: 'arraybuffer', timeout: 6000 });
+                const response = await axios.get(photoUrl, { responseType: 'arraybuffer', timeout: 6000 });
                 doc.save()
                     .roundedRect(photoX, photoY, photoSize, photoSize, radius).clip()
-                    .image(resp.data, photoX, photoY, {
-                        width: photoSize, height: photoSize, fit: [photoSize, photoSize]
-                    })
+                    .image(response.data, photoX, photoY, { width: photoSize, height: photoSize, fit: [photoSize, photoSize] })
                     .restore();
             } catch (e) {
                 doc.save()
                     .roundedRect(photoX, photoY, photoSize, photoSize, radius)
-                    .fill(tealLight).restore();
-                doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(8)
-                    .text('PHOTO', photoX, photoY + 36, {
-                        width: photoSize, align: 'center', lineBreak: false
-                    });
+                    .fill('#E5E7EB').restore();
+                doc.fillColor('#9CA3AF').font('Helvetica-Bold').fontSize(9)
+                    .text('PHOTO', photoX, photoY + 35, { width: photoSize, align: 'center', lineBreak: false });
             }
             doc.restore();
 
-            // ════════════════════════════════════════════════════════
-            // 6. BLOOD GROUP — right side
-            // ════════════════════════════════════════════════════════
-            const dropX = CW - 52;
-            const dropY = HDR + 36;
+            // ═══════════════════════════════════════════════════════════
+            // 6. BLOOD GROUP (top-right area, beside photo)
+            // ═══════════════════════════════════════════════════════════
+            const dropX = 196;
+            const dropY = HEADER_H + 35;
 
+            // Blood drop icon
             doc.save().fillColor('#EF4444')
-                .moveTo(dropX + 6, dropY)
-                .bezierCurveTo(dropX, dropY + 9, dropX, dropY + 15, dropX + 6, dropY + 15)
-                .bezierCurveTo(dropX + 12, dropY + 15, dropX + 12, dropY + 9, dropX + 6, dropY)
+                .moveTo(dropX, dropY)
+                .bezierCurveTo(dropX - 6, dropY + 8, dropX - 6, dropY + 14, dropX, dropY + 14)
+                .bezierCurveTo(dropX + 6, dropY + 14, dropX + 6, dropY + 8, dropX, dropY)
                 .fill().restore();
 
-            const bg = volunteer.bloodGroup || 'B+';
-            doc.fillColor(tealDark).font('Helvetica-Bold').fontSize(11)
-                .text(': ' + bg, dropX + 16, dropY + 2, { lineBreak: false });
+            doc.fillColor(teal).font('Helvetica-Bold').fontSize(11)
+                .text(': ' + (volunteer.bloodGroup || 'B+'), dropX + 9, dropY + 2, { lineBreak: false });
 
-            // ID number (if available) — small, under blood group
-            if (volunteer.volunteerId || volunteer.idNumber) {
-                doc.fillColor('#9CA3AF').font('Helvetica').fontSize(7)
-                    .text('ID: ' + (volunteer.volunteerId || volunteer.idNumber),
-                        dropX - 10, dropY + 55, { width: 60, align: 'center', lineBreak: false });
-            }
+            // ═══════════════════════════════════════════════════════════
+            // 7. EMERGENCY PHONE
+            // ═══════════════════════════════════════════════════════════
+            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(8.5)
+                .text('EMERGENCY PHONE NO.:', 18, HEADER_H + 121, { lineBreak: false });
+            doc.fillColor(darkText).font('Helvetica-Bold').fontSize(11)
+                .text(volunteer.phone || '+91 9515574466', 18, HEADER_H + 133, { lineBreak: false });
 
-            // ════════════════════════════════════════════════════════
-            // 7. EMERGENCY PHONE — below photo
-            // ════════════════════════════════════════════════════════
-            const phoneY = HDR + 124;
-            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(8)
-                .text('EMERGENCY PHONE NO.:', 18, phoneY, { lineBreak: false });
-            doc.fillColor(darkText).font('Helvetica-Bold').fontSize(11.5)
-                .text(volunteer.phone || '+91 9515574466', 18, phoneY + 13, { lineBreak: false });
+            // ═══════════════════════════════════════════════════════════
+            // 8. TEAL RULE + NAME + ROLE
+            // ═══════════════════════════════════════════════════════════
+            doc.rect(18, HEADER_H + 152, CW - 36, 1.5).fill(tealMid);
 
-            // ════════════════════════════════════════════════════════
-            // 8. TEAL DIVIDER RULE
-            // ════════════════════════════════════════════════════════
-            const ruleY = phoneY + 36;
-            doc.rect(18, ruleY, CW - 36, 2).fill(tealMid);
-
-            // ════════════════════════════════════════════════════════
-            // 9. NAME + ROLE
-            // ════════════════════════════════════════════════════════
-            const nameY = ruleY + 8;
+            // Name — auto-shrink if long
             const vName = (volunteer.fullName || 'Volunteer Name').toUpperCase();
-
-            let nameFontSize = 16;
+            let nameFontSize = 15;
             doc.font('Helvetica-Bold').fontSize(nameFontSize);
             while (doc.widthOfString(vName) > CW - 36 && nameFontSize > 9) {
                 nameFontSize -= 0.5;
                 doc.fontSize(nameFontSize);
             }
-
             doc.fillColor(tealDark).font('Helvetica-Bold').fontSize(nameFontSize)
-                .text(vName, 18, nameY, { width: CW - 36, lineBreak: false });
+                .text(vName, 18, HEADER_H + 160, { width: CW - 36, lineBreak: false });
 
+            // Role
             const role = (volunteer.role || volunteer.designation || 'VOLUNTEER').toUpperCase();
             doc.fillColor(teal).font('Helvetica').fontSize(10)
-                .text(role, 18, nameY + nameFontSize + 3, { width: CW - 36, lineBreak: false });
+                .text(role, 18, HEADER_H + 160 + nameFontSize + 3, { width: CW - 36, lineBreak: false });
 
-            // ════════════════════════════════════════════════════════
-            // 10. SIGNATURE + PRESIDENT  |  WEBSITE
-            // ════════════════════════════════════════════════════════
-            const sigY = nameY + nameFontSize + 28;
-            const sigLineY = sigY + 28;
+            // ═══════════════════════════════════════════════════════════
+            // 9. SIGNATURE + PRESIDENT  |  WEBSITE (right)
+            // ═══════════════════════════════════════════════════════════
+            const sigImgY = HEADER_H + 195;
+            const sigLineY = sigImgY + 24;
 
+            // Signature image or fallback line
             let sigAdded = false;
             try {
                 if (fs.existsSync(sigPath) && fs.statSync(sigPath).size < 1000000) {
-                    doc.image(sigPath, 18, sigY, { width: 82 });
+                    doc.image(sigPath, 18, sigImgY, { width: 80 });
                     sigAdded = true;
                 }
             } catch (e) { }
 
             if (!sigAdded) {
-                doc.moveTo(18, sigLineY).lineTo(100, sigLineY)
-                    .lineWidth(1).strokeColor(tealMid).stroke();
+                doc.moveTo(18, sigLineY).lineTo(98, sigLineY).lineWidth(1).strokeColor(tealMid).stroke();
             }
 
             // Underline below signature
-            doc.moveTo(18, sigLineY + 2).lineTo(100, sigLineY + 2)
-                .lineWidth(1.2).strokeColor(tealMid).stroke();
+            doc.moveTo(18, sigLineY + 2).lineTo(98, sigLineY + 2)
+                .lineWidth(1).strokeColor(tealMid).stroke();
 
             doc.fillColor(tealDark).font('Helvetica-Bold').fontSize(9)
-                .text('PRESIDENT', 18, sigLineY + 6, { lineBreak: false });
+                .text('PRESIDENT', 18, sigLineY + 5, { lineBreak: false });
 
-            // Website right-side
+            // Website — right aligned
             doc.fillColor(teal).font('Helvetica-Bold').fontSize(7)
-                .text('VISWAVIGNANAVAARADHI.ORG', 108, sigLineY + 6, {
-                    width: CW - 120, align: 'right', lineBreak: false
+                .text('VISWAVIGNANAVAARADHI.ORG', 100, sigLineY + 5, {
+                    width: CW - 118,
+                    align: 'right',
+                    lineBreak: false
                 });
 
-            // ════════════════════════════════════════════════════════
-            // 11. BOTTOM TEAL BANNER
-            // ════════════════════════════════════════════════════════
-            doc.rect(14, CH - 42, CW - 28, 16).fill(tealMid);
+            doc.rect(14, 348, CW - 28, 15).fill(tealMid);
             doc.fillColor(white).font('Helvetica-Bold').fontSize(5.8)
-                .text('BRIDGING THE GAP THROUGH EDUCATION AND EMPOWERMENT',
-                    14, CH - 37, { align: 'center', width: CW - 28, lineBreak: false });
+                .text('BRIDGING THE GAP THROUGH EDUCATION AND EMPOWERMENT', 14, 353, {
+                    align: 'center', width: CW - 28, lineBreak: false
+                });
 
-            // ════════════════════════════════════════════════════════
-            // 12. REGISTERED OFFICE
-            // ════════════════════════════════════════════════════════
             doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(7)
-                .text('REGISTERED OFFICE: VISAKHAPATNAM, ANDHRA PRADESH',
-                    0, CH - 20, { align: 'center', width: CW, lineBreak: false });
+                .text('REGISTERED OFFICE: VISAKHAPATNAM, ANDHRA PRADESH', 0, 367, {
+                    align: 'center', width: CW, lineBreak: false
+                });
 
-            // ── DONE ─────────────────────────────────────────────────
+            // ── DONE ─────────────────────────────────────────────────────
             doc.end();
             stream.on('finish', () => resolve(filePath));
             stream.on('error', (err) => reject(err));
