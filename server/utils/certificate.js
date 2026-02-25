@@ -12,7 +12,7 @@ function generateCertificate(data) {
     return new Promise((resolve, reject) => {
         try {
             const memBefore = process.memoryUsage().heapUsed / 1024 / 1024;
-            console.log(`[Certificate] Memory-Safe optimized flow for: ${data.donor_name}. Heap: ${memBefore.toFixed(2)}MB`);
+            console.log(`[Certificate] Filling Layout & Scaling for: ${data.donor_name}. Heap: ${memBefore.toFixed(2)}MB`);
 
             const doc = new PDFDocument({
                 layout: 'landscape',
@@ -40,7 +40,7 @@ function generateCertificate(data) {
             // 1. BACKGROUND RECT
             doc.rect(0, 0, canvasWidth, canvasHeight).fill('#ffffff');
 
-            // 2. BACKGROUND WATERMARK (Using Optimized Small Logo)
+            // 2. BACKGROUND WATERMARK (Scale up to 600)
             // Priority: Small logo (33KB) > Original logo (3MB) fallback
             const logoSmall = path.join(__dirname, 'logo_small.png');
             const logoOriginal = path.join(__dirname, '../../client/src/assets/logo.png');
@@ -50,7 +50,7 @@ function generateCertificate(data) {
                 if (fs.existsSync(bestLogo)) {
                     doc.save()
                         .opacity(0.12) // Slightly higher for the smaller/crisper logo
-                        .image(bestLogo, (canvasWidth - 550) / 2, (canvasHeight - 550) / 2, { width: 550 })
+                        .image(bestLogo, (canvasWidth - 600) / 2, (canvasHeight - 600) / 2, { width: 600 })
                         .restore();
                 }
             } catch (e) {
@@ -64,11 +64,11 @@ function generateCertificate(data) {
             // 4. HEADER: CENTERED TITLE & TAGLINE WITH LEFT LOGO
             const brandingText = 'VISWA VIGNANA VAARADHI';
             const taglineText = 'foundation for a better tomorrow';
-            const headerY = 70;
-            const logoWidth = 75;
-            const logoMargin = 25;
+            const headerY = 60; // Shifted up
+            const logoWidth = 90; // Increased
+            const logoMargin = 30;
 
-            doc.font('Times-Bold').fontSize(36);
+            doc.font('Times-Bold').fontSize(38); // Increased
             const titleWidth = doc.widthOfString(brandingText, { characterSpacing: 1 });
             const titleX = (canvasWidth - titleWidth) / 2;
 
@@ -82,77 +82,77 @@ function generateCertificate(data) {
             }
 
             // Centered Branding Title
-            doc.fillColor(primaryTeal).font('Times-Bold').fontSize(36).text(brandingText, 0, headerY + 12, { align: 'center', characterSpacing: 1 });
+            doc.fillColor(primaryTeal).font('Times-Bold').fontSize(38).text(brandingText, 0, headerY + 15, { align: 'center', characterSpacing: 1 });
 
-            // Centered Tagline: Precisely matched to title width
-            doc.fillColor(textColor).font('Times-Roman').fontSize(16);
+            // Centered Tagline: Extended precisely to match title width
+            doc.fillColor(textColor).font('Times-Roman').fontSize(18); // Increased
             const rawTaglineWidth = doc.widthOfString(taglineText);
             const tagNeededSpacing = (titleWidth - rawTaglineWidth) / (taglineText.length - 1);
-            doc.text(taglineText, titleX, headerY + 52, {
+            doc.text(taglineText, titleX, headerY + 60, {
                 width: titleWidth,
                 align: 'justify',
                 characterSpacing: tagNeededSpacing > 0 ? tagNeededSpacing : 0
             });
 
-            // Horizontal Divider
-            doc.moveTo(250, 160).lineTo(590, 160).lineWidth(1).strokeColor('#e5e7eb').stroke();
-            doc.save().translate(canvasWidth / 2, 160).rotate(45).rect(-4, -4, 8, 8).fill(primaryTeal).restore();
+            // Horizontal Divider (Tighter)
+            doc.moveTo(250, 155).lineTo(590, 155).lineWidth(1).strokeColor('#e5e7eb').stroke();
+            doc.save().translate(canvasWidth / 2, 155).rotate(45).rect(-4, -4, 8, 8).fill(primaryTeal).restore();
 
-            // 5. MAIN TITLES
-            doc.fillColor(primaryTeal).font('Times-Bold').fontSize(44).text('CERTIFICATE OF PATRONAGE', 0, 195, { align: 'center', characterSpacing: 1.5 });
-            doc.fillColor(textColor).font('Times-Roman').fontSize(16).text('This certificate is proudly presented to', 0, 265, { align: 'center' });
+            // 5. MAIN TITLES (Bigger & Tighter)
+            doc.fillColor(primaryTeal).font('Times-Bold').fontSize(52).text('CERTIFICATE OF PATRONAGE', 0, 185, { align: 'center', characterSpacing: 1.5 });
+            doc.fillColor(textColor).font('Times-Roman').fontSize(18).text('This certificate is proudly presented to', 0, 255, { align: 'center' });
 
-            // 6. DYNAMIC NAME FITTING
+            // 6. DYNAMIC NAME FITTING (Bigger)
             const rawName = (data.donor_name || 'Valued Patron').toUpperCase();
             const displayName = `[ ${rawName} ]`;
 
-            let nameFontSize = 38;
+            let nameFontSize = 46; // Increased
             doc.font('Times-Bold').fontSize(nameFontSize);
             let nameWidth = doc.widthOfString(displayName);
-            while (nameWidth > (canvasWidth - 180) && nameFontSize > 14) {
+            while (nameWidth > (canvasWidth - 160) && nameFontSize > 18) {
                 nameFontSize -= 1;
                 doc.fontSize(nameFontSize);
                 nameWidth = doc.widthOfString(displayName);
             }
 
-            doc.fillColor(primaryTeal).text(displayName, 0, 310, { align: 'center' });
+            doc.fillColor(primaryTeal).text(displayName, 0, 295, { align: 'center' });
 
-            // 7. RECOGNITION TEXT
-            doc.fillColor(textColor).font('Times-Roman').fontSize(16).text('in recognition of their invaluable contribution to the vision of VVV', 0, 395, { align: 'center' });
+            // 7. RECOGNITION TEXT (Tighter)
+            doc.fillColor(textColor).font('Times-Roman').fontSize(18).text('in recognition of their invaluable contribution to the vision of VVV', 0, 375, { align: 'center' });
 
-            // 8. SEAL
+            // 8. SEAL (Bigger & Higher)
             const sealPath = path.join(__dirname, '../../client/src/assets/seal.png');
             try {
                 if (fs.existsSync(sealPath)) {
-                    doc.image(sealPath, (canvasWidth - 90) / 2, 465, { width: 90 });
+                    doc.image(sealPath, (canvasWidth - 100) / 2, 440, { width: 100 });
                 } else {
-                    doc.save().circle(canvasWidth / 2, 465 + 45, 35).fill('#D4AF37').restore();
+                    doc.save().circle(canvasWidth / 2, 440 + 50, 40).fill('#D4AF37').restore();
                 }
             } catch (err) {
-                doc.save().circle(canvasWidth / 2, 465 + 45, 35).fill('#D4AF37').restore();
+                doc.save().circle(canvasWidth / 2, 440 + 50, 40).fill('#D4AF37').restore();
             }
 
-            // 9. SIGNATURE
+            // 9. SIGNATURE (Higher)
             const sigPath = path.join(__dirname, '../../client/src/assets/signature.png');
-            const sigX = canvasWidth - 240;
-            const sigY = 460;
+            const sigX = canvasWidth - 250;
+            const sigY = 435;
 
             try {
                 if (fs.existsSync(sigPath)) {
-                    doc.image(sigPath, sigX, sigY, { width: 140 });
+                    doc.image(sigPath, sigX, sigY, { width: 150 });
                 }
             } catch (err) {
                 console.error('[Certificate] Sig fail:', err.message);
             }
 
-            doc.moveTo(sigX - 10, sigY + 50).lineTo(sigX + 170, sigY + 50).lineWidth(1.2).strokeColor(primaryTeal).stroke();
-            doc.fillColor(primaryTeal).font('Times-Bold').fontSize(16).text('PRESIDENT', sigX - 10, sigY + 58, { width: 180, align: 'center' });
+            doc.moveTo(sigX - 10, sigY + 55).lineTo(sigX + 180, sigY + 55).lineWidth(1.2).strokeColor(primaryTeal).stroke();
+            doc.fillColor(primaryTeal).font('Times-Bold').fontSize(18).text('PRESIDENT', sigX - 10, sigY + 63, { width: 190, align: 'center' });
 
             doc.end();
             stream.on('finish', () => resolve(filePath));
             stream.on('error', reject);
         } catch (err) {
-            console.error('[Certificate] Optimized Layout Error:', err);
+            console.error('[Certificate] Layout Fill Error:', err);
             reject(err);
         }
     });
