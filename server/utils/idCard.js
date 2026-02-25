@@ -178,7 +178,7 @@ function generateIDCard(volunteer) {
                 .text(role, 20, 282, { width: CW - 40, lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 9. SIGNATURE + PRESIDENT  |  WEBSITE & DATE (right)
+            // 9. SIGNATURE + PRESIDENT  |  WEBSITE (right)
             // ═══════════════════════════════════════════════════════════
             const sigLineY = 328;
 
@@ -199,13 +199,9 @@ function generateIDCard(volunteer) {
             doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(9)
                 .text('PRESIDENT', 20, sigLineY + 4, { width: 70, align: 'center', lineBreak: false });
 
-            // Website (regular font) & Date (bold font) — right aligned
+            // Website (regular font) — right aligned, vertically balanced with PRESIDENT
             doc.fillColor(tealMid).font('Helvetica').fontSize(7.5)
-                .text('VISWAVIGNANAVAARADHI.ORG', CW - 150, sigLineY - 6, {
-                    width: 130, align: 'right', lineBreak: false
-                });
-            doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(7.5)
-                .text('JANUARY, 2026', CW - 150, sigLineY + 4, {
+                .text('VISWAVIGNANAVAARADHI.ORG', CW - 150, sigLineY + 4, {
                     width: 130, align: 'right', lineBreak: false
                 });
 
