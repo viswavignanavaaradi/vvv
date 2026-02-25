@@ -10,14 +10,17 @@ const path = require('path');
  */
 function generateCertificate(data, outputStream, callback) {
     try {
-        console.log('[Certificate] Starting generation for:', data.certificate_id);
+        const memBefore = process.memoryUsage().heapUsed / 1024 / 1024;
+        console.log(`[Certificate] Starting generation. Heap: ${memBefore.toFixed(2)}MB`);
+
         const doc = new PDFDocument({
             layout: 'landscape',
             size: 'A4',
-            margin: 0
+            margin: 0,
+            autoFirstPage: true
         });
 
-        // Pipe to the provided destination (Cloudinary or Response)
+        // Pipe to destination
         doc.pipe(outputStream);
 
         // 1. COLORS & FONTS
@@ -33,31 +36,42 @@ function generateCertificate(data, outputStream, callback) {
         // 3. HEADER
         const logoWidth = 85;
         const brandingText = 'VISWA VIGNANA VAARADHI';
-        doc.font('Times-Bold').fontSize(42);
-        const brandingWidth = doc.widthOfString(brandingText, { characterSpacing: 1 });
         const headerGap = 25;
-        const headerTotalWidth = logoWidth + headerGap + brandingWidth;
-        const headerX = (canvasWidth - headerTotalWidth) / 2;
         const headerY = 75;
 
-        // Robust path for Render
+        // Robust path handling for images
         const logoPath = path.join(__dirname, '../../client/src/assets/logo.png');
-        if (fs.existsSync(logoPath)) {
-            doc.image(logoPath, headerX, headerY, { width: logoWidth });
+        let imageLoaded = false;
+
+        try {
+            if (fs.existsSync(logoPath)) {
+                const stats = fs.statSync(logoPath);
+                // If logo is > 1.5MB, it might crash Render's memory-tight env
+                if (stats.size < 1500000) {
+                    doc.image(logoPath, (canvasWidth - 500) / 2, headerY, { width: logoWidth });
+                    imageLoaded = true;
+                } else {
+                    console.warn(`[Certificate] Logo too large (${(stats.size / 1024 / 1024).toFixed(2)}MB), skipping for memory safety.`);
+                }
+            }
+        } catch (imgErr) {
+            console.error('[Certificate] Image processing error (skipping):', imgErr.message);
         }
+
+        const headerX = imageLoaded ? ((canvasWidth - 500) / 2) + logoWidth + headerGap : (canvasWidth - 400) / 2;
 
         doc.fillColor(primaryTeal)
             .font('Times-Bold')
-            .fontSize(42)
-            .text(brandingText, headerX + logoWidth + headerGap, headerY + 10, { characterSpacing: 1 });
+            .fontSize(38)
+            .text(brandingText, headerX, headerY + 10, { characterSpacing: 1 });
 
-        doc.fontSize(20)
+        doc.fontSize(18)
             .font('Times-Roman')
-            .text('foundation for a better tomorrow', headerX + logoWidth + headerGap, headerY + 58, { characterSpacing: 3 });
+            .text('foundation for a better tomorrow', headerX, headerY + 54, { characterSpacing: 2 });
 
         // 4. BIG TITLE
         doc.font('Times-Bold')
-            .fontSize(60)
+            .fontSize(56)
             .text('CERTIFICATE OF PATRONAGE', 0, 215, { align: 'center', characterSpacing: 1 });
 
         // 5. PRESENTATION TEXT
@@ -67,61 +81,46 @@ function generateCertificate(data, outputStream, callback) {
             .text('This certificate is proudly presented to', 0, 305, { align: 'center' });
 
         // 6. RECIPIENT NAME
-        const patronName = (data.donor_name || 'Patron Name').toUpperCase();
+        const patronName = (data.donor_name || 'Valued Patron').toUpperCase();
         doc.fillColor(primaryTeal)
             .font('Times-Bold')
-            .fontSize(52)
+            .fontSize(48)
             .text(patronName, 0, 350, { align: 'center' });
 
-        const nameWidth = doc.widthOfString(patronName);
-        const linePadding = 50;
-        const lineLength = nameWidth + (linePadding * 2);
-        const lineX = (canvasWidth - lineLength) / 2;
-        doc.moveTo(lineX, 405).lineTo(lineX + lineLength, 405).lineWidth(3).stroke(primaryTeal);
+        doc.moveTo(220, 405).lineTo(620, 405).lineWidth(2).stroke(primaryTeal);
 
         // 7. RECOGNITION TEXT
         doc.fillColor(textColor)
             .font('Times-Roman')
-            .fontSize(22)
+            .fontSize(20)
             .text('in recognition of their invaluable contribution to the vision of VVV', 0, 440, { align: 'center' });
 
-        // 8. SEAL
+        // 8. SEAL & SIGNATURE
         const sealX = canvasWidth / 2;
-        const sealY = 530;
+        const sealY = 525;
+
         doc.save()
-            .opacity(0.95)
-            .circle(sealX, sealY - 15, 55).fill('#D4AF37')
-            .circle(sealX, sealY - 15, 55).lineWidth(2).stroke('#B8860B')
-            .circle(sealX, sealY - 15, 48).stroke('#FFFFFF')
-            .fillColor('#FFFFFF').font('Times-Bold').fontSize(9)
-            .text('OFFICIAL', sealX - 35, sealY - 30, { align: 'center', width: 70 })
-            .text('SEAL', sealX - 35, sealY - 18, { align: 'center', width: 70 })
+            .circle(sealX, sealY - 10, 50).fill('#D4AF37')
+            .fillColor('#FFFFFF').font('Times-Bold').fontSize(10)
+            .text('OFFICIAL', sealX - 30, sealY - 22, { align: 'center', width: 60 })
+            .text('SEAL', sealX - 30, sealY - 10, { align: 'center', width: 60 })
             .restore();
 
-        // 9. SIGNATURE AREA
-        const sigX = canvasWidth - 280;
+        const sigX = canvasWidth - 260;
         const sigY = 510;
-        doc.fillColor(primaryTeal)
-            .font('Times-Bold')
-            .fontSize(22);
+        doc.fillColor(primaryTeal).font('Times-Bold').fontSize(18);
+        doc.moveTo(sigX, sigY).lineTo(sigX + 200, sigY).lineWidth(2).stroke(primaryTeal);
+        doc.text('PRESIDENT', sigX, sigY + 12, { width: 200, align: 'center' });
 
-        doc.moveTo(sigX, sigY).lineTo(sigX + 220, sigY).lineWidth(3).stroke(primaryTeal);
-        doc.text('PRESIDENT', sigX, sigY + 15, { width: 220, align: 'center' });
-
-        // Watermark
-        if (fs.existsSync(logoPath)) {
-            doc.save()
-                .opacity(0.03)
-                .image(logoPath, canvasWidth / 2 - 150, canvasHeight / 2 - 150, { width: 300 })
-                .restore();
-        }
-
+        // 9. FINALIZE
         doc.end();
-        console.log('[Certificate] Doc generation finished, stream flushing...');
-        callback(null);
 
+        const memAfter = process.memoryUsage().heapUsed / 1024 / 1024;
+        console.log(`[Certificate] Generation complete. Heap: ${memAfter.toFixed(2)}MB (+${(memAfter - memBefore).toFixed(2)}MB)`);
+
+        callback(null);
     } catch (err) {
-        console.error('[Certificate] Critical Generation Error:', err);
+        console.error('[Certificate] Critical Error:', err);
         callback(err);
     }
 }

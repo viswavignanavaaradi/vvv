@@ -539,8 +539,10 @@ app.get('/api/user/download-certificate', async (req, res) => {
             if (err) {
                 console.error('[Certificate API] Generation Error:', err);
                 if (!res.headersSent) {
-                    res.status(500).json({ error: 'Failed to generate certificate' });
+                    res.status(500).json({ error: 'Failed to generate certificate PDF due to memory limits' });
                 }
+            } else {
+                console.log('[Certificate API] Generation call finished (callback)');
             }
         });
     } catch (err) {
@@ -549,6 +551,22 @@ app.get('/api/user/download-certificate', async (req, res) => {
             res.status(500).json({ error: err.message });
         }
     }
+});
+
+// System Diagnostic Endpoint
+app.get('/api/debug/system', (req, res) => {
+    const mem = process.memoryUsage();
+    res.json({
+        time: new Date().toISOString(),
+        memory: {
+            rss: `${(mem.rss / 1024 / 1024).toFixed(2)}MB`,
+            heapTotal: `${(mem.heapTotal / 1024 / 1024).toFixed(2)}MB`,
+            heapUsed: `${(mem.heapUsed / 1024 / 1024).toFixed(2)}MB`,
+            external: `${(mem.external / 1024 / 1024).toFixed(2)}MB`,
+        },
+        uptime: `${process.uptime().toFixed(0)}s`,
+        env: process.env.NODE_ENV || 'production'
+    });
 });
 
 // Profile Update (CRUD)
