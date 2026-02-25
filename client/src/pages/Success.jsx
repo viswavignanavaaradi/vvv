@@ -1,5 +1,6 @@
 import { useSearchParams, Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { API_BASE_URL } from '../api/axios';
 
 const Success = () => {
     const [searchParams] = useSearchParams();
@@ -24,7 +25,7 @@ const Success = () => {
 
                 {certificateId && (
                     <a
-                        href={`/api/user/download-certificate?certId=${certificateId}`}
+                        href={`${API_BASE_URL}/api/user/download-certificate?certId=${certificateId}`}
                         className="inline-block bg-primary-royal text-white px-10 py-4 rounded-full font-bold text-lg shadow-lg hover:shadow-xl hover:bg-blue-900 transition-all mb-6"
                     >
                         Download Tax Receipt
