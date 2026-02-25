@@ -573,13 +573,19 @@ app.post('/api/user/upload-photo', uploadPhoto.single('photo'), async (req, res)
         return res.status(400).json({ error: 'Missing email or photo' });
     }
     try {
-        if (!req.file) throw new Error('Cloudinary upload failed - No file received');
-
+        // Sync to User model
         const user = await User.findOneAndUpdate(
             { email },
             { picture: req.file.path },
             { new: true, upsert: true }
         );
+
+        // Sync to Volunteer model (if it exists)
+        await Volunteer.findOneAndUpdate(
+            { email },
+            { picture: req.file.path }
+        );
+
         console.log(`[Upload] Photo updated for ${email}: ${req.file.path}`);
         res.json({ status: 'success', url: req.file.path });
     } catch (err) {

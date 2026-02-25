@@ -223,7 +223,7 @@ const Profile = () => {
                                                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity }} className="text-2xl text-blue-600">⏳</motion.div>
                                                 ) : (
                                                     <img
-                                                        src={user?.picture || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"}
+                                                        src={isVolunteer ? (profileData.volunteer.picture || user?.picture) : (user?.picture || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80")}
                                                         alt={user?.name}
                                                         className="w-full h-full object-cover"
                                                     />

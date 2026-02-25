@@ -14,6 +14,7 @@ const volunteerSchema = new mongoose.Schema({
     wings: { type: String },
     priorityWing: { type: String },
     interests: { type: String },
+    picture: { type: String },
     contributed: { type: Boolean, default: false },
     payment_id: { type: String },
     documents: [{
