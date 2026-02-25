@@ -1,3 +1,6 @@
+const fs = require('fs');
+const PDFDocument = require('pdfkit');
+const path = require('path');
 const os = require('os');
 
 /**
