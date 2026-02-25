@@ -47,53 +47,47 @@ function generateIDCard(volunteer) {
                 : fs.existsSync(origLogo) ? origLogo
                     : null;
 
+            // Header height — tall enough for logo + text to breathe
+            const HEADER_H = 105;
+
             // ═══════════════════════════════════════════════════════════
             // 1. CREAM HEADER BACKGROUND
             // ═══════════════════════════════════════════════════════════
-            doc.rect(0, 0, CW, 98).fill(cream);
+            doc.rect(0, 0, CW, HEADER_H).fill(cream);
 
             // Lanyard notch (dark pill at top centre)
             doc.fillColor(nearBlack).roundedRect(CW / 2 - 20, 10, 40, 7, 3.5).fill();
 
-            // ── Logo (left) ───────────────────────────────────────────
+            // ── Logo (left) — large to match Image 2 ─────────────────
             if (bestLogo) {
-                try { doc.image(bestLogo, 10, 22, { width: 58 }); } catch (e) { }
+                try { doc.image(bestLogo, 8, 18, { width: 68 }); } catch (e) { }
             } else {
-                doc.rect(10, 22, 58, 58).fill('#E5E7EB');
+                doc.rect(8, 18, 68, 68).fill('#E5E7EB');
             }
 
             // ── Org name + tagline (right of logo) ───────────────────
-            // "VISWA VIGNANA VAARADHI" in bold teal — large
+            // "VISWA VIGNANA VAARADHI" on ONE line — font sized to fit
             doc.fillColor(teal)
                 .font('Helvetica-Bold')
-                .fontSize(13.5)
-                .text('VISWA VIGNANA VAARADHI', 74, 30, { width: 162, lineBreak: false });
+                .fontSize(14)
+                .text('VISWA VIGNANA VAARADHI', 74, 36, { width: 162, lineBreak: false });
 
-            // Tagline in italic below
+            // Tagline in italic directly below org name
             doc.fillColor(teal)
                 .font('Helvetica-Oblique')
                 .fontSize(8.5)
-                .text('foundation for a better tomorrow', 74, 52, { width: 162, lineBreak: false });
-
-            // Small "VISWA VIGNANA / VAARADHI" sub-text under logo (matches template)
-            doc.fillColor(teal)
-                .font('Helvetica-Bold')
-                .fontSize(6)
-                .text('VISWA VIGNANA', 10, 83, { width: 58, align: 'center', lineBreak: false });
-            doc.fillColor(teal)
-                .font('Helvetica-Bold')
-                .fontSize(6)
-                .text('— VAARADHI —', 10, 91, { width: 58, align: 'center', lineBreak: false });
+                .text('foundation for a better tomorrow', 74, 58, { width: 162, lineBreak: false });
+            // ── NO sub-caption under logo ─────────────────────────────
 
             // ═══════════════════════════════════════════════════════════
             // 2. THICK TEAL DIVIDER BAR
             // ═══════════════════════════════════════════════════════════
-            doc.rect(0, 98, CW, 5).fill(tealMid);
+            doc.rect(0, HEADER_H, CW, 5).fill(tealMid);
 
             // ═══════════════════════════════════════════════════════════
             // 3. WHITE BODY BACKGROUND
             // ═══════════════════════════════════════════════════════════
-            doc.rect(0, 103, CW, CH - 103).fill(white);
+            doc.rect(0, HEADER_H + 5, CW, CH - HEADER_H - 5).fill(white);
 
             // ═══════════════════════════════════════════════════════════
             // 4. "DIGITAL IDENTITY CARD" TITLE
@@ -101,14 +95,14 @@ function generateIDCard(volunteer) {
             doc.fillColor(tealMid)
                 .font('Helvetica-Bold')
                 .fontSize(10.5)
-                .text('DIGITAL IDENTITY CARD', 0, 112, { align: 'center', width: CW, lineBreak: false });
+                .text('DIGITAL IDENTITY CARD', 0, HEADER_H + 12, { align: 'center', width: CW, lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
-            // 5. PHOTO ( centred, rounded with teal border)
+            // 5. PHOTO (centred, rounded with teal border)
             // ═══════════════════════════════════════════════════════════
             const photoSize = 80;
-            const photoX = (CW - photoSize) / 2;   // centred
-            const photoY = 130;
+            const photoX = (CW - photoSize) / 2;        // centred
+            const photoY = HEADER_H + 28;                // below title
             const radius = 14;
 
             // Teal rounded border
@@ -138,7 +132,7 @@ function generateIDCard(volunteer) {
             // 6. BLOOD GROUP (top-right area, beside photo)
             // ═══════════════════════════════════════════════════════════
             const dropX = 196;
-            const dropY = 138;
+            const dropY = HEADER_H + 35;
 
             // Blood drop icon
             doc.save().fillColor('#EF4444')
@@ -154,14 +148,14 @@ function generateIDCard(volunteer) {
             // 7. EMERGENCY PHONE
             // ═══════════════════════════════════════════════════════════
             doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(8.5)
-                .text('EMERGENCY PHONE NO.:', 18, 224, { lineBreak: false });
+                .text('EMERGENCY PHONE NO.:', 18, HEADER_H + 121, { lineBreak: false });
             doc.fillColor(darkText).font('Helvetica-Bold').fontSize(11)
-                .text(volunteer.phone || '+91 9515574466', 18, 236, { lineBreak: false });
+                .text(volunteer.phone || '+91 9515574466', 18, HEADER_H + 133, { lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
             // 8. TEAL RULE + NAME + ROLE
             // ═══════════════════════════════════════════════════════════
-            doc.rect(18, 255, CW - 36, 1.5).fill(tealMid);
+            doc.rect(18, HEADER_H + 152, CW - 36, 1.5).fill(tealMid);
 
             // Name — auto-shrink if long
             const vName = (volunteer.fullName || 'Volunteer Name').toUpperCase();
@@ -172,17 +166,17 @@ function generateIDCard(volunteer) {
                 doc.fontSize(nameFontSize);
             }
             doc.fillColor(tealDark).font('Helvetica-Bold').fontSize(nameFontSize)
-                .text(vName, 18, 263, { width: CW - 36, lineBreak: false });
+                .text(vName, 18, HEADER_H + 160, { width: CW - 36, lineBreak: false });
 
             // Role
             const role = (volunteer.role || volunteer.designation || 'VOLUNTEER').toUpperCase();
             doc.fillColor(teal).font('Helvetica').fontSize(10)
-                .text(role, 18, 263 + nameFontSize + 3, { width: CW - 36, lineBreak: false });
+                .text(role, 18, HEADER_H + 160 + nameFontSize + 3, { width: CW - 36, lineBreak: false });
 
             // ═══════════════════════════════════════════════════════════
             // 9. SIGNATURE + PRESIDENT  |  WEBSITE (right)
             // ═══════════════════════════════════════════════════════════
-            const sigImgY = 298;
+            const sigImgY = HEADER_H + 195;
             const sigLineY = sigImgY + 24;
 
             // Signature image or fallback line
@@ -213,25 +207,15 @@ function generateIDCard(volunteer) {
                     lineBreak: false
                 });
 
-            // ═══════════════════════════════════════════════════════════
-            // 10. BOTTOM TEAL BANNER
-            // ═══════════════════════════════════════════════════════════
             doc.rect(14, 348, CW - 28, 15).fill(tealMid);
             doc.fillColor(white).font('Helvetica-Bold').fontSize(5.8)
                 .text('BRIDGING THE GAP THROUGH EDUCATION AND EMPOWERMENT', 14, 353, {
-                    align: 'center',
-                    width: CW - 28,
-                    lineBreak: false
+                    align: 'center', width: CW - 28, lineBreak: false
                 });
 
-            // ═══════════════════════════════════════════════════════════
-            // 11. REGISTERED OFFICE FOOTER
-            // ═══════════════════════════════════════════════════════════
             doc.fillColor(tealMid).font('Helvetica-Bold').fontSize(7)
                 .text('REGISTERED OFFICE: VISAKHAPATNAM, ANDHRA PRADESH', 0, 367, {
-                    align: 'center',
-                    width: CW,
-                    lineBreak: false
+                    align: 'center', width: CW, lineBreak: false
                 });
 
             // ── DONE ─────────────────────────────────────────────────────
