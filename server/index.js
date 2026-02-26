@@ -53,6 +53,10 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+app.get('/', (req, res) => {
+    res.json({ message: 'VVV Nexus API is running', status: 'healthy', version: '4.0.0' });
+});
+
 app.get('/api/ping', (req, res) => {
     res.json({ status: 'ok', time: new Date().toISOString() });
 });
