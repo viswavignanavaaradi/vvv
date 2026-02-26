@@ -21,6 +21,7 @@ import PatronKnowMore from './pages/PatronKnowMore';
 import VolunteerKnowMore from './pages/VolunteerKnowMore';
 
 function App() {
+    console.log('VVV Nexus Frontend v1.5.0 - Glass Dock Active');
     const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID || '103683072847-example.apps.googleusercontent.com';
 
     return (

@@ -55,7 +55,12 @@ app.use(cors({
 }));
 
 app.get('/', (req, res) => {
-    res.json({ message: 'VVV Nexus API is running', status: 'healthy', version: '4.0.0' });
+    res.json({
+        message: 'VVV Nexus API is running',
+        status: 'healthy',
+        version: '4.1.0',
+        lastUpdated: '2026-02-27T01:15:00Z'
+    });
 });
 
 app.get('/api/ping', (req, res) => {
