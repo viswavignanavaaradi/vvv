@@ -1,4 +1,11 @@
-import { useState, useEffect } from 'react';
+import os
+
+file_path = r'c:\ngo\client\src\pages\Admin.jsx'
+
+# Reconstruct Admin.jsx with perfect tag parity
+# Using the structure verified in the last few steps
+
+content = r"""import { useState, useEffect } from 'react';
 import axios, { API_BASE_URL } from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
@@ -508,4 +515,9 @@ const Admin = () => {
     );
 };
 
-export default Admin;
+export default Admin;"""
+
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(content)
+
+print("Full reconstruction completed.")
