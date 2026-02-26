@@ -7,6 +7,7 @@ import logo from '../assets/logo.png';
 const Navbar = ({ onDonateClick }) => {
     const [scrolled, setScrolled] = useState(false);
     const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
+    const [involvedDropdownOpen, setInvolvedDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [user, setUser] = useState(null);
     const location = useLocation();
@@ -127,7 +128,13 @@ const Navbar = ({ onDonateClick }) => {
                     { label: 'Home', type: 'link' },
                     { label: 'About Us', type: 'dropdown' },
                     { label: 'Missions', type: 'link', path: '/missions' },
-                    { label: 'Get Involved', type: 'link', path: '/get-involved' },
+                    {
+                        label: 'Get Involved', type: 'dropdown', subItems: [
+                            { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
+                            { label: 'Internship Enrollment', path: '/internship-enrollment' },
+                            { label: 'Learn More', path: '/get-involved' }
+                        ]
+                    },
                     { label: 'Gallery', type: 'link', path: '/gallery' },
                     { label: 'Legal Aid', type: 'link', path: '/legal-aid' },
                     { label: 'Contact', type: 'link' }
@@ -137,8 +144,8 @@ const Navbar = ({ onDonateClick }) => {
                             <div
                                 key={item.label}
                                 style={{ position: 'relative', height: '100%', display: 'flex', alignItems: 'center' }}
-                                onMouseEnter={() => setAboutDropdownOpen(true)}
-                                onMouseLeave={() => setAboutDropdownOpen(false)}
+                                onMouseEnter={() => item.label === 'About Us' ? setAboutDropdownOpen(true) : setInvolvedDropdownOpen(true)}
+                                onMouseLeave={() => item.label === 'About Us' ? setAboutDropdownOpen(false) : setInvolvedDropdownOpen(false)}
                             >
                                 <div
                                     style={{
@@ -151,14 +158,14 @@ const Navbar = ({ onDonateClick }) => {
                                         gap: '4px',
                                         padding: '10px 0'
                                     }}
-                                    onClick={() => navigate('/about')}
+                                    onClick={() => navigate(item.label === 'About Us' ? '/about' : '/get-involved')}
                                     className="nav-link"
                                 >
                                     {item.label} <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>▼</span>
                                 </div>
 
                                 <AnimatePresence>
-                                    {aboutDropdownOpen && (
+                                    {((item.label === 'About Us' && aboutDropdownOpen) || (item.label === 'Get Involved' && involvedDropdownOpen)) && (
                                         <motion.div
                                             initial={{ opacity: 0, y: 10 }}
                                             animate={{ opacity: 1, y: 0 }}
@@ -179,12 +186,22 @@ const Navbar = ({ onDonateClick }) => {
                                                 padding: '0.5rem'
                                             }}
                                         >
-                                            {['What is VVV', 'Core Values', 'People behind VVV', 'Impact Timeline', 'Partnered Colleges', 'Corporate Partnership', 'Partnered Influencers'].map((subItem) => (
+                                            {(item.label === 'About Us' ?
+                                                ['What is VVV', 'Core Values', 'People behind VVV', 'Impact Timeline', 'Partnered Colleges', 'Corporate Partnership', 'Partnered Influencers'] :
+                                                item.subItems.map(si => si.label)
+                                            ).map((subItemLabel) => (
                                                 <div
-                                                    key={subItem}
+                                                    key={subItemLabel}
                                                     onClick={(e) => {
                                                         e.stopPropagation();
-                                                        handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'));
+                                                        if (item.label === 'About Us') {
+                                                            handleAboutClick(subItemLabel.toLowerCase().replace(/ /g, '_'));
+                                                        } else {
+                                                            const subItem = item.subItems.find(si => si.label === subItemLabel);
+                                                            navigate(subItem.path);
+                                                            setInvolvedDropdownOpen(false);
+                                                            setMobileMenuOpen(false);
+                                                        }
                                                     }}
                                                     className="dropdown-item"
                                                     style={{
@@ -199,7 +216,7 @@ const Navbar = ({ onDonateClick }) => {
                                                         transition: 'all 0.2s'
                                                     }}
                                                 >
-                                                    {subItem}
+                                                    {subItemLabel}
                                                 </div>
                                             ))}
                                         </motion.div>
@@ -393,7 +410,7 @@ const Navbar = ({ onDonateClick }) => {
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                                {['Home', 'Missions', 'Get Involved', 'Gallery', 'Legal Aid', 'Contact'].map(item => (
+                                {['Home', 'Missions', 'Gallery', 'Legal Aid', 'Contact'].map(item => (
                                     <div
                                         key={item}
                                         onClick={() => handleNavClick(item)}
@@ -408,6 +425,25 @@ const Navbar = ({ onDonateClick }) => {
                                         {item}
                                     </div>
                                 ))}
+
+                                <div style={{ marginTop: '1rem' }}>
+                                    <div style={{ fontWeight: '700', color: 'var(--primary-royal)', fontSize: '0.9rem', marginBottom: '1rem', textTransform: 'uppercase' }}>Get Involved</div>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
+                                        {[
+                                            { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
+                                            { label: 'Internship Enrollment', path: '/internship-enrollment' },
+                                            { label: 'Overview', path: '/get-involved' }
+                                        ].map((subItem) => (
+                                            <div
+                                                key={subItem.label}
+                                                onClick={() => { navigate(subItem.path); setMobileMenuOpen(false); }}
+                                                style={{ fontSize: '1rem', color: '#4b5563', fontWeight: '500' }}
+                                            >
+                                                {subItem.label}
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
 
                                 <div style={{ marginTop: '1rem' }}>
                                     <div style={{ fontWeight: '700', color: 'var(--accent-emerald)', fontSize: '0.9rem', marginBottom: '1rem', textTransform: 'uppercase' }}>About VVV</div>

@@ -101,9 +101,12 @@ const GetInvolved = () => {
                                     Whether you are a student looking for an internship or a professional wanting to give back, VVV offers a platform to serve.
                                     Engage in fieldwork, organize events, or support our digital campaigns.
                                 </p>
-                                <div className="flex gap-4">
+                                <div className="flex flex-wrap gap-4">
                                     <button onClick={() => navigate('/volunteer-enrollment')} className="bg-accent-emerald hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:-translate-y-1">
                                         Register as Volunteer
+                                    </button>
+                                    <button onClick={() => navigate('/internship-enrollment')} className="bg-primary-royal hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:-translate-y-1">
+                                        Register as Intern
                                     </button>
                                     <Link to="/volunteer-know-more" className="border-2 border-accent-emerald text-accent-emerald hover:bg-accent-emerald hover:text-white font-bold py-3 px-8 rounded-full transition-all text-center">
                                         Know More
