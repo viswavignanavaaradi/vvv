@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Navbar from './Navbar';
 import DonateModal from './DonateModal';
+import FloatingDock from './FloatingDock';
 
 const Layout = ({ children }) => {
     const [isModalOpen, setModalOpen] = useState(false);
@@ -20,6 +21,9 @@ const Layout = ({ children }) => {
             <main className="flex-grow relative">
                 {children}
             </main>
+
+            {/* Floating Social Media Dock */}
+            <FloatingDock />
 
             {/* Global Donate Modal */}
             <DonateModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
