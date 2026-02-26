@@ -5,7 +5,7 @@ const Gallery = () => {
     const [filter, setFilter] = useState('all');
 
     const images = [
-        { id: 1, src: "https://photos.app.goo.gl/dy83Xqvf2REMtPCm6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"", category: "education", caption: "Rural Education Drive" },
+        { id: 1, src: "https://photos.app.goo.gl/dy83Xqvf2REMtPCm6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "education", caption: "Rural Education Drive" },
         { id: 2, src: "https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "health", caption: "Medical Camp 2023" },
         { id: 3, src: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "events", caption: "Fundraising Gala" },
         { id: 4, src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "team", caption: "Our Volunteers" },
