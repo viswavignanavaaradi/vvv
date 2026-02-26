@@ -19,6 +19,7 @@ const Intern = require('./models/Intern');
 const Donation = require('./models/Donation');
 const LegalRequest = require('./models/LegalRequest');
 const Subscription = require('./models/Subscription');
+const Patron = require('./models/Patron');
 const { generateIDCard } = require('./utils/idCard');
 const { generateCertificate } = require('./utils/certificate');
 
@@ -253,6 +254,20 @@ app.post('/api/razorpay-webhook', async (req, res) => {
                     });
                     await donation.save();
                     console.log(`[Webhook] Recorded recurring payment for ${sub.email}`);
+
+                    // Create/Update Patron record
+                    await Patron.findOneAndUpdate(
+                        { email: sub.email },
+                        {
+                            fullName: sub.customer_name,
+                            email: sub.email,
+                            amount: amount,
+                            status: 'active',
+                            subscription_id: subscriptionId,
+                            date: new Date()
+                        },
+                        { upsert: true, new: true }
+                    );
                 }
                 break;
             }
@@ -298,6 +313,20 @@ app.post('/api/subscription-success', async (req, res) => {
                 certificate_id: certificateId
             });
             await donation.save();
+
+            // Create/Update Patron record
+            await Patron.findOneAndUpdate(
+                { email: email },
+                {
+                    fullName: name,
+                    email: email,
+                    amount: amount,
+                    status: 'active',
+                    subscription_id: razorpay_subscription_id,
+                    date: new Date()
+                },
+                { upsert: true, new: true }
+            );
 
             res.json({ status: 'success', certificate_id: certificateId });
         } catch (err) {
@@ -566,7 +595,11 @@ app.get('/api/user/download-certificate', async (req, res) => {
             return res.status(404).json({ error: 'Donation record not found' });
         }
 
-        const filePath = await generateCertificate(donation);
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const host = req.get('host');
+        const verificationUrl = `${protocol}://${host}/api/certificate/${donation.certificate_id}`;
+
+        const filePath = await generateCertificate(donation, verificationUrl);
         const timestamp = Date.now();
         const downloadName = `Certificate_${(donation.donor_name || 'Patron').replace(/ /g, '_')}_${timestamp}.pdf`;
 
@@ -709,8 +742,17 @@ app.get('/api/admin/volunteers', async (req, res) => {
 
 app.get('/api/admin/donations', async (req, res) => {
     try {
-        const donations = await Donation.find().sort({ createdAt: -1 });
+        const donations = await Donation.find().sort({ date: -1 });
         res.json(donations);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.get('/api/admin/patrons', async (req, res) => {
+    try {
+        const patrons = await Patron.find().sort({ date: -1 });
+        res.json(patrons);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

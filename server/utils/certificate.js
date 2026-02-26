@@ -2,14 +2,16 @@ const fs = require('fs');
 const PDFDocument = require('pdfkit');
 const path = require('path');
 const os = require('os');
+const QRCode = require('qrcode');
 
 /**
  * Generates a Patronage Certificate PDF and saves it locally.
  * @param {Object} data - Donation/Patron data from DB.
+ * @param {string} verificationUrl - URL to verify the certificate.
  * @returns {Promise<string>} - The path to the generated PDF file.
  */
-function generateCertificate(data) {
-    return new Promise((resolve, reject) => {
+function generateCertificate(data, verificationUrl) {
+    return new Promise(async (resolve, reject) => {
         try {
             const memBefore = process.memoryUsage().heapUsed / 1024 / 1024;
             console.log(`[Certificate] Generating for: ${data.donor_name}. Heap: ${memBefore.toFixed(2)}MB`);
@@ -247,6 +249,36 @@ function generateCertificate(data) {
                     align: 'center',
                     lineBreak: false
                 });
+
+            // ─── 12. QR CODE VERIFICATION (bottom left) ──────────────────
+            if (verificationUrl) {
+                const qrSize = 80;
+                const qrX = 62;
+                const qrY = H - 62 - qrSize;
+
+                try {
+                    const qrBuffer = await QRCode.toBuffer(verificationUrl, {
+                        margin: 1,
+                        width: qrSize,
+                        color: {
+                            dark: primaryTeal,
+                            light: '#ffffff'
+                        }
+                    });
+                    doc.image(qrBuffer, qrX, qrY, { width: qrSize });
+
+                    // Small label above QR
+                    doc.fillColor(primaryTeal)
+                        .font('Times-Bold')
+                        .fontSize(8)
+                        .text('SCAN TO VERIFY', qrX, qrY - 12, {
+                            width: qrSize,
+                            align: 'center'
+                        });
+                } catch (e) {
+                    console.error('[Certificate] QR Error:', e.message);
+                }
+            }
 
             // ─── FINALISE ────────────────────────────────────────────────
             doc.end();

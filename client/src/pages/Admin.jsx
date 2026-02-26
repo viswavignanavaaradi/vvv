@@ -45,6 +45,16 @@ const Admin = () => {
     const [filterStatus, setFilterStatus] = useState('All');
     const [internFilterStatus, setInternFilterStatus] = useState('All');
     const [selectedDonation, setSelectedDonation] = useState(null);
+    const [patrons, setPatrons] = useState([]);
+    const [selectedPatron, setSelectedPatron] = useState(null);
+
+    const formatDate = (dateString) => {
+        if (!dateString) return 'N/A';
+        const date = new Date(dateString);
+        return date instanceof Date && !isNaN(date)
+            ? date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })
+            : 'Invalid Date';
+    };
 
     useEffect(() => {
         if (loggedIn) {
@@ -79,6 +89,10 @@ const Admin = () => {
             if (activeTab === 'interns' || activeTab === 'dashboard') {
                 const res = await axios.get('/api/admin/interns');
                 setInterns(res.data);
+            }
+            if (activeTab === 'patrons' || activeTab === 'dashboard') {
+                const res = await axios.get('/api/admin/patrons');
+                setPatrons(res.data);
             }
         } catch (err) {
             console.error(err);
@@ -158,6 +172,7 @@ const Admin = () => {
         { id: 'dashboard', label: 'Dashboard', icon: '📊' },
         { id: 'requests', label: 'Legal Aid Requests', icon: '⚖️' },
         { id: 'donations', label: 'Donations Ledger', icon: '🤝' },
+        { id: 'patrons', label: 'Patronage', icon: '🌟' },
         { id: 'volunteers', label: 'Volunteers Hub', icon: '👥' },
         { id: 'interns', label: 'Intern Applications', icon: '🎓' },
         { id: 'account', label: 'Admin Settings', icon: '⚙️' },
@@ -179,7 +194,7 @@ const Admin = () => {
                     {menuItems.map(item => (
                         <button
                             key={item.id}
-                            onClick={() => { setActiveTab(item.id); setSelectedRequest(null); setSelectedVolunteer(null); setSelectedDonation(null); setSelectedIntern(null); }}
+                            onClick={() => { setActiveTab(item.id); setSelectedRequest(null); setSelectedVolunteer(null); setSelectedDonation(null); setSelectedIntern(null); setSelectedPatron(null); }}
                             className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl font-bold text-sm transition-all group ${activeTab === item.id ? 'bg-[#1E293B] text-emerald-400 border border-slate-700' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1E293B]/50'}`}
                         >
                             <span className={`text-lg transition-transform group-hover:scale-110 ${activeTab === item.id ? 'opacity-100' : 'opacity-50'}`}>{item.icon}</span>
@@ -231,6 +246,7 @@ const Admin = () => {
                                     <StatCard label="Volunteers" value={volunteers.length.toLocaleString()} icon="👥" colorClass="bg-blue-50 text-blue-600" />
                                     <StatCard label="Legal Cases" value={legalRequests.filter(r => r.status !== 'Done').length} icon="⚖️" colorClass="bg-orange-50 text-orange-600" />
                                     <StatCard label="Interns" value={interns.length.toLocaleString()} icon="🎓" colorClass="bg-indigo-50 text-indigo-600" />
+                                    <StatCard label="Active Patrons" value={patrons.length.toLocaleString()} icon="🌟" colorClass="bg-yellow-50 text-yellow-600" />
                                 </div>
                             </motion.div>
                         )}
@@ -313,7 +329,8 @@ const Admin = () => {
                                                     <tr>
                                                         <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Donor</th>
                                                         <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Amount</th>
-                                                        <th className="px-10 py-6 text-[10px) font-black uppercase tracking-widest text-right">Action</th>
+                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Date</th>
+                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-right">Action</th>
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
@@ -321,6 +338,7 @@ const Admin = () => {
                                                         <tr key={idx}>
                                                             <td className="px-10 py-8 font-black text-slate-800">{d.donor_name || 'Anonymous'}</td>
                                                             <td className="px-10 py-8 font-black text-emerald-600">₹{d.amount.toLocaleString()}</td>
+                                                            <td className="px-10 py-8 font-bold text-slate-400">{formatDate(d.date)}</td>
                                                             <td className="px-10 py-8 text-right">
                                                                 <button onClick={() => setSelectedDonation(d)} className="bg-slate-900 text-white px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest">Details</button>
                                                             </td>
@@ -365,6 +383,7 @@ const Admin = () => {
                                                 <thead className="bg-slate-50 border-b">
                                                     <tr>
                                                         <th className="px-10 py-6 uppercase font-black tracking-widest">Name</th>
+                                                        <th className="px-10 py-6 uppercase font-black tracking-widest">Joined On</th>
                                                         <th className="px-10 py-6 uppercase font-black tracking-widest">Contact</th>
                                                         <th className="px-10 py-6 uppercase font-black tracking-widest text-right">Action</th>
                                                     </tr>
@@ -373,6 +392,7 @@ const Admin = () => {
                                                     {volunteers.map((v, idx) => (
                                                         <tr key={idx} className="border-b last:border-0">
                                                             <td className="px-10 py-8 font-black">{v.fullName}</td>
+                                                            <td className="px-10 py-8 font-bold text-slate-400">{formatDate(v.createdAt)}</td>
                                                             <td className="px-10 py-8 font-bold text-slate-500">{v.email}</td>
                                                             <td className="px-10 py-8 text-right">
                                                                 <button onClick={() => setSelectedVolunteer(v)} className="text-emerald-600 font-black uppercase text-[10px] tracking-widest underline">View Profile</button>
@@ -428,6 +448,7 @@ const Admin = () => {
                                                 <thead className="bg-slate-50 border-b">
                                                     <tr>
                                                         <th className="px-10 py-6 uppercase font-black">Applicant</th>
+                                                        <th className="px-10 py-6 uppercase font-black">Applied On</th>
                                                         <th className="px-10 py-6 uppercase font-black">Duration</th>
                                                         <th className="px-10 py-6 uppercase font-black text-right">Action</th>
                                                     </tr>
@@ -436,6 +457,7 @@ const Admin = () => {
                                                     {interns.map((i, idx) => (
                                                         <tr key={idx} className="border-b last:border-0 hover:bg-slate-50 transition-all">
                                                             <td className="px-10 py-8 font-black">{i.fullName}</td>
+                                                            <td className="px-10 py-8 font-bold text-slate-400">{formatDate(i.date)}</td>
                                                             <td className="px-10 py-8 font-bold text-blue-600 uppercase">{i.duration}</td>
                                                             <td className="px-10 py-8 text-right">
                                                                 <button onClick={() => { setSelectedIntern(i); setAdminMsg(i.adminMessage || ''); setStatusUpdate(i.status || 'Pending'); }} className="text-blue-600 font-black uppercase text-[10px] underline">Process</button>
@@ -470,6 +492,91 @@ const Admin = () => {
                                                 <div className="h-px bg-slate-800 mb-6" />
                                                 <p className="text-[9px] font-black text-slate-500 uppercase">Duration Relay</p>
                                                 <p className="font-bold text-blue-400">{selectedIntern.duration}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        )}
+
+                        {activeTab === 'patrons' && (
+                            <motion.div key="patrons" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                                {!selectedPatron ? (
+                                    <div className="bg-white rounded-[32px] overflow-hidden border shadow-sm">
+                                        <div className="p-8 border-b flex justify-between items-center">
+                                            <h2 className="text-xl font-black text-slate-800">Patronage Hub</h2>
+                                            <span className="px-4 py-1.5 bg-yellow-50 text-yellow-700 rounded-full text-[10px] font-black uppercase tracking-wider">Recurring Support</span>
+                                        </div>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full text-left text-xs">
+                                                <thead className="bg-[#f8fafc] text-slate-400 border-b">
+                                                    <tr>
+                                                        <th className="px-10 py-6 uppercase font-black tracking-widest text-[10px]">Patron Name</th>
+                                                        <th className="px-10 py-6 uppercase font-black tracking-widest text-[10px]">Monthly</th>
+                                                        <th className="px-10 py-6 uppercase font-black tracking-widest text-[10px]">Active Since</th>
+                                                        <th className="px-10 py-6 uppercase font-black tracking-widest text-[10px] text-right">Action</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-50">
+                                                    {patrons.map((p, idx) => (
+                                                        <tr key={idx} className="hover:bg-slate-50/50 transition-all">
+                                                            <td className="px-10 py-8 font-black text-slate-800">{p.fullName}</td>
+                                                            <td className="px-10 py-8 font-black text-yellow-600">₹{p.amount.toLocaleString()}</td>
+                                                            <td className="px-10 py-8 font-bold text-slate-400">{formatDate(p.date)}</td>
+                                                            <td className="px-10 py-8 text-right">
+                                                                <button onClick={() => setSelectedPatron(p)} className="text-slate-900 border border-slate-200 px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">View Details</button>
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-8">
+                                        <button onClick={() => setSelectedPatron(null)} className="text-[10px] font-black uppercase tracking-widest text-slate-400 hover:text-yellow-600 transition-colors">← Back to Patrons</button>
+                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                            <div className="lg:col-span-2 bg-white rounded-[40px] p-12 border shadow-sm relative overflow-hidden">
+                                                <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-50 rounded-bl-full opacity-50 -mr-10 -mt-10" />
+                                                <h2 className="text-4xl font-merriweather font-black text-slate-900 mb-2">{selectedPatron.fullName}</h2>
+                                                <p className="text-yellow-600 font-bold mb-10 text-lg">Foundation Patron • Monthly ₹{selectedPatron.amount.toLocaleString()}</p>
+
+                                                <div className="grid grid-cols-2 gap-6 mb-10">
+                                                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Subscription ID</p>
+                                                        <p className="font-bold text-slate-700 font-mono text-sm">{selectedPatron.subscription_id}</p>
+                                                    </div>
+                                                    <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
+                                                        <p className="text-[10px] font-black uppercase text-slate-400 mb-2">Enrolled On</p>
+                                                        <p className="font-bold text-slate-700">{formatDate(selectedPatron.date)}</p>
+                                                    </div>
+                                                </div>
+
+                                                <div className="p-8 bg-yellow-50 rounded-[32px] border border-yellow-100/50">
+                                                    <h4 className="text-xs font-black uppercase text-yellow-800 mb-4">Patronage Impact</h4>
+                                                    <p className="text-sm text-yellow-900 leading-relaxed font-medium">This patron provides sustained leadership and financial stability to the foundation. Their recurring contribution supports long-term rural development initiatives and legal aid sustainability.</p>
+                                                </div>
+                                            </div>
+
+                                            <div className="bg-[#0F172A] rounded-[40px] p-10 text-white flex flex-col justify-between overflow-hidden relative">
+                                                <div className="relative z-10">
+                                                    <p className="text-[10px] font-black uppercase text-yellow-400 mb-8 tracking-widest">Contact Information</p>
+                                                    <div className="space-y-6">
+                                                        <div>
+                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Email Address</p>
+                                                            <p className="text-base font-bold text-slate-200">{selectedPatron.email}</p>
+                                                        </div>
+                                                        <div>
+                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Status</p>
+                                                            <span className="px-3 py-1 bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase">Active</span>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-20 relative z-10">
+                                                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-white/10">🤝</div>
+                                                    <p className="text-xs text-slate-400 font-medium leading-relaxed">Verified across Razorpay Subscription API and MongoDB Nexus Storage.</p>
+                                                </div>
+                                                <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-yellow-500/5 rounded-full" />
                                             </div>
                                         </div>
                                     </div>
