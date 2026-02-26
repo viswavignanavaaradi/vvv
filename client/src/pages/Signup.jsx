@@ -73,7 +73,7 @@ const Signup = () => {
                                 <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-colors ${userType === 'patron' ? 'bg-[#059669] border-[#059669] text-white' : 'border-slate-200'}`}>
                                     {userType === 'patron' && "✓"}
                                 </div>
-                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'patron' ? 'text-[#059669]' : 'text-slate-400'}`}>Be a Patron!</h2>
+                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'patron' ? 'text-[#059669]' : 'text-slate-400'}`}>Register as a Patron</h2>
                                 <p className="text-xs text-slate-500 font-medium leading-relaxed">
                                     Support us and help scale our vision.
                                 </p>
@@ -90,7 +90,7 @@ const Signup = () => {
                                 <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-colors ${userType === 'volunteer' ? 'bg-[#059669] border-[#059669] text-white' : 'border-slate-200'}`}>
                                     {userType === 'volunteer' && "✓"}
                                 </div>
-                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'volunteer' ? 'text-[#059669]' : 'text-slate-400'}`}>Be a Volunteer!</h2>
+                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'volunteer' ? 'text-[#059669]' : 'text-slate-400'}`}>Register as a Volunteer</h2>
                                 <p className="text-xs text-slate-500 font-medium leading-relaxed">
                                     Get on the ground and see impact firsthand.
                                 </p>
@@ -107,7 +107,7 @@ const Signup = () => {
                                 <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-colors ${userType === 'intern' ? 'bg-[#059669] border-[#059669] text-white' : 'border-slate-200'}`}>
                                     {userType === 'intern' && "✓"}
                                 </div>
-                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'intern' ? 'text-[#059669]' : 'text-slate-400'}`}>Be an Intern!</h2>
+                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'intern' ? 'text-[#059669]' : 'text-slate-400'}`}>Register as an Intern</h2>
                                 <p className="text-xs text-slate-500 font-medium leading-relaxed">
                                     Gain experience and contribute to our core missions.
                                 </p>

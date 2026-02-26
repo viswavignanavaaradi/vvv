@@ -77,7 +77,7 @@ const GetInvolved = () => {
                                 : 'border-transparent text-gray-500 hover:text-primary-royal'
                                 }`}
                         >
-                            {tab === 'volunteer' ? 'Volunteer / Intern' : tab === 'partnerships' ? 'Partnerships' : 'Individual Support'}
+                            {tab === 'volunteer' ? 'Internship' : tab === 'partnerships' ? 'Partnerships' : 'Individual Support'}
                         </button>
                     ))}
                 </div>
@@ -96,15 +96,11 @@ const GetInvolved = () => {
                     >
                         <div className="flex flex-col md:flex-row gap-12 items-center">
                             <div className="md:w-1/2">
-                                <h2 className="text-3xl font-merriweather font-bold text-primary-royal mb-6">Join as a Volunteer</h2>
+                                <h2 className="text-3xl font-merriweather font-bold text-primary-royal mb-6">Join as an Intern</h2>
                                 <p className="text-gray-600 text-lg leading-relaxed mb-8">
-                                    Whether you are a student looking for an internship or a professional wanting to give back, VVV offers a platform to serve.
-                                    Engage in fieldwork, organize events, or support our digital campaigns.
+                                    Are you a student looking for a meaningful internship experience? Join VVV to contribute to our core missions while gaining hands-on experience in rural development, legal aid, and social impact projects.
                                 </p>
                                 <div className="flex flex-wrap gap-4">
-                                    <button onClick={() => navigate('/volunteer-enrollment')} className="bg-accent-emerald hover:bg-emerald-600 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:-translate-y-1">
-                                        Register as Volunteer
-                                    </button>
                                     <button onClick={() => navigate('/internship-enrollment')} className="bg-primary-royal hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:-translate-y-1">
                                         Register as Intern
                                     </button>
@@ -114,11 +110,11 @@ const GetInvolved = () => {
                                 </div>
                             </div>
                             <div className="md:w-1/2 bg-white p-8 rounded-2xl shadow-xl border-t-4 border-accent-emerald">
-                                <h3 className="text-xl font-bold text-gray-800 mb-6">Volunteer Testimonials</h3>
+                                <h3 className="text-xl font-bold text-gray-800 mb-6">Intern Testimonials</h3>
                                 <div className="space-y-6">
                                     <blockquote className="italic text-gray-600 border-l-4 border-gray-200 pl-4">
-                                        "Interning with VVV changed my perspective on social work. The direct interaction with communities is invaluable."
-                                        <footer className="text-sm font-bold text-primary-royal mt-2">- Student Volunteer</footer>
+                                        "Interning with VVV changed my perspective on social work. The direct interaction with communities and the professional guidance I received was invaluable for my career."
+                                        <footer className="text-sm font-bold text-primary-royal mt-2">- Intern Portfolio</footer>
                                     </blockquote>
                                 </div>
                             </div>

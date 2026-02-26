@@ -214,6 +214,9 @@ const Login = () => {
                             <p className="mt-8 text-center text-slate-500 font-medium text-xs">
                                 Not a member? <Link to="/signup" className="text-[#059669] font-black hover:underline underline-offset-4 decoration-2">Create Account</Link>
                             </p>
+                            <p className="mt-2 text-center">
+                                <Link to="/internship-enrollment" className="text-primary-royal font-black hover:underline text-xs">Register as an Intern →</Link>
+                            </p>
                         </motion.div>
                     </div>
                 </div>
