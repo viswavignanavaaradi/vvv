@@ -197,9 +197,9 @@ function generateCertificate(data, verificationUrl) {
                 });
 
             // ─── 10. SEAL (centred) ───────────────────────────────────────
-            const sealSize = 100;
+            const sealSize = 140;
             const sealX = (W - sealSize) / 2;
-            const sealY = 440;
+            const sealY = 415;
 
             try {
                 if (fs.existsSync(sealPath)) {
