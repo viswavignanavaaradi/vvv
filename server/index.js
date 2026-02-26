@@ -15,6 +15,7 @@ const { createObjectCsvWriter } = require('csv-writer');
 // Models
 const User = require('./models/User');
 const Volunteer = require('./models/Volunteer');
+const Intern = require('./models/Intern');
 const Donation = require('./models/Donation');
 const LegalRequest = require('./models/LegalRequest');
 const Subscription = require('./models/Subscription');
@@ -480,6 +481,57 @@ app.get('/api/certificate/:certId', async (req, res) => {
     res.redirect(`/api/user/download-certificate?certId=${certId}`);
 });
 
+// Intern Enrollment
+app.post('/api/intern/enroll', async (req, res) => {
+    const {
+        fullName, email, contactNumber, age, gender, bloodGroup,
+        state, district, collegeName, education, duration, preferredWings,
+        mainPriorityWing, interests, profilePhoto, achievements
+    } = req.body;
+
+    try {
+        const intern = await Intern.findOneAndUpdate(
+            { email },
+            {
+                fullName,
+                email,
+                age,
+                gender,
+                phone: contactNumber,
+                bloodGroup,
+                state,
+                district,
+                collegeName,
+                education,
+                duration,
+                wings: preferredWings,
+                priorityWing: mainPriorityWing,
+                interests,
+                profilePhoto,
+                documents: achievements || [],
+                status: 'pending' // Reset status on re-enrollment logic if needed
+            },
+            { upsert: true, new: true }
+        );
+
+        // Update User info if User exists
+        await User.findOneAndUpdate(
+            { email },
+            {
+                name: fullName,
+                role: 'intern',
+                ...(profilePhoto && { picture: profilePhoto })
+            },
+            { upsert: true }
+        );
+
+        res.json({ status: 'success', enrollmentId: intern._id });
+    } catch (err) {
+        console.error("Intern Enrollment Error Details:", err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // Certificate Download
 app.get('/api/user/download-certificate', async (req, res) => {
     const { email, certId } = req.query;
@@ -619,6 +671,28 @@ app.post('/api/user/upload-document', uploadDoc.single('document'), async (req, 
     }
 });
 
+// Achievement (Intern) Upload
+app.post('/api/intern/upload-achievement', uploadDoc.single('document'), async (req, res) => {
+    const { email, docName } = req.body || {};
+    if (!email || !req.file) {
+        return res.status(400).json({ error: 'Missing email or document' });
+    }
+    try {
+        if (!req.file) throw new Error('Cloudinary upload failed - No file received');
+
+        await Intern.findOneAndUpdate(
+            { email },
+            { $push: { documents: { name: docName || req.file.originalname, url: req.file.path, cloudinary_id: req.file.filename } } },
+            { upsert: true } // If they upload file before full submit, create skeleton record
+        );
+        console.log(`[Upload] Intern Achievement added for ${email}: ${docName || req.file.originalname}`);
+        res.json({ status: 'success', url: req.file.path });
+    } catch (err) {
+        console.error('[Upload Error] Intern Document:', err.message);
+        res.status(500).json({ error: 'Document upload failed. Please verify Cloudinary settings.' });
+    }
+});
+
 // Admin APIs
 app.get('/api/admin/volunteers', async (req, res) => {
     try {
@@ -633,6 +707,30 @@ app.get('/api/admin/donations', async (req, res) => {
     try {
         const donations = await Donation.find().sort({ createdAt: -1 });
         res.json(donations);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Intern Admin APIs
+app.get('/api/admin/interns', async (req, res) => {
+    try {
+        const interns = await Intern.find().sort({ date: -1 });
+        res.json(interns);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.put('/api/admin/interns/:id/status', async (req, res) => {
+    const { status, adminMessage } = req.body;
+    try {
+        const intern = await Intern.findByIdAndUpdate(req.params.id, { status, adminMessage }, { new: true });
+
+        // Pseudo-code for email notification (Nodemailer could be injected here)
+        console.log(`[Notification] Auto-email triggered for ${intern.email}. Status: ${status}`);
+
+        res.json({ status: 'success', intern });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

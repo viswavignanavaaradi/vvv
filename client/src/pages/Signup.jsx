@@ -26,6 +26,8 @@ const Signup = () => {
 
         if (userType === 'volunteer') {
             navigate('/volunteer-enrollment');
+        } else if (userType === 'intern') {
+            navigate('/internship-enrollment');
         } else {
             navigate('/profile');
         }
@@ -93,6 +95,23 @@ const Signup = () => {
                                     Get on the ground and see impact firsthand.
                                 </p>
                             </motion.div>
+
+                            <motion.div
+                                onClick={() => setUserType('intern')}
+                                initial={{ opacity: 0, x: -30 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                whileHover={{ scale: 1.02 }}
+                                transition={{ delay: 0.2 }}
+                                className={`p-6 xl:p-8 rounded-[35px] shadow-lg cursor-pointer border-2 transition-all duration-500 relative overflow-hidden ${userType === 'intern' ? 'bg-white border-[#059669] shadow-[#059669]/10' : 'bg-white/40 border-transparent opacity-60 backdrop-blur-sm'}`}
+                            >
+                                <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-colors ${userType === 'intern' ? 'bg-[#059669] border-[#059669] text-white' : 'border-slate-200'}`}>
+                                    {userType === 'intern' && "✓"}
+                                </div>
+                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'intern' ? 'text-[#059669]' : 'text-slate-400'}`}>Be an Intern!</h2>
+                                <p className="text-xs text-slate-500 font-medium leading-relaxed">
+                                    Gain experience and contribute to our core missions.
+                                </p>
+                            </motion.div>
                         </div>
                     </div>
 
@@ -133,6 +152,8 @@ const Signup = () => {
                                     onClick={() => {
                                         if (userType === 'volunteer') {
                                             navigate('/volunteer-enrollment');
+                                        } else if (userType === 'intern') {
+                                            navigate('/internship-enrollment');
                                         } else {
                                             // Normal signup logic for patrons
                                             alert('Patron signup coming soon or use Google Login');

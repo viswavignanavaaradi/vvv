@@ -33,14 +33,17 @@ const Admin = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
     const [donations, setDonations] = useState([]);
     const [volunteers, setVolunteers] = useState([]);
+    const [interns, setInterns] = useState([]);
     const [legalRequests, setLegalRequests] = useState([]);
     const [selectedRequest, setSelectedRequest] = useState(null);
     const [loading, setLoading] = useState(false);
     const [adminMsg, setAdminMsg] = useState('');
     const [statusUpdate, setStatusUpdate] = useState('');
     const [selectedVolunteer, setSelectedVolunteer] = useState(null);
+    const [selectedIntern, setSelectedIntern] = useState(null);
     const [searchTerm, setSearchTerm] = useState('');
     const [filterStatus, setFilterStatus] = useState('All');
+    const [internFilterStatus, setInternFilterStatus] = useState('All');
     const [selectedDonation, setSelectedDonation] = useState(null);
 
     useEffect(() => {
@@ -73,10 +76,29 @@ const Admin = () => {
                 const res = await axios.get('/api/admin/volunteers');
                 setVolunteers(res.data);
             }
+            if (activeTab === 'interns' || activeTab === 'dashboard') {
+                const res = await axios.get('/api/admin/interns');
+                setInterns(res.data);
+            }
         } catch (err) {
             console.error(err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleUpdateInternStatus = async (id) => {
+        try {
+            await axios.put(`/api/admin/interns/${id}/status`, {
+                status: statusUpdate,
+                adminMessage: adminMsg
+            });
+            alert(`Intern application ${statusUpdate}`);
+            setSelectedIntern(null);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to update intern status');
         }
     };
 
@@ -137,6 +159,7 @@ const Admin = () => {
         { id: 'requests', label: 'Legal Aid Requests', icon: '⚖️' },
         { id: 'donations', label: 'Donations Ledger', icon: '🤝' },
         { id: 'volunteers', label: 'Volunteers Hub', icon: '👥' },
+        { id: 'interns', label: 'Intern Applications', icon: '🎓' },
         { id: 'account', label: 'Admin Settings', icon: '⚙️' },
     ];
 
@@ -156,7 +179,7 @@ const Admin = () => {
                     {menuItems.map(item => (
                         <button
                             key={item.id}
-                            onClick={() => { setActiveTab(item.id); setSelectedRequest(null); setSelectedVolunteer(null); setSelectedDonation(null); }}
+                            onClick={() => { setActiveTab(item.id); setSelectedRequest(null); setSelectedVolunteer(null); setSelectedDonation(null); setSelectedIntern(null); }}
                             className={`w-full flex items-center gap-4 px-6 py-4 rounded-xl font-bold text-sm transition-all group ${activeTab === item.id ? 'bg-[#1E293B] text-emerald-400 border border-slate-700' : 'text-slate-400 hover:text-slate-200 hover:bg-[#1E293B]/50'}`}
                         >
                             <span className={`text-lg transition-transform group-hover:scale-110 ${activeTab === item.id ? 'opacity-100' : 'opacity-50'}`}>{item.icon}</span>
@@ -723,241 +746,231 @@ const Admin = () => {
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </motion.div>
-                        )}
-
-                        {activeTab === 'donations' && (
-                            <motion.div key="donations" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
-                                {!selectedDonation ? (
-                                    <div className="bg-white rounded-[32px] shadow-sm overflow-hidden border border-slate-200">
-                                        <div className="p-8 border-b border-slate-100 flex justify-between items-center">
-                                            <h2 className="text-xl font-merriweather font-black text-slate-800">Donations Ledger</h2>
-                                            <div className="flex items-center gap-4">
-                                                <input
-                                                    value={searchTerm}
-                                                    onChange={(e) => setSearchTerm(e.target.value)}
-                                                    placeholder="Search donor..."
-                                                    className="px-6 py-2 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium outline-none focus:border-blue-500 transition-all"
-                                                />
-                                                <div className="flex items-center gap-4 bg-slate-50 px-6 py-2 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-100">
-                                                    Auto-sync: Secure
+                                            <div className="p-8 border-b border-slate-100 flex justify-between items-center">
+                                                <h2 className="text-xl font-merriweather font-black text-slate-800">Donations Ledger</h2>
+                                                <div className="flex items-center gap-4">
+                                                    <input
+                                                        value={searchTerm}
+                                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                                        placeholder="Search donor..."
+                                                        className="px-6 py-2 rounded-xl bg-slate-50 border border-slate-100 text-xs font-medium outline-none focus:border-blue-500 transition-all"
+                                                    />
+                                                    <div className="flex items-center gap-4 bg-slate-50 px-6 py-2 rounded-xl text-[10px] font-black text-slate-400 uppercase tracking-widest border border-slate-100">
+                                                        Auto-sync: Secure
+                                                    </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                        <div className="overflow-x-auto">
-                                            <table className="w-full text-left">
-                                                <thead className="bg-[#f8fafc] text-slate-400 border-b border-slate-100">
-                                                    <tr>
-                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">S.No</th>
-                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Date / Time</th>
-                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Donor Detail</th>
-                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Amount</th>
-                                                        <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-right">Transaction Receipt</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody className="divide-y divide-slate-50">
-                                                    {donations
-                                                        .filter(d =>
-                                                            (d.donor_name && d.donor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-                                                            (d.email && d.email.toLowerCase().includes(searchTerm.toLowerCase()))
-                                                        )
-                                                        .map((item, idx) => (
-                                                            <tr key={idx} className="hover:bg-slate-50/50 transition-all group">
-                                                                <td className="px-10 py-8 text-xs font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">{(idx + 1).toString().padStart(2, '0')}</td>
-                                                                <td className="px-10 py-8 text-xs font-bold text-slate-700 tracking-tighter uppercase">{new Date(item.createdAt).toLocaleDateString()} at {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
-                                                                <td className="px-10 py-8">
-                                                                    <div className="flex items-center gap-3">
-                                                                        <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">👤</div>
-                                                                        <div className="flex flex-col">
-                                                                            <p className="text-xs font-black text-slate-800">{item.donor_name || 'Anonymous'}</p>
-                                                                            <p className="text-[10px] font-medium text-slate-400">{item.email}</p>
-                                                                        </div>
-                                                                    </div>
-                                                                </td>
-                                                                <td className="px-10 py-8 text-sm font-black text-emerald-600">₹{item.amount.toLocaleString()}</td>
-                                                                <td className="px-10 py-8 text-right">
-                                                                    <button
-                                                                        onClick={() => setSelectedDonation(item)}
-                                                                        className="text-[9px] font-black text-blue-600 border border-blue-100 px-4 py-1.5 rounded-lg uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"
-                                                                    >
-                                                                        Audit Receipt
-                                                                    </button>
-                                                                </td>
-                                                            </tr>
-                                                        ))}
-                                                    {donations.length === 0 && (
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-left">
+                                                    <thead className="bg-[#f8fafc] text-slate-400 border-b border-slate-100">
                                                         <tr>
-                                                            <td colSpan="5" className="py-20 text-center text-slate-400 italic text-sm">No transaction records detected in the ledger.</td>
+                                                            <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">S.No</th>
+                                                            <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Date / Time</th>
+                                                            <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Donor Detail</th>
+                                                            <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest">Amount</th>
+                                                            <th className="px-10 py-6 text-[10px] font-black uppercase tracking-widest text-right">Transaction Receipt</th>
                                                         </tr>
-                                                    )}
-                                                </tbody>
-                                            </table>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-slate-50">
+                                                        {donations
+                                                            .filter(d =>
+                                                                (d.donor_name && d.donor_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
+                                                                (d.email && d.email.toLowerCase().includes(searchTerm.toLowerCase()))
+                                                            )
+                                                            .map((item, idx) => (
+                                                                <tr key={idx} className="hover:bg-slate-50/50 transition-all group">
+                                                                    <td className="px-10 py-8 text-xs font-bold text-slate-400 group-hover:text-emerald-600 transition-colors">{(idx + 1).toString().padStart(2, '0')}</td>
+                                                                    <td className="px-10 py-8 text-xs font-bold text-slate-700 tracking-tighter uppercase">{new Date(item.createdAt).toLocaleDateString()} at {new Date(item.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
+                                                                    <td className="px-10 py-8">
+                                                                        <div className="flex items-center gap-3">
+                                                                            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs">👤</div>
+                                                                            <div className="flex flex-col">
+                                                                                <p className="text-xs font-black text-slate-800">{item.donor_name || 'Anonymous'}</p>
+                                                                                <p className="text-[10px] font-medium text-slate-400">{item.email}</p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </td>
+                                                                    <td className="px-10 py-8 text-sm font-black text-emerald-600">₹{item.amount.toLocaleString()}</td>
+                                                                    <td className="px-10 py-8 text-right">
+                                                                        <button
+                                                                            onClick={() => setSelectedDonation(item)}
+                                                                            className="text-[9px] font-black text-blue-600 border border-blue-100 px-4 py-1.5 rounded-lg uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all shadow-sm"
+                                                                        >
+                                                                            Audit Receipt
+                                                                        </button>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        {donations.length === 0 && (
+                                                            <tr>
+                                                                <td colSpan="5" className="py-20 text-center text-slate-400 italic text-sm">No transaction records detected in the ledger.</td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-                                        <button onClick={() => setSelectedDonation(null)} className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-emerald-600 transition-all">
-                                            ← Return to Ledger
-                                        </button>
+                                        ) : (
+                                        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+                                            <button onClick={() => setSelectedDonation(null)} className="flex items-center gap-2 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-emerald-600 transition-all">
+                                                ← Return to Ledger
+                                            </button>
 
-                                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                                            <div className="lg:col-span-2 space-y-8">
-                                                {/* Donation Profile Card */}
-                                                <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-10">
-                                                    <div className="flex justify-between items-start mb-10">
-                                                        <div className="flex items-center gap-6">
-                                                            <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center text-3xl shadow-inner border border-emerald-100 text-emerald-600 font-black">
-                                                                💰
+                                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                                                <div className="lg:col-span-2 space-y-8">
+                                                    {/* Donation Profile Card */}
+                                                    <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-10">
+                                                        <div className="flex justify-between items-start mb-10">
+                                                            <div className="flex items-center gap-6">
+                                                                <div className="w-20 h-20 rounded-3xl bg-emerald-50 flex items-center justify-center text-3xl shadow-inner border border-emerald-100 text-emerald-600 font-black">
+                                                                    💰
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-2">Transaction Profile</p>
+                                                                    <h2 className="text-3xl font-merriweather font-black text-slate-900">{selectedDonation.donor_name || 'Anonymous'}</h2>
+                                                                </div>
+                                                            </div>
+                                                            <div className="text-right">
+                                                                <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Contribution Date</p>
+                                                                <p className="text-sm font-bold text-slate-700">{new Date(selectedDonation.createdAt).toLocaleDateString()}</p>
+                                                            </div>
+                                                        </div>
+
+                                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 p-8 bg-slate-50 rounded-3xl border border-slate-100">
+                                                            <div>
+                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Grant Amount</p>
+                                                                <p className="text-2xl font-black text-emerald-600">₹{selectedDonation.amount.toLocaleString()}</p>
                                                             </div>
                                                             <div>
-                                                                <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.3em] mb-2">Transaction Profile</p>
-                                                                <h2 className="text-3xl font-merriweather font-black text-slate-900">{selectedDonation.donor_name || 'Anonymous'}</h2>
+                                                                <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
+                                                                <span className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-black rounded-lg uppercase tracking-widest">Success</span>
                                                             </div>
                                                         </div>
-                                                        <div className="text-right">
-                                                            <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-2">Contribution Date</p>
-                                                            <p className="text-sm font-bold text-slate-700">{new Date(selectedDonation.createdAt).toLocaleDateString()}</p>
+
+                                                        <div className="space-y-8">
+                                                            <div>
+                                                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Payment Infrastructure</h3>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                                                    <div className="p-6 bg-white border border-slate-100 rounded-2xl">
+                                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Razorpay Payment ID</p>
+                                                                        <p className="text-xs font-bold text-slate-800 break-all">{selectedDonation.payment_id || 'LOCAL-RECORD'}</p>
+                                                                    </div>
+                                                                    <div className="p-6 bg-white border border-slate-100 rounded-2xl">
+                                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Audit Certificate ID</p>
+                                                                        <p className="text-xs font-bold text-slate-800 break-all">{selectedDonation.certificate_id || 'PENDING'}</p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <div>
+                                                                <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Donor Correspondence</h3>
+                                                                <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
+                                                                    <div>
+                                                                        <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Email Terminal</p>
+                                                                        <p className="text-sm font-bold text-slate-800">{selectedDonation.email}</p>
+                                                                    </div>
+                                                                    <button onClick={() => window.location.href = `mailto:${selectedDonation.email}`} className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Draft Mail</button>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </div>
 
-                                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-10 p-8 bg-slate-50 rounded-3xl border border-slate-100">
-                                                        <div>
-                                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Grant Amount</p>
-                                                            <p className="text-2xl font-black text-emerald-600">₹{selectedDonation.amount.toLocaleString()}</p>
-                                                        </div>
-                                                        <div>
-                                                            <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Status</p>
-                                                            <span className="px-3 py-1 bg-emerald-500 text-white text-[9px] font-black rounded-lg uppercase tracking-widest">Success</span>
-                                                        </div>
-                                                    </div>
-
-                                                    <div className="space-y-8">
-                                                        <div>
-                                                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Payment Infrastructure</h3>
-                                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                                                <div className="p-6 bg-white border border-slate-100 rounded-2xl">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Razorpay Payment ID</p>
-                                                                    <p className="text-xs font-bold text-slate-800 break-all">{selectedDonation.payment_id || 'LOCAL-RECORD'}</p>
-                                                                </div>
-                                                                <div className="p-6 bg-white border border-slate-100 rounded-2xl">
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-2">Audit Certificate ID</p>
-                                                                    <p className="text-xs font-bold text-slate-800 break-all">{selectedDonation.certificate_id || 'PENDING'}</p>
-                                                                </div>
+                                                    {/* Action Panel */}
+                                                    <div className="bg-slate-900 rounded-[40px] p-10 text-white">
+                                                        <div className="flex flex-col md:flex-row justify-between items-center gap-6">
+                                                            <div>
+                                                                <h4 className="text-lg font-merriweather font-black mb-1">Audit Generation</h4>
+                                                                <p className="text-slate-400 text-xs font-medium">Verify and acquire the official tax receipt for this transaction.</p>
                                                             </div>
-                                                        </div>
-
-                                                        <div>
-                                                            <h3 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Donor Correspondence</h3>
-                                                            <div className="p-6 bg-slate-50 border border-slate-100 rounded-2xl flex items-center justify-between">
-                                                                <div>
-                                                                    <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">Email Terminal</p>
-                                                                    <p className="text-sm font-bold text-slate-800">{selectedDonation.email}</p>
-                                                                </div>
-                                                                <button onClick={() => window.location.href = `mailto:${selectedDonation.email}`} className="text-[10px] font-black text-blue-600 uppercase tracking-widest hover:underline">Draft Mail</button>
-                                                            </div>
+                                                            <button
+                                                                onClick={() => handleDownloadCertificate(selectedDonation.certificate_id)}
+                                                                className="bg-emerald-500 text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-emerald-900/20 hover:bg-emerald-600 transition-all text-xs uppercase tracking-widest active:scale-95 whitespace-nowrap"
+                                                            >
+                                                                Download Audit Receipt
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
 
-                                                {/* Action Panel */}
-                                                <div className="bg-slate-900 rounded-[40px] p-10 text-white">
-                                                    <div className="flex flex-col md:flex-row justify-between items-center gap-6">
-                                                        <div>
-                                                            <h4 className="text-lg font-merriweather font-black mb-1">Audit Generation</h4>
-                                                            <p className="text-slate-400 text-xs font-medium">Verify and acquire the official tax receipt for this transaction.</p>
+                                                <div className="space-y-8">
+                                                    {/* Security Shield */}
+                                                    <div className="bg-[#0F172A] rounded-[40px] shadow-2xl p-10 text-white relative overflow-hidden">
+                                                        <div className="absolute top-0 right-0 p-8 opacity-10">
+                                                            <span className="text-6xl text-white">🛡️</span>
                                                         </div>
-                                                        <button
-                                                            onClick={() => handleDownloadCertificate(selectedDonation.certificate_id)}
-                                                            className="bg-emerald-500 text-white font-black px-10 py-4 rounded-2xl shadow-xl shadow-emerald-900/20 hover:bg-emerald-600 transition-all text-xs uppercase tracking-widest active:scale-95 whitespace-nowrap"
-                                                        >
-                                                            Download Audit Receipt
-                                                        </button>
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div className="space-y-8">
-                                                {/* Security Shield */}
-                                                <div className="bg-[#0F172A] rounded-[40px] shadow-2xl p-10 text-white relative overflow-hidden">
-                                                    <div className="absolute top-0 right-0 p-8 opacity-10">
-                                                        <span className="text-6xl text-white">🛡️</span>
-                                                    </div>
-                                                    <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 mb-6">Security Context</p>
-                                                    <div className="space-y-6 relative z-10">
-                                                        <p className="text-xs text-slate-400 leading-relaxed">
-                                                            This record is a verified financial artifact. Any modifications to donor information must be performed through the master database terminal with audit logging enabled.
-                                                        </p>
-                                                        <div className="h-px bg-slate-800" />
-                                                        <div className="flex items-center gap-3">
-                                                            <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                                            <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Encrypted Record</span>
+                                                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-emerald-400 mb-6">Security Context</p>
+                                                        <div className="space-y-6 relative z-10">
+                                                            <p className="text-xs text-slate-400 leading-relaxed">
+                                                                This record is a verified financial artifact. Any modifications to donor information must be performed through the master database terminal with audit logging enabled.
+                                                            </p>
+                                                            <div className="h-px bg-slate-800" />
+                                                            <div className="flex items-center gap-3">
+                                                                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                                                                <span className="text-[9px] font-black uppercase tracking-widest text-slate-500">Encrypted Record</span>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
                                 )}
-                            </motion.div>
-                        )}
+                                    </motion.div>
+                                )}
 
-                        {activeTab === 'account' && (
-                            <motion.div key="account" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-4xl">
-                                <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-12">
-                                    <h1 className="text-4xl font-merriweather font-black text-slate-900 mb-2">Administrator Settings</h1>
-                                    <p className="text-slate-400 font-medium mb-12">Configure organizational access and security protocols</p>
+                                {activeTab === 'account' && (
+                                    <motion.div key="account" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-4xl">
+                                        <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-12">
+                                            <h1 className="text-4xl font-merriweather font-black text-slate-900 mb-2">Administrator Settings</h1>
+                                            <p className="text-slate-400 font-medium mb-12">Configure organizational access and security protocols</p>
 
-                                    <div className="space-y-12">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Identity Descriptor</p>
-                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black text-slate-700 shadow-inner">viswavignanavaaradhi</div>
-                                            </div>
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Relay Endpoint (Email)</p>
-                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-bold text-slate-700 shadow-inner text-sm">admin@vvv-nexus.org</div>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-4">
-                                            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Credentials</p>
-                                            <div className="px-10 py-5 bg-white rounded-2xl border border-slate-100 inline-block shadow-sm">
-                                                <button className="text-blue-600 font-black text-xs uppercase tracking-widest underline underline-offset-8 decoration-2 decoration-blue-200 hover:decoration-blue-600 transition-all">rotate security key</button>
-                                            </div>
-                                        </div>
-                                        <div className="h-px bg-slate-100" />
-                                        <div className="grid grid-cols-2 gap-12">
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Clearance Level</p>
-                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black text-[#1e3a8a] flex items-center justify-between shadow-inner">
-                                                    ROOT_ADMINISTRATOR
-                                                    <span className="text-emerald-500 text-lg">🔒</span>
+                                            <div className="space-y-12">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Identity Descriptor</p>
+                                                        <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black text-slate-700 shadow-inner">viswavignanavaaradhi</div>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Relay Endpoint (Email)</p>
+                                                        <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-bold text-slate-700 shadow-inner text-sm">admin@vvv-nexus.org</div>
+                                                    </div>
+                                                </div>
+                                                <div className="space-y-4">
+                                                    <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Credentials</p>
+                                                    <div className="px-10 py-5 bg-white rounded-2xl border border-slate-100 inline-block shadow-sm">
+                                                        <button className="text-blue-600 font-black text-xs uppercase tracking-widest underline underline-offset-8 decoration-2 decoration-blue-200 hover:decoration-blue-600 transition-all">rotate security key</button>
+                                                    </div>
+                                                </div>
+                                                <div className="h-px bg-slate-100" />
+                                                <div className="grid grid-cols-2 gap-12">
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Clearance Level</p>
+                                                        <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black text-[#1e3a8a] flex items-center justify-between shadow-inner">
+                                                            ROOT_ADMINISTRATOR
+                                                            <span className="text-emerald-500 text-lg">🔒</span>
+                                                        </div>
+                                                    </div>
+                                                    <div className="space-y-4">
+                                                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Initialization Date</p>
+                                                        <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-bold text-slate-700 shadow-inner uppercase tracking-tighter">FEB 15, 2024</div>
+                                                    </div>
                                                 </div>
                                             </div>
-                                            <div className="space-y-4">
-                                                <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Initialization Date</p>
-                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-bold text-slate-700 shadow-inner uppercase tracking-tighter">FEB 15, 2024</div>
-                                            </div>
-                                        </div>
-                                    </div>
 
-                                    <div className="mt-20 p-8 rounded-3xl bg-orange-50 border border-orange-100">
-                                        <div className="flex gap-4">
-                                            <span className="text-2xl">⚠️</span>
-                                            <div>
-                                                <h5 className="text-orange-900 font-black text-xs uppercase tracking-widest mb-1">Security Protocol</h5>
-                                                <p className="text-orange-700 text-[10px] font-medium leading-relaxed">
-                                                    All actions in this portal are logged against your ID. Ensure you logout after every session. Two-factor authentication is active on this account.
-                                                </p>
+                                            <div className="mt-20 p-8 rounded-3xl bg-orange-50 border border-orange-100">
+                                                <div className="flex gap-4">
+                                                    <span className="text-2xl">⚠️</span>
+                                                    <div>
+                                                        <h5 className="text-orange-900 font-black text-xs uppercase tracking-widest mb-1">Security Protocol</h5>
+                                                        <p className="text-orange-700 text-[10px] font-medium leading-relaxed">
+                                                            All actions in this portal are logged against your ID. Ensure you logout after every session. Two-factor authentication is active on this account.
+                                                        </p>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
                 </main>
             </div>
         </div>

@@ -58,6 +58,16 @@ const Profile = () => {
                     wings: res.data.volunteer.wings,
                     priorityWing: res.data.volunteer.priorityWing
                 });
+            } else if (res.data.intern) {
+                setEditForm({
+                    fullName: res.data.intern.fullName,
+                    phone: res.data.intern.phone,
+                    education: res.data.intern.education,
+                    college: res.data.intern.collegeName,
+                    district: res.data.intern.district,
+                    state: res.data.intern.state,
+                    priorityWing: res.data.intern.priorityWing
+                });
             }
         } catch (err) {
             console.error("Profile fetch error:", err);
@@ -131,6 +141,7 @@ const Profile = () => {
     );
 
     const isVolunteer = profileData?.volunteer;
+    const isIntern = profileData?.intern;
 
     return (
         <div className="bg-[#FFFDF5] min-h-screen pt-20 pb-20">
@@ -193,7 +204,7 @@ const Profile = () => {
                                 className="space-y-8"
                             >
                                 {/* Mission Enrollment Status */}
-                                {!isVolunteer && (
+                                {!isVolunteer && !isIntern && (
                                     <div className="bg-white rounded-[40px] shadow-xl p-8 border-l-8 border-[#F59E0B] relative overflow-hidden group">
                                         <div className="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10">
                                             <span className="text-8xl">🚀</span>
@@ -210,6 +221,23 @@ const Profile = () => {
                                             >
                                                 Complete Enrollment
                                             </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {isIntern && (
+                                    <div className={`rounded-[40px] shadow-xl p-8 border-l-8 relative overflow-hidden group ${profileData.intern.status === 'accepted' ? 'bg-emerald-50 border-emerald-500' : profileData.intern.status === 'rejected' ? 'bg-rose-50 border-rose-500' : 'bg-orange-50 border-orange-500'}`}>
+                                        <div className="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10">
+                                            <span className="text-8xl">🎓</span>
+                                        </div>
+                                        <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
+                                            <div className="bg-white w-20 h-20 rounded-3xl flex items-center justify-center text-3xl shadow-inner">
+                                                {profileData.intern.status === 'accepted' ? '✅' : profileData.intern.status === 'rejected' ? '🚫' : '⏳'}
+                                            </div>
+                                            <div className="flex-grow text-center md:text-left">
+                                                <h2 className="text-2xl font-merriweather font-black text-slate-800">Internship Application: <span className="uppercase">{profileData.intern.status}</span></h2>
+                                                <p className="text-slate-500 font-medium text-sm mt-1">{profileData.intern.adminMessage || (profileData.intern.status === 'pending' ? 'Your application is currently under review by our team.' : 'Please check your email for further instructions.')}</p>
+                                            </div>
                                         </div>
                                     </div>
                                 )}
@@ -254,10 +282,10 @@ const Profile = () => {
                                                             className="text-4xl font-merriweather font-black text-slate-800 bg-slate-50 rounded-xl px-4 py-2 w-full outline-none focus:ring-4 focus:ring-blue-100"
                                                         />
                                                     ) : (
-                                                        <h1 className="text-4xl font-merriweather font-black text-slate-800 leading-tight">{isVolunteer ? profileData.volunteer.fullName : user?.name}</h1>
+                                                        <h1 className="text-4xl font-merriweather font-black text-slate-800 leading-tight">{isVolunteer ? profileData.volunteer.fullName : isIntern ? profileData.intern.fullName : user?.name}</h1>
                                                     )}
                                                     <p className="text-blue-600 font-black tracking-[0.3em] text-[10px] uppercase mt-1">
-                                                        {isVolunteer ? `VVV-V-${String(profileData.volunteer._id).slice(-4).toUpperCase()}` : 'PATRON'}
+                                                        {isVolunteer ? `VVV-V-${String(profileData.volunteer._id).slice(-4).toUpperCase()}` : isIntern ? `VVV-I-${String(profileData.intern._id).slice(-4).toUpperCase()}` : 'PATRON'}
                                                     </p>
                                                     {isVolunteer && (
                                                         <button
@@ -295,16 +323,16 @@ const Profile = () => {
                                                 <div>
                                                     <p className="uppercase tracking-widest text-[10px] text-gray-300 font-black mb-1">Joined</p>
                                                     <p className="font-bold text-slate-600">
-                                                        {isVolunteer ? new Date(profileData.volunteer.date).toLocaleDateString() : 'Active Member'}
+                                                        {isVolunteer ? new Date(profileData.volunteer.date).toLocaleDateString() : isIntern ? new Date(profileData.intern.date).toLocaleDateString() : 'Active Member'}
                                                     </p>
                                                 </div>
-                                                {isVolunteer && (
+                                                {(isVolunteer || isIntern) && (
                                                     <div>
                                                         <p className="uppercase tracking-widest text-[10px] text-gray-300 font-black mb-1">Main Mission</p>
                                                         <p className="font-black text-blue-600">
-                                                            {profileData.volunteer.priorityWing?.includes('(')
-                                                                ? profileData.volunteer.priorityWing.split('(')[1]?.replace(')', '')
-                                                                : profileData.volunteer.priorityWing || 'Social Service'}
+                                                            {(isVolunteer ? profileData.volunteer.priorityWing : profileData.intern.priorityWing)?.includes('(')
+                                                                ? (isVolunteer ? profileData.volunteer.priorityWing : profileData.intern.priorityWing).split('(')[1]?.replace(')', '')
+                                                                : (isVolunteer ? profileData.volunteer.priorityWing : profileData.intern.priorityWing) || 'Social Service'}
                                                         </p>
                                                     </div>
                                                 )}
@@ -345,13 +373,13 @@ const Profile = () => {
                                         <div className="flex flex-wrap gap-2 mb-8 min-h-[60px]">
                                             {isEditing ? (
                                                 <textarea
-                                                    value={editForm.interests}
+                                                    value={editForm.interests || ''}
                                                     onChange={(e) => setEditForm({ ...editForm, interests: e.target.value })}
                                                     className="w-full bg-slate-50 border border-slate-100 rounded-2xl p-4 text-xs font-medium text-slate-600 outline-none focus:ring-4 focus:ring-blue-100"
                                                     placeholder="List your skills (comma separated)..."
                                                 />
                                             ) : (
-                                                isVolunteer ? (
+                                                isVolunteer && profileData.volunteer ? (
                                                     <>
                                                         {(profileData.volunteer.wings?.split(',') || []).map(tag => tag.trim()).filter(tag => tag).map(tag => (
                                                             <span key={tag} className="bg-emerald-50/50 px-4 py-2 rounded-full border border-emerald-50 text-[9px] font-black text-emerald-600 uppercase tracking-widest">{tag}</span>
@@ -360,13 +388,18 @@ const Profile = () => {
                                                             <span key={tag} className="bg-blue-50/50 px-4 py-2 rounded-full border border-blue-50 text-[9px] font-black text-blue-600 uppercase tracking-widest">{tag}</span>
                                                         ))}
                                                     </>
+                                                ) : isIntern && profileData.intern ? (
+                                                    <>
+                                                        <span className="bg-orange-50/50 px-4 py-2 rounded-full border border-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest">INTERNSHIP APPLICANT</span>
+                                                        <span className="bg-blue-50/50 px-4 py-2 rounded-full border border-blue-50 text-[9px] font-black text-blue-600 uppercase tracking-widest">{profileData.intern.duration}</span>
+                                                    </>
                                                 ) : <p className="text-slate-300 text-[10px] italic">Join as a volunteer to showcase your skills.</p>
                                             )}
                                         </div>
                                         <div className="p-6 rounded-3xl bg-slate-50/50 border border-slate-50 relative">
                                             <span className="absolute -top-3 left-6 text-4xl text-slate-100 font-serif">"</span>
                                             <p className="text-sm text-slate-500 font-medium leading-relaxed italic relative z-10 pt-2">
-                                                {isVolunteer ? `Dedicated member of ${profileData.volunteer.priorityWing?.split('(')[0] || 'VVV Foundation'}. Committed to social transformation.` : "Supporter of VVV Foundation's vision."}
+                                                {isVolunteer ? `Dedicated member of ${profileData.volunteer.priorityWing?.split('(')[0] || 'VVV Foundation'}. Committed to social transformation.` : isIntern ? `Aspiring intern for ${profileData.intern.priorityWing?.split('(')[0] || 'VVV Foundation'}. Currently studying at ${profileData.intern.collegeName || 'University'}.` : "Supporter of VVV Foundation's vision."}
                                             </p>
                                         </div>
                                     </div>
@@ -394,13 +427,13 @@ const Profile = () => {
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Member Type</p>
-                                            <p className="font-bold text-[#1e3a8a]">{isVolunteer ? 'Official Volunteer Member' : 'Patron Member'}</p>
+                                            <p className="font-bold text-[#1e3a8a]">{isVolunteer ? 'Official Volunteer Member' : isIntern ? 'Internship Applicant' : 'Patron Member'}</p>
                                         </div>
                                     </div>
                                     <div className="space-y-6">
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Account ID</p>
-                                            <p className="font-bold text-slate-700">#{isVolunteer ? profileData.volunteer._id : 'P-' + user?.email.split('@')[0]}</p>
+                                            <p className="font-bold text-slate-700">#{isVolunteer ? profileData.volunteer._id : isIntern ? profileData.intern._id : 'P-' + user?.email.split('@')[0]}</p>
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Status</p>
@@ -472,7 +505,7 @@ const Profile = () => {
                                         <div className="space-y-8">
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Full Name</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.fullName : user?.name}</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.fullName : isIntern ? profileData.intern.fullName : user?.name}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Age / Gender</p>
@@ -486,34 +519,34 @@ const Profile = () => {
                                         <div className="space-y-8">
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Contact Phone</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.phone : '--'}</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.phone : isIntern ? profileData.intern.phone : '--'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">District</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.district : '--'}</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.district : isIntern ? profileData.intern.district : '--'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">State</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.state : '--'}</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.state : isIntern ? profileData.intern.state : '--'}</p>
                                             </div>
                                         </div>
                                         <div className="space-y-8">
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Education</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.education : '--'}</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.education : isIntern ? profileData.intern.education : '--'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">College/Work</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.college : '--'}</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.college : isIntern ? profileData.intern.collegeName : '--'}</p>
                                             </div>
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Main Mission (Wing)</p>
-                                                <p className="font-bold text-blue-600">{isVolunteer ? (profileData.volunteer.priorityWing || 'General') : '--'}</p>
+                                                <p className="font-bold text-blue-600">{isVolunteer ? (profileData.volunteer.priorityWing || 'General') : isIntern ? (profileData.intern.priorityWing || 'General') : '--'}</p>
                                             </div>
                                         </div>
                                         <div className="md:col-span-3">
-                                            <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Active Wings</p>
-                                            <p className="font-bold text-slate-600">{isVolunteer ? profileData.volunteer.wings : '--'}</p>
+                                            <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Active Wings / Details</p>
+                                            <p className="font-bold text-slate-600">{isVolunteer ? profileData.volunteer.wings : isIntern ? profileData.intern.duration + ' Internship' : '--'}</p>
                                         </div>
                                     </div>
                                 )}
