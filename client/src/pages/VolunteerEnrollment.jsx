@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../api/axios';
-import { useNavigate } from 'react-router-dom';
-import { geoData, wings, interests, colleges, wingDetails } from '../data/geoData';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { geoData, wings, colleges, wingDetails } from '../data/geoData';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const VolunteerEnrollment = () => {
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         fullName: '',
@@ -16,12 +20,10 @@ const VolunteerEnrollment = () => {
         state: '',
         district: '',
         collegeName: '',
-        otherCollege: '',
         education: '',
         preferredWings: [],
         mainPriorityWing: '',
         areaOfInterest: [],
-        otherInterest: '',
         willingToContribute: 'no',
         profilePhoto: '',
         documents: []
@@ -29,10 +31,24 @@ const VolunteerEnrollment = () => {
 
     const [loading, setLoading] = useState(false);
     const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+    const [uploading, setUploading] = useState(false);
+    const [collegeSearch, setCollegeSearch] = useState('');
+    const fileInputRef = useRef(null);
+    const docInputRef = useRef(null);
+    const navigate = useNavigate();
+
+    const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
+    const genders = ["Male", "Female", "Prefer not to say"];
 
     useEffect(() => {
         if (user?.email) {
             checkRegistration();
+            setFormData(prev => ({
+                ...prev,
+                fullName: user.name || '',
+                email: user.email || '',
+                profilePhoto: user.picture || ''
+            }));
         }
     }, [user]);
 
@@ -46,14 +62,6 @@ const VolunteerEnrollment = () => {
             console.error('Status check error:', err);
         }
     };
-    const [uploading, setUploading] = useState(false);
-    const [collegeSearch, setCollegeSearch] = useState('');
-    const fileInputRef = useRef(null);
-    const docInputRef = useRef(null);
-    const navigate = useNavigate();
-
-    const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
-    const genders = ["Male", "Female", "Prefer not to say"];
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -97,29 +105,27 @@ const VolunteerEnrollment = () => {
         }
     };
 
-    const loadRazorpayScript = () => {
-        return new Promise((resolve) => {
-            const script = document.createElement("script");
-            script.src = "https://checkout.razorpay.com/v1/checkout.js";
-            script.onload = () => resolve(true);
-            script.onerror = () => resolve(false);
-            document.body.appendChild(script);
-        });
-    };
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const storedUser = localStorage.getItem('vvv_user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            setFormData(prev => ({
-                ...prev,
-                fullName: user.name || '',
-                email: user.email || '',
-                profilePhoto: user.picture || ''
-            }));
+    const validateStep = () => {
+        if (step === 2) {
+            if (!formData.fullName || !formData.age || !formData.gender || !formData.contactNumber || !formData.bloodGroup) {
+                alert("All fields are mandatory.");
+                return false;
+            }
         }
-    }, [step]);
+        if (step === 3) {
+            if (!formData.state || !formData.district || !formData.collegeName || !formData.education) {
+                alert("All address and education fields are mandatory.");
+                return false;
+            }
+        }
+        if (step === 4) {
+            if (formData.preferredWings.length === 0 || !formData.mainPriorityWing) {
+                alert("Please select at least one wing and a primary focus.");
+                return false;
+            }
+        }
+        return true;
+    };
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -127,20 +133,12 @@ const VolunteerEnrollment = () => {
             const payload = {
                 ...formData,
                 preferredWings: formData.preferredWings.join(', '),
-                interests: formData.areaOfInterest.includes('Others')
-                    ? [...formData.areaOfInterest, formData.otherInterest].join(', ')
-                    : formData.areaOfInterest.join(', ')
+                interests: formData.areaOfInterest.join(', ')
             };
             const res = await axios.post('/api/volunteer/enroll', payload);
             const { enrollmentId } = res.data;
 
             if (formData.willingToContribute === 'yes') {
-                const isScriptLoaded = await loadRazorpayScript();
-                if (!isScriptLoaded) {
-                    alert("Razorpay SDK failed to load.");
-                    setLoading(false);
-                    return;
-                }
                 const { data: { key } } = await axios.get("/api/get-key");
                 const { data: order } = await axios.post("/api/create-order", { amount: 50 });
 
@@ -150,6 +148,7 @@ const VolunteerEnrollment = () => {
                     currency: "INR",
                     name: "VVV Foundation",
                     description: "Volunteer Contribution",
+                    image: "https://res.cloudinary.com/dp9qhgckr/image/upload/v1740685000/vv_foundation/logo_circle.png",
                     order_id: order.id,
                     handler: async function (response) {
                         await axios.post("/api/volunteer/payment-success", { ...response, enrollmentId });
@@ -175,20 +174,10 @@ const VolunteerEnrollment = () => {
         }
     };
 
-    const nextStep = () => setStep(s => s + 1);
+    const nextStep = () => {
+        if (validateStep()) setStep(s => s + 1);
+    };
     const prevStep = () => setStep(s => s - 1);
-
-    const StepIndicator = () => (
-        <div className="flex justify-between items-center max-w-2xl mx-auto mb-16 relative">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 -z-10"></div>
-            <div className="absolute top-1/2 left-0 h-0.5 bg-[#1e3a8a] -translate-y-1/2 -z-10 transition-all duration-500" style={{ width: `${(step - 1) / 5 * 100}%` }}></div>
-            {[1, 2, 3, 4, 5, 6].map((s) => (
-                <div key={s} className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs transition-all duration-500 ${step >= s ? 'bg-[#1e3a8a] text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
-                    {step > s ? '✓' : s}
-                </div>
-            ))}
-        </div>
-    );
 
     if (alreadyRegistered) {
         return (
@@ -205,228 +194,233 @@ const VolunteerEnrollment = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFCF6] pt-32 pb-20 px-4">
-            <div className="max-w-5xl mx-auto">
-                <div className="text-center mb-12">
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Step {step} of 6</motion.p>
-                    <h1 className="text-4xl md:text-5xl font-merriweather font-black text-slate-900 leading-tight">
-                        {step === 1 && "Choose Your Mission"}
-                        {step === 2 && "Identity & Photo"}
-                        {step === 3 && "Locality & Background"}
-                        {step === 4 && "Area of Involvement"}
-                        {step === 5 && "Documentation"}
-                        {step === 6 && "Contribution & Pledge"}
-                    </h1>
-                </div>
+        <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row">
+            <Navbar />
 
-                <StepIndicator />
+            {/* Left Column: Info */}
+            <div className="md:w-1/3 bg-[#1e3a8a] p-12 text-white flex flex-col justify-center sticky top-0 md:h-screen overflow-y-auto">
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
+                    <div className="mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Mission 2047</div>
+                    <h2 className="text-4xl md:text-5xl font-merriweather font-black mb-8 leading-tight italic">Be the bridge to transformation.</h2>
+                    <p className="text-blue-100 text-lg leading-relaxed mb-10 opacity-80 font-medium">
+                        Join Viswa Vignana Vaaradhi to contribute towards legal awareness, rural empowerment, and educational growth. Every volunteer is a cornerstone of our foundation.
+                    </p>
 
-                <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-[50px] shadow-[0_40px_80px_-20px_rgba(30,58,138,0.1)] p-8 md:p-16 border border-white/40 backdrop-blur-sm relative">
-
-                    {/* Step 1: Mission Selection */}
-                    {step === 1 && (
-                        <div className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {Object.entries(wingDetails).map(([key, details]) => (
-                                    <div key={key} className="p-8 rounded-[35px] bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group cursor-default">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <span className="text-3xl bg-white w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm">{details.icon}</span>
-                                            <h3 className="text-lg font-black text-slate-800 leading-tight">{details.title}</h3>
-                                        </div>
-                                        <p className="text-sm text-slate-500 font-medium mb-4 leading-relaxed">{details.objective}</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {details.activities.map(a => <span key={a} className="text-[9px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">{a}</span>)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex justify-center pt-8">
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all shadow-xl shadow-blue-900/10">Continue to Identity</button>
+                    <div className="space-y-6">
+                        <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <span className="text-2xl mt-1">🛡️</span>
+                            <div>
+                                <h4 className="font-bold text-white uppercase text-xs tracking-widest mb-1">Impact Driven</h4>
+                                <p className="text-xs text-blue-200 leading-relaxed font-medium">Work on projects that create tangible social value in rural communities.</p>
                             </div>
                         </div>
-                    )}
-
-                    {/* Step 2: Identity & Photo */}
-                    {step === 2 && (
-                        <div className="max-w-2xl mx-auto space-y-8">
-                            <div className="flex flex-col md:flex-row items-center gap-8 mb-8 bg-slate-50 p-8 rounded-[40px] border border-slate-100">
-                                <div className="relative">
-                                    <div className="w-32 h-32 rounded-3xl bg-white shadow-inner flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-200">
-                                        {uploading ? (
-                                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity }} className="text-2xl">⏳</motion.div>
-                                        ) : (
-                                            formData.profilePhoto ? (
-                                                <img src={formData.profilePhoto} className="w-full h-full object-cover" alt="Profile" />
-                                            ) : (
-                                                <span className="text-4xl">📸</span>
-                                            )
-                                        )}
-                                    </div>
-                                    <button onClick={() => fileInputRef.current?.click()} className="absolute -bottom-2 -right-2 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg">+</button>
-                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'photo')} />
-                                </div>
-                                <div className="flex-grow text-center md:text-left">
-                                    <h3 className="font-black text-slate-800">Profile Photo</h3>
-                                    <p className="text-xs text-slate-400 font-medium">A clear photo helps us identify you for the VVV Foundation ID card.</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                                    <input name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-8 py-5 rounded-[25px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-500 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700" placeholder="e.g. Ram Nandan" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Age</label>
-                                    <input name="age" type="number" value={formData.age} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender</label>
-                                    <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none">
-                                        <option value="">Select</option>
-                                        {genders.map(g => <option key={g} value={g}>{g}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number</label>
-                                    <input name="contactNumber" type="tel" value={formData.contactNumber} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Blood Group</label>
-                                    <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none">
-                                        <option value="">Select Group</option>
-                                        {bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
+                        <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <span className="text-2xl mt-1">🤝</span>
+                            <div>
+                                <h4 className="font-bold text-white uppercase text-xs tracking-widest mb-1">Global Network</h4>
+                                <p className="text-xs text-blue-200 leading-relaxed font-medium">Connect with professionals and fellow change-makers across India.</p>
                             </div>
                         </div>
-                    )}
-
-                    {/* Step 3: Location & Education */}
-                    {step === 3 && (
-                        <div className="max-w-2xl mx-auto space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">State</label>
-                                    <select name="state" value={formData.state} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none">
-                                        <option value="">Select State</option>
-                                        {Object.keys(geoData).map(s => <option key={s} value={s}>{s}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">District</label>
-                                    <select name="district" value={formData.district} onChange={handleChange} disabled={!formData.state} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none disabled:opacity-50">
-                                        <option value="">Select District</option>
-                                        {formData.state && geoData[formData.state].map(d => <option key={d} value={d}>{d}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2 col-span-2 relative">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Name of College</label>
-                                    <input placeholder="Search your college..." className="w-full px-8 py-5 rounded-[25px] bg-slate-50 border border-slate-100 focus:bg-white outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700" value={collegeSearch} onChange={(e) => { setCollegeSearch(e.target.value); setFormData(p => ({ ...p, collegeName: e.target.value })); }} />
-                                    {collegeSearch && !colleges.includes(collegeSearch) && (
-                                        <div className="absolute z-50 w-full mt-2 bg-white rounded-3xl shadow-2xl border border-slate-100 max-h-64 overflow-y-auto">
-                                            {colleges.filter(c => c.toLowerCase().includes(collegeSearch.toLowerCase())).map(c => <div key={c} onClick={() => { setCollegeSearch(c); setFormData(p => ({ ...p, collegeName: c })); }} className="px-8 py-4 hover:bg-slate-50 cursor-pointer text-sm font-bold text-slate-600 transition-colors">{c}</div>)}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Education Qualification</label>
-                                    <input name="education" value={formData.education} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="e.g. B.Tech 3rd Year" />
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 4: Engagement */}
-                    {step === 4 && (
-                        <div className="space-y-10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {wings.map(wing => (
-                                    <div key={wing} onClick={() => handleCheckboxChange('preferredWings', wing)} className={`p-6 rounded-[25px] border-2 cursor-pointer transition-all ${formData.preferredWings.includes(wing) ? 'bg-blue-50 border-blue-600' : 'bg-white border-slate-50 hover:border-blue-100'}`}>
-                                        <p className={`text-xs font-black uppercase tracking-tight ${formData.preferredWings.includes(wing) ? 'text-blue-600' : 'text-slate-400'}`}>{wing}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            {formData.preferredWings.length > 0 && (
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-8 bg-blue-50/50 rounded-[35px] border border-blue-100/50">
-                                    <label className="text-[10px] font-black uppercase text-blue-400 tracking-widest ml-1">Select your primary focus mission</label>
-                                    <select name="mainPriorityWing" value={formData.mainPriorityWing} onChange={handleChange} className="w-full mt-4 bg-white border border-slate-200 rounded-[22px] px-8 py-5 font-bold text-sm outline-none focus:ring-4 focus:ring-blue-100 shadow-sm">
-                                        <option value="">Choose Main Wing...</option>
-                                        {formData.preferredWings.map(w => <option key={w} value={w}>{w}</option>)}
-                                    </select>
-                                </motion.div>
-                            )}
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 5: Documentation */}
-                    {step === 5 && (
-                        <div className="max-w-2xl mx-auto space-y-8">
-                            <div className="bg-orange-50/50 p-10 rounded-[40px] border border-orange-100 text-center">
-                                <div className="text-4xl mb-4">📄</div>
-                                <h3 className="font-merriweather font-black text-slate-800 text-xl mb-2">Verification Documents</h3>
-                                <p className="text-xs text-slate-500 font-medium mb-8">Please upload necessary documents (ID Proof, Qualification Certificates) for verification.</p>
-
-                                <div className="space-y-4">
-                                    <button onClick={() => docInputRef.current?.click()} className="bg-white border-2 border-dashed border-orange-200 text-orange-600 px-8 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-orange-50 transition-all w-full flex items-center justify-center gap-4">
-                                        {uploading ? "Uploading..." : "+ Upload New Document"}
-                                    </button>
-                                    <input type="file" ref={docInputRef} className="hidden" onChange={(e) => handleFileUpload(e, 'document')} />
-
-                                    <div className="space-y-2 pt-4">
-                                        {formData.documents.map((doc, i) => (
-                                            <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
-                                                <span className="text-[10px] font-bold text-slate-600 truncate max-w-[200px]">{doc.name}</span>
-                                                <span className="text-green-500 text-[10px] font-black uppercase">Uploaded ✓</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 6: Contribution */}
-                    {step === 6 && (
-                        <div className="max-w-2xl mx-auto space-y-12 text-center">
-                            <div className="bg-blue-50/50 p-12 rounded-[50px] border border-blue-100">
-                                <div className="w-20 h-20 bg-blue-600 text-white rounded-[30px] flex items-center justify-center text-3xl mx-auto mb-8">🛡️</div>
-                                <h3 className="text-3xl font-merriweather font-black text-blue-900 mb-4">The Impact Pledge</h3>
-                                <p className="text-blue-700/60 font-medium mb-8">A nominal contribution of <span className="text-blue-600 font-black">₹50</span> to support our outreach.</p>
-                                <div className="flex justify-center gap-4">
-                                    {['yes', 'no'].map(choice => (
-                                        <button key={choice} onClick={() => setFormData(p => ({ ...p, willingToContribute: choice }))} className={`px-12 py-5 rounded-[25px] font-black uppercase tracking-widest text-[10px] transition-all ${formData.willingToContribute === choice ? 'bg-[#1e3a8a] text-white shadow-2xl' : 'bg-white text-slate-300 border border-slate-100'}`}>
-                                            {choice === 'yes' ? 'Yes, I am willing' : 'No, maybe later'}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={handleSubmit} disabled={loading} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">
-                                    {loading ? 'Processing...' : 'Complete Enrollment 🚀'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    </div>
                 </motion.div>
             </div>
+
+            {/* Right Column: Auth/Form */}
+            <div className="flex-1 p-6 md:p-16 pt-32 bg-white flex items-center justify-center">
+                <div className="max-w-2xl w-full">
+                    {!user ? (
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center bg-slate-50 p-12 rounded-[50px] border border-slate-100 shadow-2xl">
+                            <div className="text-6xl mb-8">🔐</div>
+                            <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Start Your Journey</h2>
+                            <p className="text-slate-500 mb-10 text-lg font-medium leading-relaxed">
+                                To enroll as a volunteer, please first create an account or sign in to your dashboard. This helps us maintain secure and accurate records.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <Link to="/login" className="px-10 py-5 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs">Login to Continue</Link>
+                                <Link to="/signup" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-xs">Create Account</Link>
+                            </div>
+                            <p className="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Already have an account? <Link to="/login" className="text-blue-600 underline">Sign In Here</Link></p>
+                        </motion.div>
+                    ) : (
+                        <div className="space-y-12">
+                            <div className="text-center">
+                                <p className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Volunteer Step {step} of 6</p>
+                                <h3 className="text-4xl font-merriweather font-black text-slate-900 leading-tight">
+                                    {step === 1 && "The Mission Awaits"}
+                                    {step === 2 && "Identification Details"}
+                                    {step === 3 && "Locality & Institution"}
+                                    {step === 4 && "Choose Your Wing"}
+                                    {step === 5 && "Documentation"}
+                                    {step === 6 && "Pledge of Impact"}
+                                </h3>
+                            </div>
+
+                            <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                                {/* Form Content based on step - reusing previous logic but with stricter validation */}
+                                {step === 1 && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {Object.entries(wingDetails).map(([key, details]) => (
+                                                <div key={key} className="p-6 rounded-[30px] bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group">
+                                                    <div className="flex items-center gap-4 mb-3">
+                                                        <span className="text-2xl">{details.icon}</span>
+                                                        <h4 className="text-sm font-black text-slate-800 leading-tight">{details.title}</h4>
+                                                    </div>
+                                                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{details.objective}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button onClick={nextStep} className="w-full bg-[#1e3a8a] text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">Begin Identity Protocol</button>
+                                    </div>
+                                )}
+
+                                {step === 2 && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <div className="sm:col-span-2 space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name *</label>
+                                                <input name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white focus:border-blue-500 transition-all font-bold text-sm" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Age *</label>
+                                                <input name="age" type="number" value={formData.age} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender *</label>
+                                                <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select</option>
+                                                    {genders.map(g => <option key={g} value={g}>{g}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone Number *</label>
+                                                <input name="contactNumber" type="tel" value={formData.contactNumber} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Blood Group *</label>
+                                                <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select</option>
+                                                    {bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#1e3a8a] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Location Access</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 3 && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">State *</label>
+                                                <select name="state" value={formData.state} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select State</option>
+                                                    {Object.keys(geoData).map(s => <option key={s} value={s}>{s}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">District *</label>
+                                                <select name="district" value={formData.district} onChange={handleChange} disabled={!formData.state} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm disabled:opacity-50">
+                                                    <option value="">Select District</option>
+                                                    {formData.state && geoData[formData.state].map(d => <option key={d} value={d}>{d}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="sm:col-span-2 space-y-2 relative">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">College/Institution *</label>
+                                                <input value={collegeSearch} onChange={(e) => { setCollegeSearch(e.target.value); setFormData(p => ({ ...p, collegeName: e.target.value })); }} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" placeholder="Start typing institution name..." />
+                                                {collegeSearch && !colleges.includes(collegeSearch) && (
+                                                    <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-48 overflow-y-auto">
+                                                        {colleges.filter(c => c.toLowerCase().includes(collegeSearch.toLowerCase())).map(c => <div key={c} onClick={() => { setCollegeSearch(c); setFormData(p => ({ ...p, collegeName: c })); }} className="px-6 py-3 hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-600 transition-colors">{c}</div>)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="sm:col-span-2 space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Education/Degree *</label>
+                                                <input name="education" value={formData.education} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#1e3a8a] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Wing Selection</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 4 && (
+                                    <div className="space-y-10">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                            {wings.map(wing => (
+                                                <div key={wing} onClick={() => handleCheckboxChange('preferredWings', wing)} className={`p-4 rounded-2xl border-2 cursor-pointer transition-all text-center ${formData.preferredWings.includes(wing) ? 'bg-blue-50 border-blue-600' : 'bg-slate-50 border-slate-50'}`}>
+                                                    <p className={`text-[9px] font-black uppercase tracking-tight ${formData.preferredWings.includes(wing) ? 'text-blue-600' : 'text-slate-400'}`}>{wing}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {formData.preferredWings.length > 0 && (
+                                            <div className="p-6 bg-blue-50/50 rounded-3xl border border-blue-100/50">
+                                                <label className="text-[10px] font-black uppercase text-blue-400 tracking-widest ml-1">Primary Focus Wing *</label>
+                                                <select name="mainPriorityWing" value={formData.mainPriorityWing} onChange={handleChange} className="w-full mt-3 bg-white border border-slate-200 rounded-xl px-6 py-4 font-bold text-sm outline-none">
+                                                    <option value="">Select Main Wing...</option>
+                                                    {formData.preferredWings.map(w => <option key={w} value={w}>{w}</option>)}
+                                                </select>
+                                            </div>
+                                        )}
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#1e3a8a] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Documentation</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 5 && (
+                                    <div className="space-y-8">
+                                        <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 text-center">
+                                            <h4 className="font-merriweather font-black text-slate-800 text-xl mb-4 text-center">Upload Proof</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium mb-8">Please provide your ID Proof / Student ID (Optional but recommended for speedier approval).</p>
+                                            <button onClick={() => docInputRef.current?.click()} className="bg-white border-2 border-dashed border-slate-200 text-slate-400 px-8 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/50 transition-all w-full">
+                                                {uploading ? "Uploading..." : "+ Click to Upload Document"}
+                                            </button>
+                                            <input type="file" ref={docInputRef} className="hidden" onChange={(e) => handleFileUpload(e, 'document')} />
+                                            {formData.documents.length > 0 && <div className="mt-4 text-[10px] text-emerald-500 font-bold uppercase tracking-widest">{formData.documents.length} Doc(s) Prepared ✓</div>}
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#1e3a8a] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Impact Pledge</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 6 && (
+                                    <div className="space-y-10 text-center">
+                                        <div className="bg-[#1e3a8a] p-10 rounded-[40px] text-white shadow-2xl">
+                                            <div className="text-4xl mb-4">🛡️</div>
+                                            <h4 className="text-2xl font-merriweather font-black mb-3">Sustainable Contribution</h4>
+                                            <p className="text-blue-100 text-sm font-medium mb-8 opacity-80 leading-relaxed">A one-time pledge of <span className="font-black text-white">₹50</span> to fuel our grassroot operations. You can choose to skip if unable.</p>
+                                            <div className="flex gap-3 justify-center">
+                                                {['yes', 'no'].map(choice => (
+                                                    <button key={choice} onClick={() => setFormData(p => ({ ...p, willingToContribute: choice }))} className={`px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${formData.willingToContribute === choice ? 'bg-white text-[#1e3a8a]' : 'bg-white/10 text-white/50 border border-white/10'}`}>
+                                                        {choice === 'yes' ? 'Pledge ₹50' : 'Skip Now'}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={handleSubmit} disabled={loading} className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">
+                                                {loading ? 'Processing Protocol...' : 'Finalize Enrollment 🚀'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <Footer />
         </div>
     );
 };

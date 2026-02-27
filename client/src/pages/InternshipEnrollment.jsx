@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../api/axios';
-import { useNavigate } from 'react-router-dom';
-import { geoData, wings, interests, colleges, wingDetails } from '../data/geoData';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { geoData, wings, colleges, wingDetails } from '../data/geoData';
+import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 
 const InternshipEnrollment = () => {
+    const { user } = useAuth();
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         fullName: '',
@@ -21,7 +25,6 @@ const InternshipEnrollment = () => {
         preferredWings: [],
         mainPriorityWing: '',
         areaOfInterest: [],
-        otherInterest: '',
         linkedinProfile: '',
         branch: '',
         yearOfStudy: '',
@@ -40,6 +43,29 @@ const InternshipEnrollment = () => {
     const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
     const genders = ["Male", "Female", "Prefer not to say"];
     const durations = ["45 days", "3 months", "6 months", "9 months", "1 year"];
+
+    useEffect(() => {
+        if (user?.email) {
+            checkRegistration();
+            setFormData(prev => ({
+                ...prev,
+                fullName: user.name || '',
+                email: user.email || '',
+                profilePhoto: user.picture || ''
+            }));
+        }
+    }, [user]);
+
+    const checkRegistration = async () => {
+        try {
+            const res = await axios.get(`/api/user/status?email=${user.email}`);
+            if (res.data.isIntern) {
+                setAlreadyRegistered(true);
+            }
+        } catch (err) {
+            console.error('Status check error:', err);
+        }
+    };
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -83,36 +109,27 @@ const InternshipEnrollment = () => {
         }
     };
 
-    const loadRazorpayScript = () => {
-        // Interns don't need to pay in this flow explicitly initially, but keeping placeholder in case required later
-        // ...
-    };
-
-    const checkRegistration = async (email) => {
-        try {
-            const res = await axios.get(`/api/user/status?email=${email}`);
-            if (res.data.isIntern) {
-                setAlreadyRegistered(true);
+    const validateStep = () => {
+        if (step === 2) {
+            if (!formData.fullName || !formData.age || !formData.gender || !formData.contactNumber || !formData.bloodGroup) {
+                alert("All identity fields are mandatory.");
+                return false;
             }
-        } catch (err) {
-            console.error('Status check error:', err);
         }
+        if (step === 3) {
+            if (!formData.state || !formData.district || !formData.collegeName || !formData.branch || !formData.yearOfStudy || !formData.duration) {
+                alert("All college and duration fields are mandatory.");
+                return false;
+            }
+        }
+        if (step === 4) {
+            if (formData.preferredWings.length === 0 || !formData.mainPriorityWing) {
+                alert("Please select at least one wing and a primary focus.");
+                return false;
+            }
+        }
+        return true;
     };
-
-    useEffect(() => {
-        window.scrollTo(0, 0);
-        const storedUser = localStorage.getItem('vvv_user');
-        if (storedUser) {
-            const user = JSON.parse(storedUser);
-            setFormData(prev => ({
-                ...prev,
-                fullName: user.name || '',
-                email: user.email || '',
-                profilePhoto: user.picture || ''
-            }));
-            checkRegistration(user.email);
-        }
-    }, [step]);
 
     const handleSubmit = async () => {
         setLoading(true);
@@ -120,14 +137,11 @@ const InternshipEnrollment = () => {
             const payload = {
                 ...formData,
                 preferredWings: formData.preferredWings.join(', '),
-                interests: formData.areaOfInterest.includes('Others')
-                    ? [...formData.areaOfInterest, formData.otherInterest].join(', ')
-                    : formData.areaOfInterest.join(', '),
-                achievements: formData.documents // map documents array to achievements payload
+                interests: formData.areaOfInterest.join(', '),
+                achievements: formData.documents
             };
-            const res = await axios.post('/api/intern/enroll', payload);
-
-            alert("Enrollment Submitted Successfully! You will be notified of your application status.");
+            await axios.post('/api/intern/enroll', payload);
+            alert("Internship Application Submitted Successfully!");
             navigate('/profile');
         } catch (err) {
             console.error("Intern Enrollment Error:", err);
@@ -137,20 +151,10 @@ const InternshipEnrollment = () => {
         }
     };
 
-    const nextStep = () => setStep(s => s + 1);
+    const nextStep = () => {
+        if (validateStep()) setStep(s => s + 1);
+    };
     const prevStep = () => setStep(s => s - 1);
-
-    const StepIndicator = () => (
-        <div className="flex justify-between items-center max-w-2xl mx-auto mb-16 relative">
-            <div className="absolute top-1/2 left-0 w-full h-0.5 bg-slate-100 -translate-y-1/2 -z-10"></div>
-            <div className="absolute top-1/2 left-0 h-0.5 bg-[#1e3a8a] -translate-y-1/2 -z-10 transition-all duration-500" style={{ width: `${(step - 1) / 4 * 100}%` }}></div>
-            {[1, 2, 3, 4, 5].map((s) => (
-                <div key={s} className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-xs transition-all duration-500 ${step >= s ? 'bg-[#1e3a8a] text-white shadow-lg shadow-blue-200' : 'bg-white text-slate-300 border-2 border-slate-100'}`}>
-                    {step > s ? '✓' : s}
-                </div>
-            ))}
-        </div>
-    );
 
     if (alreadyRegistered) {
         return (
@@ -160,227 +164,236 @@ const InternshipEnrollment = () => {
                     <div className="text-5xl mb-6 text-indigo-500">🎓</div>
                     <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Application Received!</h2>
                     <p className="text-slate-500 mb-8">You have already submitted an internship application. Our team is currently reviewing your profile.</p>
-                    <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Check Application Status</button>
+                    <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Check Status</button>
                 </div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFCF6] pt-32 pb-20 px-4">
-            <div className="max-w-5xl mx-auto">
-                <div className="text-center mb-12">
-                    <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Step {step} of 5</motion.p>
-                    <h1 className="text-4xl md:text-5xl font-merriweather font-black text-slate-900 leading-tight">
-                        {step === 1 && "Choose Your Mission"}
-                        {step === 2 && "Identity & Photo"}
-                        {step === 3 && "Location & College"}
-                        {step === 4 && "Internship Specifics"}
-                        {step === 5 && "Achievements & Review"}
-                    </h1>
-                </div>
+        <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row">
+            <Navbar />
 
-                <StepIndicator />
+            {/* Left Column: Info */}
+            <div className="md:w-1/3 bg-[#4f46e5] p-12 text-white flex flex-col justify-center sticky top-0 md:h-screen overflow-y-auto">
+                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
+                    <div className="mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Future Leaders</div>
+                    <h2 className="text-4xl md:text-5xl font-merriweather font-black mb-8 leading-tight italic">Shape the future through research.</h2>
+                    <p className="text-indigo-100 text-lg leading-relaxed mb-10 opacity-80 font-medium">
+                        Our internship program offers academic credit, professional mentorship, and the chance to work on large-scale social impact projects.
+                    </p>
 
-                <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} className="bg-white rounded-[50px] shadow-[0_40px_80px_-20px_rgba(30,58,138,0.1)] p-8 md:p-16 border border-white/40 backdrop-blur-sm relative">
-
-                    {/* Step 1: Mission Selection */}
-                    {step === 1 && (
-                        <div className="space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                {Object.entries(wingDetails).map(([key, details]) => (
-                                    <div key={key} className="p-8 rounded-[35px] bg-slate-50 border border-slate-100 hover:border-blue-200 hover:shadow-xl transition-all group cursor-default">
-                                        <div className="flex items-center gap-4 mb-4">
-                                            <span className="text-3xl bg-white w-14 h-14 flex items-center justify-center rounded-2xl shadow-sm">{details.icon}</span>
-                                            <h3 className="text-lg font-black text-slate-800 leading-tight">{details.title}</h3>
-                                        </div>
-                                        <p className="text-sm text-slate-500 font-medium mb-4 leading-relaxed">{details.objective}</p>
-                                        <div className="flex flex-wrap gap-2">
-                                            {details.activities.map(a => <span key={a} className="text-[9px] font-black text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-widest">{a}</span>)}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                            <div className="flex justify-center pt-8">
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all shadow-xl shadow-blue-900/10">Continue to Identity</button>
+                    <div className="space-y-6">
+                        <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <span className="text-2xl mt-1">📊</span>
+                            <div>
+                                <h4 className="font-bold text-white uppercase text-xs tracking-widest mb-1">Research & Data</h4>
+                                <p className="text-xs text-indigo-200 leading-relaxed font-medium">Get hands-on experience with field data and policy analysis.</p>
                             </div>
                         </div>
-                    )}
-
-                    {/* Step 2: Identity & Photo */}
-                    {step === 2 && (
-                        <div className="max-w-2xl mx-auto space-y-8">
-                            <div className="flex flex-col md:flex-row items-center gap-8 mb-8 bg-slate-50 p-8 rounded-[40px] border border-slate-100">
-                                <div className="relative">
-                                    <div className="w-32 h-32 rounded-3xl bg-white shadow-inner flex items-center justify-center overflow-hidden border-2 border-dashed border-slate-200">
-                                        {uploading ? (
-                                            <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity }} className="text-2xl">⏳</motion.div>
-                                        ) : (
-                                            formData.profilePhoto ? (
-                                                <img src={formData.profilePhoto} className="w-full h-full object-cover" alt="Profile" />
-                                            ) : (
-                                                <span className="text-4xl">📸</span>
-                                            )
-                                        )}
-                                    </div>
-                                    <button onClick={() => fileInputRef.current?.click()} className="absolute -bottom-2 -right-2 bg-blue-600 text-white w-8 h-8 rounded-full flex items-center justify-center shadow-lg">+</button>
-                                    <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={(e) => handleFileUpload(e, 'photo')} />
-                                </div>
-                                <div className="flex-grow text-center md:text-left">
-                                    <h3 className="font-black text-slate-800">Profile Photo</h3>
-                                    <p className="text-xs text-slate-400 font-medium">A clear professional photo helps us identify you.</p>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
-                                    <input name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-8 py-5 rounded-[25px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-blue-500 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700" placeholder="e.g. Ram Nandan" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Age</label>
-                                    <input name="age" type="number" value={formData.age} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender</label>
-                                    <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none">
-                                        <option value="">Select</option>
-                                        {genders.map(g => <option key={g} value={g}>{g}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Contact Number</label>
-                                    <input name="contactNumber" type="tel" value={formData.contactNumber} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" />
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Blood Group</label>
-                                    <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none">
-                                        <option value="">Select Group</option>
-                                        {bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
+                        <div className="flex items-start gap-4 p-4 rounded-2xl bg-white/5 border border-white/10">
+                            <span className="text-2xl mt-1">🎓</span>
+                            <div>
+                                <h4 className="font-bold text-white uppercase text-xs tracking-widest mb-1">Certification</h4>
+                                <p className="text-xs text-indigo-200 leading-relaxed font-medium">Receive a validated certificate from VVV Foundation upon completion.</p>
                             </div>
                         </div>
-                    )}
-
-                    {/* Step 3: Location & Education */}
-                    {step === 3 && (
-                        <div className="max-w-2xl mx-auto space-y-8">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">State</label>
-                                    <select name="state" value={formData.state} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none">
-                                        <option value="">Select State</option>
-                                        {Object.keys(geoData).map(s => <option key={s} value={s}>{s}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">District</label>
-                                    <select name="district" value={formData.district} onChange={handleChange} disabled={!formData.state} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none disabled:opacity-50">
-                                        <option value="">Select District</option>
-                                        {formData.state && geoData[formData.state].map(d => <option key={d} value={d}>{d}</option>)}
-                                    </select>
-                                </div>
-                                <div className="space-y-2 col-span-2 relative">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Name of College/University <span className="text-red-500">*</span></label>
-                                    <input placeholder="Search or type your college..." className="w-full px-8 py-5 rounded-[25px] bg-slate-50 border border-slate-100 focus:bg-white outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700" value={collegeSearch} onChange={(e) => { setCollegeSearch(e.target.value); setFormData(p => ({ ...p, collegeName: e.target.value })); }} />
-                                    {collegeSearch && !colleges.includes(collegeSearch) && (
-                                        <div className="absolute z-50 w-full mt-2 bg-white rounded-3xl shadow-2xl border border-slate-100 max-h-64 overflow-y-auto">
-                                            {colleges.filter(c => c.toLowerCase().includes(collegeSearch.toLowerCase())).map(c => <div key={c} onClick={() => { setCollegeSearch(c); setFormData(p => ({ ...p, collegeName: c })); }} className="px-8 py-4 hover:bg-slate-50 cursor-pointer text-sm font-bold text-slate-600 transition-colors">{c}</div>)}
-                                        </div>
-                                    )}
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Specialization / Branch <span className="text-red-500">*</span></label>
-                                    <input name="branch" value={formData.branch} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="e.g. Computer Science, Law" />
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Year of Study <span className="text-red-500">*</span></label>
-                                    <input name="yearOfStudy" value={formData.yearOfStudy} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="e.g. 3rd Year" />
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">LinkedIn Profile</label>
-                                    <input name="linkedinProfile" value={formData.linkedinProfile} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="https://linkedin.com/in/..." />
-                                </div>
-                                <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Required Internship Duration</label>
-                                    <select name="duration" value={formData.duration} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none font-bold text-slate-700">
-                                        <option value="">Select Duration</option>
-                                        {durations.map(d => <option key={d} value={d}>{d}</option>)}
-                                    </select>
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 4: Engagement */}
-                    {step === 4 && (
-                        <div className="space-y-10">
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                                {wings.map(wing => (
-                                    <div key={wing} onClick={() => handleCheckboxChange('preferredWings', wing)} className={`p-6 rounded-[25px] border-2 cursor-pointer transition-all ${formData.preferredWings.includes(wing) ? 'bg-blue-50 border-blue-600' : 'bg-white border-slate-50 hover:border-blue-100'}`}>
-                                        <p className={`text-xs font-black uppercase tracking-tight ${formData.preferredWings.includes(wing) ? 'text-blue-600' : 'text-slate-400'}`}>{wing}</p>
-                                    </div>
-                                ))}
-                            </div>
-                            {formData.preferredWings.length > 0 && (
-                                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="mt-8 p-8 bg-blue-50/50 rounded-[35px] border border-blue-100/50">
-                                    <label className="text-[10px] font-black uppercase text-blue-400 tracking-widest ml-1">Select your primary focus mission</label>
-                                    <select name="mainPriorityWing" value={formData.mainPriorityWing} onChange={handleChange} className="w-full mt-4 bg-white border border-slate-200 rounded-[22px] px-8 py-5 font-bold text-sm outline-none focus:ring-4 focus:ring-blue-100 shadow-sm">
-                                        <option value="">Choose Main Wing...</option>
-                                        {formData.preferredWings.map(w => <option key={w} value={w}>{w}</option>)}
-                                    </select>
-                                </motion.div>
-                            )}
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={nextStep} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">Next Step</button>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Step 5: Achievements & Review */}
-                    {step === 5 && (
-                        <div className="max-w-2xl mx-auto space-y-8">
-                            <div className="bg-orange-50/50 p-10 rounded-[40px] border border-orange-100 text-center">
-                                <div className="text-4xl mb-4">🏆</div>
-                                <h3 className="font-merriweather font-black text-slate-800 text-xl mb-2">Upload Achievements & Resume</h3>
-                                <p className="text-xs text-slate-500 font-medium mb-8">Please upload your resume, cover letter, or proof of previous achievements to help us evaluate your application.</p>
-
-                                <div className="space-y-4">
-                                    <button onClick={() => docInputRef.current?.click()} className="bg-white border-2 border-dashed border-orange-200 text-orange-600 px-8 py-6 rounded-3xl font-black uppercase tracking-widest text-[10px] hover:bg-orange-50 transition-all w-full flex items-center justify-center gap-4">
-                                        {uploading ? "Uploading..." : "+ Upload File (PDF/Image)"}
-                                    </button>
-                                    <input type="file" ref={docInputRef} className="hidden" onChange={(e) => handleFileUpload(e, 'document')} />
-
-                                    <div className="space-y-2 pt-4">
-                                        {formData.documents.map((doc, i) => (
-                                            <div key={i} className="bg-white p-4 rounded-2xl border border-slate-100 flex items-center justify-between">
-                                                <span className="text-[10px] font-bold text-slate-600 truncate max-w-[200px]">{doc.name}</span>
-                                                <span className="text-green-500 text-[10px] font-black uppercase">Uploaded ✓</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="flex justify-between pt-12">
-                                <button onClick={prevStep} className="text-slate-400 font-black uppercase tracking-widest text-[10px] px-8 hover:text-slate-600 transition-all">Back</button>
-                                <button onClick={handleSubmit} disabled={loading} className="bg-[#1e3a8a] text-white px-12 py-5 rounded-2xl font-black uppercase tracking-widest text-xs hover:bg-[#1e40af] transition-all">
-                                    {loading ? 'Processing...' : 'Submit Application 🚀'}
-                                </button>
-                            </div>
-                        </div>
-                    )}
+                    </div>
                 </motion.div>
             </div>
+
+            {/* Right Column: Auth/Form */}
+            <div className="flex-1 p-6 md:p-16 pt-32 bg-white flex items-center justify-center">
+                <div className="max-w-2xl w-full">
+                    {!user ? (
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center bg-slate-50 p-12 rounded-[50px] border border-slate-100 shadow-2xl">
+                            <div className="text-6xl mb-8">👤</div>
+                            <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Internship Portal</h2>
+                            <p className="text-slate-500 mb-10 text-lg font-medium leading-relaxed">
+                                Please sign in to apply for our internship program. This allows you to track your application status and upload necessary academic documents.
+                            </p>
+                            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                                <Link to="/login" className="px-10 py-5 bg-[#4f46e5] text-white font-black rounded-2xl shadow-xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs">Login to Apply</Link>
+                                <Link to="/signup" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-xs">Create Account</Link>
+                            </div>
+                        </motion.div>
+                    ) : (
+                        <div className="space-y-12">
+                            <div className="text-center">
+                                <p className="text-indigo-600 font-black uppercase tracking-[0.3em] text-[10px] mb-2">Internship Step {step} of 5</p>
+                                <h3 className="text-4xl font-merriweather font-black text-slate-900 leading-tight">
+                                    {step === 1 && "The Mission Awaits"}
+                                    {step === 2 && "Identity Details"}
+                                    {step === 3 && "Academic Profile"}
+                                    {step === 4 && "Choose Your Core"}
+                                    {step === 5 && "Showcase & Submit"}
+                                </h3>
+                            </div>
+
+                            <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
+                                {step === 1 && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                            {Object.entries(wingDetails).map(([key, details]) => (
+                                                <div key={key} className="p-6 rounded-[30px] bg-slate-50 border border-slate-100 transition-all group">
+                                                    <div className="flex items-center gap-4 mb-3">
+                                                        <span className="text-2xl">{details.icon}</span>
+                                                        <h4 className="text-sm font-black text-slate-800 leading-tight">{details.title}</h4>
+                                                    </div>
+                                                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{details.objective}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <button onClick={nextStep} className="w-full bg-[#4f46e5] text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">Begin Application</button>
+                                    </div>
+                                )}
+
+                                {step === 2 && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <div className="sm:col-span-2 space-y-2 text-center">
+                                                <div className="relative inline-block">
+                                                    <div className="w-24 h-24 rounded-full bg-slate-100 border-2 border-dashed border-slate-200 overflow-hidden flex items-center justify-center">
+                                                        {formData.profilePhoto ? <img src={formData.profilePhoto} className="w-full h-full object-cover" /> : <span className="text-3xl">📸</span>}
+                                                    </div>
+                                                    <button onClick={() => fileInputRef.current?.click()} className="absolute bottom-0 right-0 bg-indigo-600 text-white w-8 h-8 rounded-full flex items-center justify-center text-xs">+</button>
+                                                    <input type="file" ref={fileInputRef} className="hidden" onChange={(e) => handleFileUpload(e, 'photo')} />
+                                                </div>
+                                            </div>
+                                            <div className="sm:col-span-2 space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name *</label>
+                                                <input name="fullName" value={formData.fullName} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white focus:border-indigo-500 transition-all font-bold text-sm" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Age *</label>
+                                                <input name="age" type="number" value={formData.age} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Gender *</label>
+                                                <select name="gender" value={formData.gender} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select</option>
+                                                    {genders.map(g => <option key={g} value={g}>{g}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Phone *</label>
+                                                <input name="contactNumber" type="tel" value={formData.contactNumber} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Blood Group *</label>
+                                                <select name="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select</option>
+                                                    {bloodGroups.map(bg => <option key={bg} value={bg}>{bg}</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#4f46e5] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Academics</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 3 && (
+                                    <div className="space-y-8">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">State *</label>
+                                                <select name="state" value={formData.state} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select</option>
+                                                    {Object.keys(geoData).map(s => <option key={s} value={s}>{s}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">District *</label>
+                                                <select name="district" value={formData.district} onChange={handleChange} disabled={!formData.state} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm disabled:opacity-50">
+                                                    <option value="">Select</option>
+                                                    {formData.state && geoData[formData.state].map(d => <option key={d} value={d}>{d}</option>)}
+                                                </select>
+                                            </div>
+                                            <div className="sm:col-span-2 space-y-2 relative">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Institution *</label>
+                                                <input value={collegeSearch} onChange={(e) => { setCollegeSearch(e.target.value); setFormData(p => ({ ...p, collegeName: e.target.value })); }} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" placeholder="Search..." />
+                                                {collegeSearch && !colleges.includes(collegeSearch) && (
+                                                    <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-48 overflow-y-auto">
+                                                        {colleges.filter(c => c.toLowerCase().includes(collegeSearch.toLowerCase())).map(c => <div key={c} onClick={() => { setCollegeSearch(c); setFormData(p => ({ ...p, collegeName: c })); }} className="px-6 py-3 hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-600 tracking-tight">{c}</div>)}
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Branch *</label>
+                                                <input name="branch" value={formData.branch} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" placeholder="e.g. Law" />
+                                            </div>
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Year of Study *</label>
+                                                <input name="yearOfStudy" value={formData.yearOfStudy} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" placeholder="e.g. 4th Year" />
+                                            </div>
+                                            <div className="sm:col-span-2 space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Duration *</label>
+                                                <select name="duration" value={formData.duration} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm">
+                                                    <option value="">Select Duration</option>
+                                                    {durations.map(d => <option key={d} value={d}>{d}</option>)}
+                                                </select>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#4f46e5] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Wing Selection</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 4 && (
+                                    <div className="space-y-10">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                            {wings.map(wing => (
+                                                <div key={wing} onClick={() => handleCheckboxChange('preferredWings', wing)} className={`p-4 rounded-2xl border-2 cursor-pointer transition-all text-center ${formData.preferredWings.includes(wing) ? 'bg-indigo-50 border-indigo-600' : 'bg-slate-50 border-slate-50'}`}>
+                                                    <p className={`text-[9px] font-black uppercase tracking-tight ${formData.preferredWings.includes(wing) ? 'text-indigo-600' : 'text-slate-400'}`}>{wing}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        {formData.preferredWings.length > 0 && (
+                                            <div className="p-6 bg-indigo-50/50 rounded-3xl border border-indigo-100/50">
+                                                <label className="text-[10px] font-black uppercase text-indigo-400 tracking-widest ml-1">Primary Interest Wing *</label>
+                                                <select name="mainPriorityWing" value={formData.mainPriorityWing} onChange={handleChange} className="w-full mt-3 bg-white border border-slate-200 rounded-xl px-6 py-4 font-bold text-sm outline-none">
+                                                    <option value="">Select Main Wing...</option>
+                                                    {formData.preferredWings.map(w => <option key={w} value={w}>{w}</option>)}
+                                                </select>
+                                            </div>
+                                        )}
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#4f46e5] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Verification</button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {step === 5 && (
+                                    <div className="space-y-8">
+                                        <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 text-center">
+                                            <h4 className="font-merriweather font-black text-slate-800 text-xl mb-4">Achievements & CV</h4>
+                                            <p className="text-[11px] text-slate-500 font-medium mb-8">Upload your resume, cover letter, or any academic achievements (PDF/JPG/PNG).</p>
+                                            <button onClick={() => docInputRef.current?.click()} className="bg-white border-2 border-dashed border-slate-200 text-slate-400 px-8 py-6 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-white/50 transition-all w-full">
+                                                {uploading ? "Uploading..." : "+ Click to Upload File"}
+                                            </button>
+                                            <input type="file" ref={docInputRef} className="hidden" onChange={(e) => handleFileUpload(e, 'document')} />
+                                            {formData.documents.length > 0 && <div className="mt-4 text-[10px] text-emerald-500 font-black uppercase tracking-widest">{formData.documents.length} File(s) Added ✓</div>}
+                                        </div>
+                                        <div className="flex gap-4">
+                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
+                                            <button onClick={handleSubmit} disabled={loading} className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">
+                                                {loading ? 'Submitting Application...' : 'Finalize Application 🚀'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+                            </motion.div>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+            <Footer />
         </div>
     );
 };
