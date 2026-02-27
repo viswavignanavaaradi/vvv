@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import heroVideo from '../assets/video.mp4';
 
 const Hero = ({ onDonate }) => (
@@ -96,13 +97,51 @@ const Missions = () => (
     </section>
 );
 
+const JoinMission = () => {
+    const navigate = useNavigate();
+    return (
+        <section id="get-involved" className="section" style={{ background: '#f8fafc', padding: '7rem 0' }}>
+            <div className="container">
+                <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+                    <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Join the Movement</span>
+                    <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Choose Your Path to Impact</h2>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                    {[
+                        { title: 'Volunteer', desc: 'Work on the ground and serve rural communities directly.', path: '/volunteer-enrollment', icon: '🤝' },
+                        { title: 'Internship', desc: 'Gain field experience and academic research opportunities.', path: '/internship-enrollment', icon: '🎓' },
+                        { title: 'Patron', desc: 'Join our Advisory Council and provide strategic leadership.', path: '/patron-enrollment', icon: '🏛️' }
+                    ].map((item, idx) => (
+                        <motion.div
+                            key={idx}
+                            whileHover={{ scale: 1.02 }}
+                            style={{ background: 'white', padding: '3rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', textAlign: 'center', border: '1px solid #f1f5f9' }}
+                        >
+                            <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>{item.icon}</div>
+                            <h3 style={{ fontFamily: 'Merriweather, serif', fontSize: '1.5rem', marginBottom: '1rem', color: '#1e293b' }}>{item.title}</h3>
+                            <p style={{ color: '#64748b', marginBottom: '2rem', fontSize: '0.95rem', lineHeight: '1.6' }}>{item.desc}</p>
+                            <button
+                                onClick={() => navigate(item.path)}
+                                style={{ width: '100%', background: 'var(--primary-royal)', color: 'white', border: 'none', padding: '1rem', borderRadius: '12px', fontWeight: '700', cursor: 'pointer', transition: 'all 0.2s' }}
+                            >
+                                Enroll Now
+                            </button>
+                        </motion.div>
+                    ))}
+                </div>
+            </div>
+        </section>
+    );
+};
+
 const Contact = () => (
     <section id="contact" className="section" style={{ background: 'white' }}>
         <div className="container">
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '5rem' }}>
                 <div>
-                    <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Contact Us</span>
-                    <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', marginBottom: '1.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Get Involved Today</h2>
+                    <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Reach Out</span>
+                    <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', marginBottom: '1.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Contact Us</h2>
                     <p style={{ marginBottom: '2.5rem', color: 'var(--text-body)', fontSize: '1.1rem' }}>
                         Whether you want to volunteer your time, partner with us, or have a question, we are here to listen.
                     </p>
@@ -196,6 +235,7 @@ const Home = () => {
         <div>
             <Hero />
             <Missions />
+            <JoinMission />
             <Contact />
             <Footer />
         </div>

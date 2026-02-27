@@ -433,6 +433,7 @@ const Navbar = ({ onDonateClick }) => {
                                         {[
                                             { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                                             { label: 'Internship Enrollment', path: '/internship-enrollment' },
+                                            { label: 'Patron Enrollment', path: '/patron-enrollment' },
                                             { label: 'Overview', path: '/get-involved' }
                                         ].map((subItem) => (
                                             <div

@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const GetInvolved = () => {
     const navigate = useNavigate();
@@ -55,7 +53,6 @@ const GetInvolved = () => {
 
     return (
         <div className="bg-[#FDFCF6] min-h-screen">
-            <Navbar />
 
             {/* Hero */}
             <section className="pt-40 pb-20 px-6">
@@ -154,7 +151,7 @@ const GetInvolved = () => {
                 </div>
             </section>
 
-            <Footer />
+            {/* <Footer /> */}
         </div>
     );
 };
