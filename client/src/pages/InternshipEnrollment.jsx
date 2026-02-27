@@ -22,11 +22,15 @@ const InternshipEnrollment = () => {
         mainPriorityWing: '',
         areaOfInterest: [],
         otherInterest: '',
+        linkedinProfile: '',
+        branch: '',
+        yearOfStudy: '',
         profilePhoto: '',
         documents: []
     });
 
     const [loading, setLoading] = useState(false);
+    const [alreadyRegistered, setAlreadyRegistered] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [collegeSearch, setCollegeSearch] = useState('');
     const fileInputRef = useRef(null);
@@ -84,6 +88,17 @@ const InternshipEnrollment = () => {
         // ...
     };
 
+    const checkRegistration = async (email) => {
+        try {
+            const res = await axios.get(`/api/user/status?email=${email}`);
+            if (res.data.isIntern) {
+                setAlreadyRegistered(true);
+            }
+        } catch (err) {
+            console.error('Status check error:', err);
+        }
+    };
+
     useEffect(() => {
         window.scrollTo(0, 0);
         const storedUser = localStorage.getItem('vvv_user');
@@ -95,6 +110,7 @@ const InternshipEnrollment = () => {
                 email: user.email || '',
                 profilePhoto: user.picture || ''
             }));
+            checkRegistration(user.email);
         }
     }, [step]);
 
@@ -135,6 +151,20 @@ const InternshipEnrollment = () => {
             ))}
         </div>
     );
+
+    if (alreadyRegistered) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col pt-32 p-4 text-center items-center">
+                <Navbar />
+                <div className="max-w-md bg-white p-10 rounded-[40px] shadow-xl">
+                    <div className="text-5xl mb-6 text-indigo-500">🎓</div>
+                    <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Application Received!</h2>
+                    <p className="text-slate-500 mb-8">You have already submitted an internship application. Our team is currently reviewing your profile.</p>
+                    <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Check Application Status</button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#FDFCF6] pt-32 pb-20 px-4">
@@ -265,8 +295,16 @@ const InternshipEnrollment = () => {
                                     )}
                                 </div>
                                 <div className="space-y-2 col-span-2">
-                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Education Qualification</label>
-                                    <input name="education" value={formData.education} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="e.g. B.Tech 3rd Year" />
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Specialization / Branch <span className="text-red-500">*</span></label>
+                                    <input name="branch" value={formData.branch} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="e.g. Computer Science, Law" />
+                                </div>
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Year of Study <span className="text-red-500">*</span></label>
+                                    <input name="yearOfStudy" value={formData.yearOfStudy} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="e.g. 3rd Year" />
+                                </div>
+                                <div className="space-y-2 col-span-2">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">LinkedIn Profile</label>
+                                    <input name="linkedinProfile" value={formData.linkedinProfile} onChange={handleChange} className="w-full px-8 py-5 rounded-[22px] bg-slate-50 border border-slate-100 focus:bg-white outline-none" placeholder="https://linkedin.com/in/..." />
                                 </div>
                                 <div className="space-y-2 col-span-2">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Required Internship Duration</label>

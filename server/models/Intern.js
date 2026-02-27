@@ -15,6 +15,9 @@ const internSchema = new mongoose.Schema({
     wings: { type: String }, // Preferred wings/missions
     priorityWing: { type: String },
     interests: { type: String },
+    linkedinProfile: { type: String },
+    branch: { type: String },
+    yearOfStudy: { type: String },
     profilePhoto: { type: String },
     documents: [{
         name: String,

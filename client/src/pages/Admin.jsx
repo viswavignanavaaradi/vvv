@@ -487,11 +487,14 @@ const Admin = () => {
                                             </div>
                                             <div className="bg-slate-900 rounded-[40px] p-10 text-white">
                                                 <p className="text-blue-400 text-[10px] font-black uppercase mb-6">Candidate Node</p>
-                                                <p className="text-xl font-bold mb-2">{selectedIntern.university || 'N/A'}</p>
-                                                <p className="text-sm opacity-60 mb-6">{selectedIntern.email}</p>
+                                                <p className="text-xl font-bold mb-2">{selectedIntern.branch || 'General'}</p>
+                                                <p className="text-sm opacity-60 mb-6">{selectedIntern.yearOfStudy || 'N/A'}</p>
                                                 <div className="h-px bg-slate-800 mb-6" />
-                                                <p className="text-[9px] font-black text-slate-500 uppercase">Duration Relay</p>
-                                                <p className="font-bold text-blue-400">{selectedIntern.duration}</p>
+                                                <p className="text-[9px] font-black text-slate-500 uppercase mb-2">Duration Relay</p>
+                                                <p className="font-bold text-blue-400 mb-6">{selectedIntern.duration}</p>
+                                                {selectedIntern.linkedinProfile && (
+                                                    <button onClick={() => window.open(selectedIntern.linkedinProfile, '_blank')} className="w-full py-3 bg-blue-600/20 text-blue-400 border border-blue-500/30 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-blue-600 hover:text-white transition-all">View LinkedIn</button>
+                                                )}
                                             </div>
                                         </div>
                                     </div>
@@ -560,21 +563,29 @@ const Admin = () => {
 
                                             <div className="bg-[#0F172A] rounded-[40px] p-10 text-white flex flex-col justify-between overflow-hidden relative">
                                                 <div className="relative z-10">
-                                                    <p className="text-[10px] font-black uppercase text-yellow-400 mb-8 tracking-widest">Contact Information</p>
+                                                    <p className="text-[10px] font-black uppercase text-yellow-400 mb-8 tracking-widest">Patron Profile</p>
                                                     <div className="space-y-6">
                                                         <div>
-                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Email Address</p>
-                                                            <p className="text-base font-bold text-slate-200">{selectedPatron.email}</p>
+                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Profession</p>
+                                                            <p className="text-base font-bold text-slate-200">{selectedPatron.profession || 'Leader'}</p>
                                                         </div>
                                                         <div>
-                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Status</p>
-                                                            <span className="px-3 py-1 bg-emerald-500 text-white rounded-lg text-[9px] font-black uppercase">Active</span>
+                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Experience</p>
+                                                            <p className="text-sm font-bold text-slate-400">{selectedPatron.experience} Years</p>
                                                         </div>
+                                                        <div>
+                                                            <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Advisory Wing</p>
+                                                            <p className="text-sm font-bold text-emerald-400">{selectedPatron.advisoryWing}</p>
+                                                        </div>
+                                                        {selectedPatron.linkedinProfile && (
+                                                            <button onClick={() => window.open(selectedPatron.linkedinProfile, '_blank')} className="w-full py-3 bg-white/5 border border-white/10 rounded-xl font-black text-[9px] uppercase tracking-widest hover:bg-white hover:text-[#0F172A] transition-all">LinkedIn Profile</button>
+                                                        )}
                                                     </div>
                                                 </div>
-                                                <div className="mt-20 relative z-10">
-                                                    <div className="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-2xl mb-4 border border-white/10">🤝</div>
-                                                    <p className="text-xs text-slate-400 font-medium leading-relaxed">Verified across Razorpay Subscription API and MongoDB Nexus Storage.</p>
+                                                <div className="mt-12 relative z-10">
+                                                    <p className="text-[9px] font-black text-slate-600 uppercase mb-4">Contact Nexus</p>
+                                                    <p className="text-xs font-bold text-slate-300 mb-1">{selectedPatron.email}</p>
+                                                    <p className="text-xs text-slate-500">{selectedPatron.phone}</p>
                                                 </div>
                                                 <div className="absolute -bottom-20 -right-20 w-64 h-64 bg-yellow-500/5 rounded-full" />
                                             </div>

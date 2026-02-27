@@ -28,6 +28,24 @@ const VolunteerEnrollment = () => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [alreadyRegistered, setAlreadyRegistered] = useState(false);
+
+    useEffect(() => {
+        if (user?.email) {
+            checkRegistration();
+        }
+    }, [user]);
+
+    const checkRegistration = async () => {
+        try {
+            const res = await axios.get(`/api/user/status?email=${user.email}`);
+            if (res.data.isVolunteer) {
+                setAlreadyRegistered(true);
+            }
+        } catch (err) {
+            console.error('Status check error:', err);
+        }
+    };
     const [uploading, setUploading] = useState(false);
     const [collegeSearch, setCollegeSearch] = useState('');
     const fileInputRef = useRef(null);
@@ -171,6 +189,20 @@ const VolunteerEnrollment = () => {
             ))}
         </div>
     );
+
+    if (alreadyRegistered) {
+        return (
+            <div className="min-h-screen bg-slate-50 flex flex-col pt-32 p-4 text-center items-center">
+                <Navbar />
+                <div className="max-w-md bg-white p-10 rounded-[40px] shadow-xl">
+                    <div className="text-5xl mb-6 text-[#1e3a8a]">🛡️</div>
+                    <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Commander, You're Active!</h2>
+                    <p className="text-slate-500 mb-8">You are already registered as an active volunteer. Your dedication to the mission is highly valued.</p>
+                    <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Go to My Hub</button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-[#FDFCF6] pt-32 pb-20 px-4">

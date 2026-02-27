@@ -178,6 +178,28 @@ if (process.env.RAZORPAY_KEY_ID && !process.env.RAZORPAY_KEY_ID.includes('YourKe
     console.warn('[Razorpay] Warning: Razorpay keys are not configured or still using placeholders.');
 }
 
+// User Status Check (Registration Guard)
+app.get('/api/user/status', async (req, res) => {
+    const { email } = req.query;
+    if (!email) return res.status(400).json({ error: 'Email is required' });
+
+    try {
+        const [volunteer, intern, patron] = await Promise.all([
+            Volunteer.findOne({ email }),
+            Intern.findOne({ email }),
+            Patron.findOne({ email })
+        ]);
+
+        res.json({
+            isVolunteer: !!volunteer,
+            isIntern: !!intern,
+            isPatron: !!patron && patron.status === 'active'
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 // APIs
 app.get('/api/get-key', (req, res) => {
     res.json({ key: process.env.RAZORPAY_KEY_ID });
@@ -293,6 +315,62 @@ app.post('/api/razorpay-webhook', async (req, res) => {
     }
 
     res.json({ status: 'ok' });
+});
+
+app.post('/api/patron/enroll', async (req, res) => {
+    const { fullName, email, phone, profession, experience, advisoryWing, linkedinProfile, amount, subscriptionId } = req.body;
+    try {
+        const patron = await Patron.findOneAndUpdate(
+            { email },
+            {
+                fullName, email, phone, profession, experience,
+                advisoryWing, linkedinProfile, amount,
+                subscription_id: subscriptionId,
+                status: 'active',
+                date: new Date()
+            },
+            { upsert: true, new: true }
+        );
+
+        // Update User info
+        await User.findOneAndUpdate(
+            { email },
+            { name: fullName, role: 'patron' },
+            { upsert: true }
+        );
+
+        res.json({ status: 'success', patron });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/patron/enroll', async (req, res) => {
+    const { fullName, email, phone, profession, experience, advisoryWing, linkedinProfile, amount, subscriptionId } = req.body;
+    try {
+        const patron = await Patron.findOneAndUpdate(
+            { email },
+            {
+                fullName, email, phone, profession, experience,
+                advisoryWing, linkedinProfile, amount,
+                subscription_id: subscriptionId,
+                status: 'active',
+                date: new Date()
+            },
+            { upsert: true, new: true }
+        );
+
+        // Update User info
+        await User.findOneAndUpdate(
+            { email },
+            { name: fullName, role: 'patron' },
+            { upsert: true }
+        );
+
+        res.json({ status: 'success', patron });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 });
 
 app.post('/api/subscription-success', async (req, res) => {
@@ -524,33 +602,24 @@ app.post('/api/intern/enroll', async (req, res) => {
     const {
         fullName, email, contactNumber, age, gender, bloodGroup,
         state, district, collegeName, education, duration, preferredWings,
-        mainPriorityWing, interests, profilePhoto, achievements
+        mainPriorityWing, interests, profilePhoto, achievements,
+        linkedinProfile, branch, yearOfStudy
     } = req.body;
 
     try {
         const intern = await Intern.findOneAndUpdate(
             { email },
             {
-                fullName,
-                email,
-                age,
-                gender,
-                phone: contactNumber,
-                bloodGroup,
-                state,
-                district,
-                collegeName,
-                education,
-                duration,
-                wings: preferredWings,
-                priorityWing: mainPriorityWing,
-                interests,
-                profilePhoto,
-                documents: achievements || [],
-                status: 'pending' // Reset status on re-enrollment logic if needed
+                fullName, email, age, gender, phone: contactNumber,
+                bloodGroup, state, district, collegeName, education,
+                duration, wings: preferredWings, priorityWing: mainPriorityWing,
+                interests, profilePhoto, documents: achievements || [],
+                linkedinProfile, branch, yearOfStudy,
+                status: 'pending'
             },
             { upsert: true, new: true }
         );
+        // ... existing User update logic ...
 
         // Update User info if User exists
         await User.findOneAndUpdate(

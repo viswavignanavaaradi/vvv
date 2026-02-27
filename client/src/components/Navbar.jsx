@@ -132,6 +132,7 @@ const Navbar = ({ onDonateClick }) => {
                         label: 'Get Involved', type: 'dropdown', subItems: [
                             { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                             { label: 'Internship Enrollment', path: '/internship-enrollment' },
+                            { label: 'Foundation Patron', path: '/patron-enrollment' },
                             { label: 'Learn More', path: '/get-involved' }
                         ]
                     },

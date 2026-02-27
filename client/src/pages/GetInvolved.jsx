@@ -102,7 +102,7 @@ const GetInvolved = () => {
                                 </p>
                                 <div className="flex flex-wrap gap-4">
                                     <button onClick={() => navigate('/internship-enrollment')} className="bg-primary-royal hover:bg-blue-900 text-white font-bold py-3 px-8 rounded-full shadow-lg transition-transform hover:-translate-y-1">
-                                        Register as Intern
+                                        Enroll in Internship
                                     </button>
                                     <Link to="/volunteer-know-more" className="border-2 border-accent-emerald text-accent-emerald hover:bg-accent-emerald hover:text-white font-bold py-3 px-8 rounded-full transition-all text-center">
                                         Know More
@@ -163,9 +163,9 @@ const GetInvolved = () => {
                                     <h3 className="text-xl font-bold text-gray-800 group-hover:text-white mb-4">{support.title}</h3>
                                     <p className="text-gray-600 group-hover:text-blue-100 leading-relaxed mb-6">{support.description}</p>
                                     {support.title === "Become a Patron" && (
-                                        <Link to="/patron-know-more" className="text-accent-emerald font-bold group-hover:text-white underline underline-offset-4 decoration-2">
-                                            Know More →
-                                        </Link>
+                                        <button onClick={() => navigate('/patron-enrollment')} className="text-accent-emerald font-bold group-hover:text-white underline underline-offset-4 decoration-2">
+                                            Join as Patron →
+                                        </button>
                                     )}
                                 </div>
                             ))}

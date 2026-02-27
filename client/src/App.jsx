@@ -15,6 +15,7 @@ import ForgotPassword from './pages/ForgotPassword';
 import Profile from './pages/Profile';
 import VolunteerEnrollment from './pages/VolunteerEnrollment';
 import InternshipEnrollment from './pages/InternshipEnrollment';
+import PatronEnrollment from './pages/PatronEnrollment';
 import LegalAid from './pages/LegalAid';
 import LegalStatus from './pages/LegalStatus';
 import PatronKnowMore from './pages/PatronKnowMore';
@@ -40,6 +41,7 @@ function App() {
                         <Route path="/profile" element={<Profile />} />
                         <Route path="/volunteer-enrollment" element={<VolunteerEnrollment />} />
                         <Route path="/internship-enrollment" element={<InternshipEnrollment />} />
+                        <Route path="/patron-enrollment" element={<PatronEnrollment />} />
                         <Route path="/legal-aid" element={<LegalAid />} />
                         <Route path="/legal-status" element={<LegalStatus />} />
                         <Route path="/patron-know-more" element={<PatronKnowMore />} />
