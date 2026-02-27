@@ -115,7 +115,7 @@ const Navbar = ({ onDonateClick }) => {
                         textTransform: 'uppercase',
                         whiteSpace: 'nowrap'
                     }}>
-                        VISWA VIGNANA VARADI
+                        VISWA VIGNANA VAARADHI
                     </h1>
                 </div>
             </div>
