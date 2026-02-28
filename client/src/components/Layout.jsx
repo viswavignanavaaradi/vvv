@@ -13,9 +13,9 @@ const Layout = ({ children }) => {
 
             {/* 
                 Standardized Spacer 
-                Matches the fixed Navbar height (100px) 
+                Matches the fixed Navbar height (80px) 
             */}
-            <div className="h-[100px] w-full shrink-0" />
+            <div className="h-[80px] w-full shrink-0" />
 
             {/* Main Content Area */}
             <main className="flex-grow relative">

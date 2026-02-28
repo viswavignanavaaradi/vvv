@@ -9,6 +9,8 @@ const Navbar = ({ onDonateClick }) => {
     const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
     const [involvedDropdownOpen, setInvolvedDropdownOpen] = useState(false);
     const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+    const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
+    const [mobileInvolvedOpen, setMobileInvolvedOpen] = useState(false);
     const [user, setUser] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
@@ -90,15 +92,15 @@ const Navbar = ({ onDonateClick }) => {
             alignItems: 'center',
             borderBottom: scrolled ? '1px solid rgba(0,0,0,0.1)' : '1px solid transparent',
             backdropFilter: 'blur(8px)',
-            height: '100px' // Added fixed height for predictability
+            height: '80px' // Reduced from 100px for a slimmer profile
         }}>
             <div
                 onClick={() => navigate('/')}
                 style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }}
             >
                 <img src={logo} alt="Viswa Vignana Logo" className="logo-img" style={{
-                    height: '75px',
-                    width: '75px',
+                    height: '60px',
+                    width: '60px',
                     objectFit: 'cover',
                     borderRadius: '50%',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
@@ -178,48 +180,54 @@ const Navbar = ({ onDonateClick }) => {
                                                 left: '50%',
                                                 x: '-50%',
                                                 background: 'white',
-                                                minWidth: '240px',
-                                                borderRadius: '6px',
-                                                boxShadow: '0 10px 30px rgba(0,0,0,0.1)',
+                                                minWidth: item.label === 'About Us' ? '500px' : '240px',
+                                                borderRadius: '12px',
+                                                boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
                                                 marginTop: '0px',
-                                                border: '1px solid #e5e7eb',
+                                                border: '1px solid #f1f5f9',
                                                 overflow: 'hidden',
-                                                padding: '0.5rem'
+                                                padding: '1rem'
                                             }}
                                         >
-                                            {(item.label === 'About Us' ?
-                                                ['What is VVV', 'Core Values', 'People behind VVV', 'Impact Timeline', 'Partnered Colleges', 'Corporate Partnership', 'Partnered Influencers'] :
-                                                item.subItems.map(si => si.label)
-                                            ).map((subItemLabel) => (
-                                                <div
-                                                    key={subItemLabel}
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (item.label === 'About Us') {
-                                                            handleAboutClick(subItemLabel.toLowerCase().replace(/ /g, '_'));
-                                                        } else {
-                                                            const subItem = item.subItems.find(si => si.label === subItemLabel);
-                                                            navigate(subItem.path);
-                                                            setInvolvedDropdownOpen(false);
-                                                            setMobileMenuOpen(false);
-                                                        }
-                                                    }}
-                                                    className="dropdown-item"
-                                                    style={{
-                                                        padding: '0.6rem 1rem',
-                                                        color: 'var(--text-body)',
-                                                        fontSize: '0.85rem',
-                                                        fontWeight: '500',
-                                                        cursor: 'pointer',
-                                                        borderRadius: '4px',
-                                                        display: 'block',
-                                                        textAlign: 'left',
-                                                        transition: 'all 0.2s'
-                                                    }}
-                                                >
-                                                    {subItemLabel}
-                                                </div>
-                                            ))}
+                                            <div style={{
+                                                display: 'grid',
+                                                gridTemplateColumns: item.label === 'About Us' ? '1fr 1fr' : '1fr',
+                                                gap: '8px'
+                                            }}>
+                                                {(item.label === 'About Us' ?
+                                                    ['What is VVV', 'Core Values', 'People behind VVV', 'Impact Timeline', 'Partnered Colleges', 'Corporate Partnership', 'Partnered Influencers'] :
+                                                    item.subItems.map(si => si.label)
+                                                ).map((subItemLabel) => (
+                                                    <div
+                                                        key={subItemLabel}
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (item.label === 'About Us') {
+                                                                handleAboutClick(subItemLabel.toLowerCase().replace(/ /g, '_'));
+                                                            } else {
+                                                                const subItem = item.subItems.find(si => si.label === subItemLabel);
+                                                                navigate(subItem.path);
+                                                                setInvolvedDropdownOpen(false);
+                                                                setMobileMenuOpen(false);
+                                                            }
+                                                        }}
+                                                        className="dropdown-item"
+                                                        style={{
+                                                            padding: '0.6rem 1rem',
+                                                            color: 'var(--text-body)',
+                                                            fontSize: '0.85rem',
+                                                            fontWeight: '500',
+                                                            cursor: 'pointer',
+                                                            borderRadius: '4px',
+                                                            display: 'block',
+                                                            textAlign: 'left',
+                                                            transition: 'all 0.2s'
+                                                        }}
+                                                    >
+                                                        {subItemLabel}
+                                                    </div>
+                                                ))}
+                                            </div>
                                         </motion.div>
                                     )}
                                 </AnimatePresence>
@@ -427,39 +435,83 @@ const Navbar = ({ onDonateClick }) => {
                                     </div>
                                 ))}
 
-                                <div style={{ marginTop: '1rem' }}>
-                                    <div style={{ fontWeight: '700', color: 'var(--primary-royal)', fontSize: '0.9rem', marginBottom: '1rem', textTransform: 'uppercase' }}>Get Involved</div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '1.5rem' }}>
-                                        {[
-                                            { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
-                                            { label: 'Internship Enrollment', path: '/internship-enrollment' },
-                                            { label: 'Patron Enrollment', path: '/patron-enrollment' },
-                                            { label: 'Overview', path: '/get-involved' }
-                                        ].map((subItem) => (
-                                            <div
-                                                key={subItem.label}
-                                                onClick={() => { navigate(subItem.path); setMobileMenuOpen(false); }}
-                                                style={{ fontSize: '1rem', color: '#4b5563', fontWeight: '500' }}
-                                            >
-                                                {subItem.label}
-                                            </div>
-                                        ))}
+                                {/* Collapsible Mobile Section: Get Involved */}
+                                <div style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                    <div
+                                        onClick={() => setMobileInvolvedOpen(!mobileInvolvedOpen)}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '1rem 0',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '1.1rem' }}>Get Involved</span>
+                                        <span style={{ transform: mobileInvolvedOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}>▼</span>
                                     </div>
+                                    <AnimatePresence>
+                                        {mobileInvolvedOpen && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
+                                            >
+                                                {[
+                                                    { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
+                                                    { label: 'Internship Enrollment', path: '/internship-enrollment' },
+                                                    { label: 'Patron Enrollment', path: '/patron-enrollment' },
+                                                    { label: 'Overview', path: '/get-involved' }
+                                                ].map((subItem) => (
+                                                    <div
+                                                        key={subItem.label}
+                                                        onClick={() => { navigate(subItem.path); setMobileMenuOpen(false); }}
+                                                        style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}
+                                                    >
+                                                        {subItem.label}
+                                                    </div>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
 
-                                <div style={{ marginTop: '1rem' }}>
-                                    <div style={{ fontWeight: '700', color: 'var(--accent-emerald)', fontSize: '0.9rem', marginBottom: '1rem', textTransform: 'uppercase' }}>About VVV</div>
-                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                                        {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership'].map((subItem) => (
-                                            <div
-                                                key={subItem}
-                                                onClick={() => handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'))}
-                                                style={{ fontSize: '1rem', color: '#4b5563', fontWeight: '500' }}
-                                            >
-                                                {subItem}
-                                            </div>
-                                        ))}
+                                {/* Collapsible Mobile Section: About VVV */}
+                                <div style={{ borderBottom: '1px solid #f1f5f9' }}>
+                                    <div
+                                        onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
+                                        style={{
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '1rem 0',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '1.1rem' }}>About VVV</span>
+                                        <span style={{ transform: mobileAboutOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}>▼</span>
                                     </div>
+                                    <AnimatePresence>
+                                        {mobileAboutOpen && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
+                                            >
+                                                {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership'].map((subItem) => (
+                                                    <div
+                                                        key={subItem}
+                                                        onClick={() => handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'))}
+                                                        style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}
+                                                    >
+                                                        {subItem}
+                                                    </div>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
                                 </div>
                             </div>
 

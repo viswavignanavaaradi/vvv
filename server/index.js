@@ -59,8 +59,8 @@ app.get('/', (req, res) => {
     res.json({
         message: 'VVV Nexus API is running',
         status: 'healthy',
-        version: '4.2.2',
-        lastUpdated: '2026-02-28T19:40:00Z'
+        version: '4.3.0',
+        lastUpdated: '2026-02-28T23:50:00Z'
     });
 });
 
