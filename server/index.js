@@ -20,6 +20,7 @@ const Donation = require('./models/Donation');
 const LegalRequest = require('./models/LegalRequest');
 const Subscription = require('./models/Subscription');
 const Patron = require('./models/Patron');
+const galleryRouter = require('./routes/gallery');
 const { generateIDCard } = require('./utils/idCard');
 const { generateCertificate } = require('./utils/certificate');
 
@@ -58,8 +59,8 @@ app.get('/', (req, res) => {
     res.json({
         message: 'VVV Nexus API is running',
         status: 'healthy',
-        version: '4.1.9',
-        lastUpdated: '2026-02-28T16:55:00Z'
+        version: '4.2.0',
+        lastUpdated: '2026-02-28T19:20:00Z'
     });
 });
 
@@ -68,6 +69,7 @@ app.get('/api/ping', (req, res) => {
 });
 
 app.use(bodyParser.json());
+app.use('/api/gallery', galleryRouter);
 
 // MongoDB Connection
 const MONGODB_URI = process.env.MONGODB_URI;

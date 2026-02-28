@@ -3,17 +3,23 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const Gallery = () => {
     const [filter, setFilter] = useState('all');
+    const [images, setImages] = useState([]);
+    const [loading, setLoading] = useState(true);
 
-    const images = [
-        { id: 1, src: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?q=80&w=2000&auto=format&fit=crop", category: "education", caption: "Vision 2047: Empowering Rural Classrooms" },
-        { id: 2, src: "https://images.unsplash.com/photo-1542601906990-b4d3fb773b09?q=80&w=2000&auto=format&fit=crop", category: "health", caption: "Medical Outreach & Diagnostic Camps" },
-        { id: 3, src: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?q=80&w=2000&auto=format&fit=crop", category: "events", caption: "Institutional Leadership Summits" },
-        { id: 4, src: "https://images.unsplash.com/photo-1519494140681-8b17d830a3e9?q=80&w=2000&auto=format&fit=crop", category: "health", caption: "Community Health Awareness Drives" },
-        { id: 5, src: "https://images.unsplash.com/photo-1542810634-71277d95dcbb?q=80&w=2000&auto=format&fit=crop", category: "education", caption: "Educational Kit Distribution" },
-        { id: 6, src: "https://images.unsplash.com/photo-1454165833221-d7d028d07543?q=80&w=2000&auto=format&fit=crop", category: "events", caption: "Rural Transformation Workshops" },
-        { id: 7, src: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?q=80&w=2000&auto=format&fit=crop", category: "events", caption: "Solidarity for Social Change" },
-        { id: 8, src: "https://images.unsplash.com/photo-1529390003868-6c01e7b1e566?q=80&w=2000&auto=format&fit=crop", category: "team", caption: "VVV Core Leadership & Volunteers" },
-    ];
+    React.useEffect(() => {
+        const fetchImages = async () => {
+            try {
+                const res = await fetch('/api/gallery');
+                const data = await res.json();
+                setImages(data);
+            } catch (err) {
+                console.error('Gallery fetch error:', err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchImages();
+    }, []);
 
     const categories = ['all', 'education', 'health', 'events', 'team'];
 
@@ -44,30 +50,36 @@ const Gallery = () => {
                 </div>
 
                 {/* Masonry Grid */}
-                <motion.div layout className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                    <AnimatePresence>
-                        {filteredImages.map((image) => (
-                            <motion.div
-                                layout
-                                key={image.id}
-                                initial={{ opacity: 0, scale: 0.8 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.8 }}
-                                transition={{ duration: 0.3 }}
-                                className="relative group overflow-hidden rounded-xl shadow-md bg-white break-inside-avoid"
-                            >
-                                <img
-                                    src={image.src}
-                                    alt={image.caption}
-                                    className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-110"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                                    <p className="text-white font-semibold font-merriweather">{image.caption}</p>
-                                </div>
-                            </motion.div>
-                        ))}
-                    </AnimatePresence>
-                </motion.div>
+                {loading ? (
+                    <div className="flex justify-center items-center py-20">
+                        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-royal"></div>
+                    </div>
+                ) : (
+                    <motion.div layout className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                        <AnimatePresence>
+                            {filteredImages.map((image) => (
+                                <motion.div
+                                    layout
+                                    key={image.id}
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    exit={{ opacity: 0, scale: 0.8 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="relative group overflow-hidden rounded-xl shadow-md bg-white break-inside-avoid"
+                                >
+                                    <img
+                                        src={image.src}
+                                        alt={image.caption}
+                                        className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                                        <p className="text-white font-semibold font-merriweather">{image.caption}</p>
+                                    </div>
+                                </motion.div>
+                            ))}
+                        </AnimatePresence>
+                    </motion.div>
+                )}
             </div>
         </div>
     );
