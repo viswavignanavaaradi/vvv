@@ -104,7 +104,6 @@ const PatronEnrollment = () => {
     if (alreadyRegistered) {
         return (
             <div className="min-h-screen bg-slate-50 flex flex-col pt-32 p-4 text-center items-center">
-                <Navbar />
                 <div className="max-w-md bg-white p-10 rounded-[40px] shadow-xl">
                     <div className="text-5xl mb-6 text-emerald-500">🌟</div>
                     <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">A Heartfelt Thank You!</h2>
@@ -276,7 +275,6 @@ const PatronEnrollment = () => {
                 </div>
             </div>
 
-            <Footer />
         </div>
     );
 };

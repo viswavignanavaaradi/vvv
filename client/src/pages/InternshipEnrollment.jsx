@@ -410,7 +410,6 @@ const InternshipEnrollment = () => {
                 </div>
             </div>
 
-            <Footer />
         </div>
     );
 };
