@@ -183,37 +183,6 @@ const Missions = () => {
 
     const missions_content = [
         {
-            id: "mission-trupti",
-            title: "Mission Trupti",
-            subtitle: "Hunger Eradication, Nutrition & Community Health Initiative",
-            icon: "🍛",
-            color: "#DDA63A",
-            intro: "Mission Trupti is the humanitarian nutrition and public health wing of VVV dedicated to building a hunger-free, malnutrition-free, and disease-resistant society.",
-            rationale: {
-                text: "Hunger and malnutrition remain silent crises affecting rural communities, tribal populations, and slum dwellers. Lack of clean drinking water further exposes these communities to severe health risks.",
-                lists: [
-                    { title: "Nutritional Crises", items: ["Kwashiorkor", "Marasmus", "Scurvy", "Rickets", "Night Blindness", "Anemia", "Goiter"] },
-                    { title: "Water-borne Risks", items: ["Cholera", "Typhoid", "Hepatitis A & E", "Diarrhea", "Giardiasis", "Dysentery", "Leptospirosis"] }
-                ]
-            },
-            objectives: [
-                "Ensure no family sleeps hungry",
-                "Reduce child and maternal malnutrition",
-                "Improve immunity and physical health",
-                "Promote clean drinking water access",
-                "Prevent water-borne diseases"
-            ],
-            programs: [
-                { name: "Hunger-Free Communities", desc: "Localized hunger-free zones through community food distribution drives and emergency assistance.", points: ["Sustained Security", "Risk Analysis"] },
-                { name: "Maternal nutrition", desc: "Nutritional supplementation and monitoring for pregnant women and lactating mothers.", points: ["Child Growth", "Nation Building"] },
-                { name: "Safe Water Access", desc: "Water purification awareness and low-cost filtration models in remote tribal settlements.", points: ["Preventive Healthcare"] },
-                { name: "Public Awareness", desc: "Comprehensive campaigns on balanced diet principles, hygiene, and sanitation.", points: ["Behavioral Change"] }
-            ],
-            integration: ["Mission Medha", "Mission Manoswasthya", "Mission Jeevadhara", "Nyaya Sadan"],
-            vision: ["Hunger-free districts", "Reduced malnutrition rates", "Stronger child immunity", "Decline in preventable diseases"],
-            philosophy: { text: "Serving the hungry is serving humanity. Strengthening immunity strengthens the nation." }
-        },
-        {
             id: "mission-medha",
             title: "Mission Medha",
             subtitle: "Bridging the structural gap in educational empowerment",
@@ -272,6 +241,37 @@ const Missions = () => {
             ],
             vision: ["Legally aware society", "Transparent governance", "Grassroots constitutional culture", "Empowered citizenry"],
             philosophy: { text: "Justice delayed weakens democracy. Justice denied destroys trust. Justice accessible strengthens the nation." }
+        },
+        {
+            id: "mission-trupti",
+            title: "Mission Trupti",
+            subtitle: "Hunger Eradication, Nutrition & Community Health Initiative",
+            icon: "🍛",
+            color: "#DDA63A",
+            intro: "Mission Trupti is the humanitarian nutrition and public health wing of VVV dedicated to building a hunger-free, malnutrition-free, and disease-resistant society.",
+            rationale: {
+                text: "Hunger and malnutrition remain silent crises affecting rural communities, tribal populations, and slum dwellers. Lack of clean drinking water further exposes these communities to severe health risks.",
+                lists: [
+                    { title: "Nutritional Crises", items: ["Kwashiorkor", "Marasmus", "Scurvy", "Rickets", "Night Blindness", "Anemia", "Goiter"] },
+                    { title: "Water-borne Risks", items: ["Cholera", "Typhoid", "Hepatitis A & E", "Diarrhea", "Giardiasis", "Dysentery", "Leptospirosis"] }
+                ]
+            },
+            objectives: [
+                "Ensure no family sleeps hungry",
+                "Reduce child and maternal malnutrition",
+                "Improve immunity and physical health",
+                "Promote clean drinking water access",
+                "Prevent water-borne diseases"
+            ],
+            programs: [
+                { name: "Hunger-Free Communities", desc: "Localized hunger-free zones through community food distribution drives and emergency assistance.", points: ["Sustained Security", "Risk Analysis"] },
+                { name: "Maternal nutrition", desc: "Nutritional supplementation and monitoring for pregnant women and lactating mothers.", points: ["Child Growth", "Nation Building"] },
+                { name: "Safe Water Access", desc: "Water purification awareness and low-cost filtration models in remote tribal settlements.", points: ["Preventive Healthcare"] },
+                { name: "Public Awareness", desc: "Comprehensive campaigns on balanced diet principles, hygiene, and sanitation.", points: ["Behavioral Change"] }
+            ],
+            integration: ["Mission Medha", "Mission Manoswasthya", "Mission Jeevadhara", "Nyaya Sadan"],
+            vision: ["Hunger-free districts", "Reduced malnutrition rates", "Stronger child immunity", "Decline in preventable diseases"],
+            philosophy: { text: "Serving the hungry is serving humanity. Strengthening immunity strengthens the nation." }
         },
         {
             id: "mission-manoswasthya",

@@ -136,9 +136,9 @@ const Navbar = ({ onDonateClick }) => {
                         type: 'dropdown',
                         path: '/missions',
                         subItems: [
-                            { label: 'Mission Trupti', path: '/missions#mission-trupti' },
                             { label: 'Mission Medha', path: '/missions#mission-medha' },
                             { label: 'Nyaya Sadan', path: '/missions#nyaya-sadan' },
+                            { label: 'Mission Trupti', path: '/missions#mission-trupti' },
                             { label: 'Mission Manoswasthya', path: '/missions#mission-manoswasthya' },
                             { label: 'Mission Jeevadhara', path: '/missions#mission-jeevadhara' }
                         ]
@@ -483,9 +483,9 @@ const Navbar = ({ onDonateClick }) => {
                                                 style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
                                             >
                                                 {[
-                                                    { label: 'Mission Trupti', path: '/missions#mission-trupti' },
                                                     { label: 'Mission Medha', path: '/missions#mission-medha' },
                                                     { label: 'Nyaya Sadan', path: '/missions#nyaya-sadan' },
+                                                    { label: 'Mission Trupti', path: '/missions#mission-trupti' },
                                                     { label: 'Mission Manoswasthya', path: '/missions#mission-manoswasthya' },
                                                     { label: 'Mission Jeevadhara', path: '/missions#mission-jeevadhara' },
                                                     { label: 'Overview', path: '/missions' }
