@@ -1,7 +1,7 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 
-const FloatingDock = () => {
+const FloatingDock = ({ hide }) => {
     const socialLinks = [
         {
             name: 'LinkedIn',
@@ -56,57 +56,62 @@ const FloatingDock = () => {
     ];
 
     return (
-        <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-max px-4">
-            <motion.div
-                initial={{ y: 70, opacity: 0, scale: 0.9 }}
-                animate={{ y: 0, opacity: 1, scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className="bg-[#242424]/40 backdrop-blur-[24px] border border-white/10 rounded-[34px] p-2.5 flex flex-col gap-1.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] overflow-hidden"
-            >
-                {/* Icons Container */}
-                <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar px-1 py-0.5">
-                    {socialLinks.map((item, index) => (
-                        <motion.a
-                            key={index}
-                            href={item.link}
-                            whileHover={{
-                                scale: 1.12,
-                                translateY: -10,
-                                filter: 'brightness(1.1) saturate(1.1)'
-                            }}
-                            whileTap={{ scale: 0.92 }}
-                            className={`flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-[18px] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all bg-gradient-to-b ${item.gradient} relative overflow-hidden group`}
-                            title={item.name}
-                        >
-                            {/* Subtle Inner Glow */}
-                            <div className="absolute inset-0 bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity" />
-                            <div className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
-                                {item.icon}
+        <AnimatePresence>
+            {!hide && (
+                <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[9999] w-max px-4">
+                    <motion.div
+                        initial={{ y: 70, opacity: 0, scale: 0.9 }}
+                        animate={{ y: 0, opacity: 1, scale: 1 }}
+                        exit={{ y: 70, opacity: 0, scale: 0.9 }}
+                        transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                        className="bg-[#242424]/40 backdrop-blur-[24px] border border-white/10 rounded-[34px] p-2.5 flex flex-col gap-1.5 shadow-[0_25px_50px_-12px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.1)] overflow-hidden"
+                    >
+                        {/* Icons Container */}
+                        <div className="flex items-center gap-2.5 overflow-x-auto no-scrollbar px-1 py-0.5">
+                            {socialLinks.map((item, index) => (
+                                <motion.a
+                                    key={index}
+                                    href={item.link}
+                                    whileHover={{
+                                        scale: 1.12,
+                                        translateY: -10,
+                                        filter: 'brightness(1.1) saturate(1.1)'
+                                    }}
+                                    whileTap={{ scale: 0.92 }}
+                                    className={`flex-shrink-0 w-12 h-12 flex items-center justify-center rounded-[18px] text-white shadow-[0_4px_12px_rgba(0,0,0,0.3)] transition-all bg-gradient-to-b ${item.gradient} relative overflow-hidden group`}
+                                    title={item.name}
+                                >
+                                    {/* Subtle Inner Glow */}
+                                    <div className="absolute inset-0 bg-white/5 opacity-50 group-hover:opacity-100 transition-opacity" />
+                                    <div className="relative z-10 drop-shadow-[0_2px_4px_rgba(0,0,0,0.3)]">
+                                        {item.icon}
+                                    </div>
+                                </motion.a>
+                            ))}
+                        </div>
+
+                        {/* iPhone Style Indicator Bar */}
+                        <div className="flex items-center justify-center pt-0.5 pb-1">
+                            <div className="w-[100px] h-1.5 bg-white/10 rounded-full flex items-center px-1 shadow-inner">
+                                <div className="h-0.5 w-full bg-white/30 rounded-full" />
                             </div>
-                        </motion.a>
-                    ))}
-                </div>
+                        </div>
+                    </motion.div>
 
-                {/* iPhone Style Indicator Bar */}
-                <div className="flex items-center justify-center pt-0.5 pb-1">
-                    <div className="w-[100px] h-1.5 bg-white/10 rounded-full flex items-center px-1 shadow-inner">
-                        <div className="h-0.5 w-full bg-white/30 rounded-full" />
-                    </div>
+                    {/* Injected CSS for hiding scrollbars but keeping functionality */}
+                    <style dangerouslySetInnerHTML={{
+                        __html: `
+                        .no-scrollbar::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .no-scrollbar {
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
+                        }
+                    ` }} />
                 </div>
-            </motion.div>
-
-            {/* Injected CSS for hiding scrollbars but keeping functionality */}
-            <style dangerouslySetInnerHTML={{
-                __html: `
-                .no-scrollbar::-webkit-scrollbar {
-                    display: none;
-                }
-                .no-scrollbar {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                }
-            ` }} />
-        </div>
+            )}
+        </AnimatePresence>
     );
 };
 

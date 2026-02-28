@@ -515,7 +515,14 @@ const Navbar = ({ onDonateClick }) => {
                                 </div>
                             </div>
 
-                            <div style={{ marginTop: 'auto', paddingTop: '2rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{
+                                marginTop: 'auto',
+                                paddingTop: '2rem',
+                                paddingBottom: '2rem',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '0.75rem'
+                            }}>
                                 {!user ? (
                                     <button
                                         onClick={() => { navigate('/login'); setMobileMenuOpen(false); }}
@@ -525,15 +532,34 @@ const Navbar = ({ onDonateClick }) => {
                                         Join Us
                                     </button>
                                 ) : (
-                                    <div onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', background: '#f8fafc', borderRadius: '8px' }}>
-                                        <img src={user.picture || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt="user" />
-                                        <span style={{ fontWeight: '700' }}>{user.name.split(' ')[0]}</span>
+                                    <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                                        <div onClick={() => { navigate('/profile'); setMobileMenuOpen(false); }} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '1rem', background: '#f8fafc', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                                            <img src={user.picture || "https://images.unsplash.com/photo-1511367461989-f85a21fda167?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80"} style={{ width: '32px', height: '32px', borderRadius: '50%' }} alt="user" />
+                                            <span style={{ fontWeight: '700', color: 'var(--primary-royal)' }}>{user.name.split(' ')[0]}'s Profile</span>
+                                        </div>
+                                        <button
+                                            onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                                            className="btn"
+                                            style={{
+                                                width: '100%',
+                                                background: '#fee2e2',
+                                                color: '#ef4444',
+                                                fontWeight: '700',
+                                                border: '1px solid #fecaca',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                gap: '8px'
+                                            }}
+                                        >
+                                            <span>🚪</span> Log out
+                                        </button>
                                     </div>
                                 )}
                                 <button
                                     onClick={() => { onDonateClick(); setMobileMenuOpen(false); }}
                                     className="btn btn-primary"
-                                    style={{ width: '100%', background: 'var(--accent-emerald)' }}
+                                    style={{ width: '100%', background: 'var(--accent-emerald)', shadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
                                 >
                                     Donate Now
                                 </button>

@@ -26,6 +26,9 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
+const VERSION = "4.3.1";
+const LAST_UPDATED = "2024-03-01 00:05 IST";
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

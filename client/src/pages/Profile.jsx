@@ -17,7 +17,7 @@ const Profile = () => {
     useEffect(() => {
         const storedUser = localStorage.getItem('vvv_user');
         if (!storedUser) {
-            navigate('/login'); 
+            navigate('/login');
             return;
         }
         fetchProfile();
@@ -147,43 +147,45 @@ const Profile = () => {
         <div className="bg-[#FFFDF5] min-h-screen pt-20 pb-20">
             <div className="container mx-auto px-4 py-10 flex flex-col lg:flex-row gap-8">
 
-                {/* Sidebar */}
+                {/* Sidebar / Navigation Tabs */}
                 <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="w-full lg:w-80 flex-shrink-0"
                 >
-                    <div className="bg-white rounded-[40px] shadow-xl overflow-hidden p-8 sticky top-24">
-                        <div className="mb-10 text-center lg:text-left px-4">
+                    <div className="bg-white rounded-[32px] lg:rounded-[40px] shadow-xl overflow-hidden p-4 lg:p-8 sticky top-24">
+                        <div className="mb-6 lg:mb-10 text-center lg:text-left hidden lg:block px-4">
                             <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Welcome back,</p>
                             <h2 className="text-2xl font-merriweather font-black text-[#1e3a8a]">Hi {user?.name.split(' ')[0]}!</h2>
                         </div>
 
-                        <nav className="space-y-2">
+                        <nav className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
                             {sidebarItems.map((item) => (
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold transition-all ${activeTab === item.id ? 'bg-[#f0f9ff] text-[#1e3a8a] shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    className={`flex-shrink-0 lg:w-full flex items-center gap-3 lg:gap-4 px-5 lg:px-6 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-bold transition-all ${activeTab === item.id ? 'bg-[#f0f9ff] text-[#1e3a8a] shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
                                 >
-                                    <span className="text-xl">{item.icon}</span>
-                                    <span className="text-sm">{item.label}</span>
+                                    <span className="text-lg lg:text-xl">{item.icon}</span>
+                                    <span className="text-xs lg:text-sm whitespace-nowrap">{item.label}</span>
                                 </button>
                             ))}
-                            <button
-                                onClick={() => navigate('/')}
-                                className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-slate-400 hover:bg-slate-50 hover:text-[#1e3a8a] transition-all border border-transparent hover:border-slate-100"
-                            >
-                                <span className="text-xl">🏠</span>
-                                <span className="text-sm">Back to Home</span>
-                            </button>
-                            <button
-                                onClick={handleLogout}
-                                className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all mt-4"
-                            >
-                                <span className="text-xl">🚪</span>
-                                <span className="text-sm">Log out</span>
-                            </button>
+                            <div className="hidden lg:flex flex-col gap-2 mt-4 pt-4 border-t border-slate-50">
+                                <button
+                                    onClick={() => navigate('/')}
+                                    className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-slate-400 hover:bg-slate-50 hover:text-[#1e3a8a] transition-all"
+                                >
+                                    <span className="text-xl">🏠</span>
+                                    <span className="text-sm">Back to Home</span>
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                                >
+                                    <span className="text-xl">🚪</span>
+                                    <span className="text-sm">Log out</span>
+                                </button>
+                            </div>
                         </nav>
                     </div>
                 </motion.div>
@@ -205,19 +207,19 @@ const Profile = () => {
                             >
                                 {/* Mission Enrollment Status */}
                                 {!isVolunteer && !isIntern && (
-                                    <div className="bg-white rounded-[40px] shadow-xl p-8 border-l-8 border-[#F59E0B] relative overflow-hidden group">
-                                        <div className="absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10">
+                                    <div className="bg-white rounded-[32px] lg:rounded-[40px] shadow-xl p-6 lg:p-8 border-l-8 border-[#F59E0B] relative overflow-hidden group">
+                                        <div className="hidden lg:block absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10">
                                             <span className="text-8xl">🚀</span>
                                         </div>
-                                        <div className="flex flex-col md:flex-row items-center gap-6 relative z-10">
-                                            <div className="bg-orange-50 w-20 h-20 rounded-3xl flex items-center justify-center text-3xl shadow-inner">🎯</div>
+                                        <div className="flex flex-col md:flex-row items-center gap-4 lg:gap-6 relative z-10">
+                                            <div className="bg-orange-50 w-16 lg:w-20 h-16 lg:h-20 rounded-2xl lg:rounded-3xl flex items-center justify-center text-2xl lg:text-3xl shadow-inner shrink-0">🎯</div>
                                             <div className="flex-grow text-center md:text-left">
-                                                <h2 className="text-2xl font-merriweather font-black text-slate-800">Your Mission Awaits!</h2>
-                                                <p className="text-slate-500 font-medium text-sm mt-1">Join as a volunteer to make an impact.</p>
+                                                <h2 className="text-xl lg:text-2xl font-merriweather font-black text-slate-800">Your Mission Awaits!</h2>
+                                                <p className="text-slate-500 font-medium text-xs lg:text-sm mt-1">Join as a volunteer to make an impact.</p>
                                             </div>
                                             <button
                                                 onClick={() => navigate('/volunteer-enrollment')}
-                                                className="bg-[#1e3a8a] text-white px-8 py-4 rounded-2xl font-black uppercase tracking-widest text-[10px] hover:bg-[#1e40af] transition-all"
+                                                className="w-full md:w-auto bg-[#1e3a8a] text-white px-6 lg:px-8 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] hover:bg-[#1e40af] transition-all shadow-lg shadow-blue-900/10"
                                             >
                                                 Complete Enrollment
                                             </button>
@@ -279,18 +281,20 @@ const Profile = () => {
                                                         <input
                                                             value={editForm.fullName}
                                                             onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                                                            className="text-4xl font-merriweather font-black text-slate-800 bg-slate-50 rounded-xl px-4 py-2 w-full outline-none focus:ring-4 focus:ring-blue-100"
+                                                            className="text-2xl lg:text-4xl font-merriweather font-black text-slate-800 bg-slate-50 rounded-xl px-4 py-2 w-full outline-none focus:ring-4 focus:ring-blue-100"
                                                         />
                                                     ) : (
-                                                        <h1 className="text-4xl font-merriweather font-black text-slate-800 leading-tight">{isVolunteer ? profileData.volunteer.fullName : isIntern ? profileData.intern.fullName : user?.name}</h1>
+                                                        <h1 className="text-2xl lg:text-4xl font-merriweather font-black text-slate-800 leading-tight">
+                                                            {isVolunteer ? profileData.volunteer.fullName : isIntern ? profileData.intern.fullName : user?.name}
+                                                        </h1>
                                                     )}
-                                                    <p className="text-blue-600 font-black tracking-[0.3em] text-[10px] uppercase mt-1">
+                                                    <p className="text-blue-600 font-black tracking-[0.3em] text-[9px] lg:text-[10px] uppercase mt-1">
                                                         {isVolunteer ? `VVV-V-${String(profileData.volunteer._id).slice(-4).toUpperCase()}` : isIntern ? `VVV-I-${String(profileData.intern._id).slice(-4).toUpperCase()}` : 'PATRON'}
                                                     </p>
                                                     {isVolunteer && (
                                                         <button
                                                             onClick={handleDownloadID}
-                                                            className="mt-2 text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center gap-1 hover:underline group"
+                                                            className="mt-3 lg:mt-2 text-[8px] lg:text-[9px] font-black text-blue-600 uppercase tracking-widest flex items-center justify-center md:justify-start gap-1 hover:underline group mx-auto md:mx-0"
                                                         >
                                                             <span>🆔</span> Download Digital ID Card
                                                             <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
@@ -607,6 +611,10 @@ const Profile = () => {
                     </AnimatePresence>
                 </motion.div>
             </div>
+            <style>{`
+                .no-scrollbar::-webkit-scrollbar { display: none; }
+                .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+            `}</style>
         </div>
     );
 };

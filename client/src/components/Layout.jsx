@@ -23,7 +23,7 @@ const Layout = ({ children }) => {
             </main>
 
             {/* Floating Social Media Dock */}
-            <FloatingDock />
+            <FloatingDock hide={isModalOpen} />
 
             {/* Global Donate Modal */}
             <DonateModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />
