@@ -175,7 +175,7 @@ const InternshipEnrollment = () => {
             <Navbar />
 
             {/* Left Column: Info */}
-            <div className="md:w-1/3 bg-[#4f46e5] p-12 text-white flex flex-col justify-center sticky top-0 md:h-screen overflow-y-auto">
+            <div className="md:w-1/3 bg-[#4f46e5] p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
                     <div className="mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Future Leaders</div>
                     <h2 className="text-4xl md:text-5xl font-merriweather font-black mb-8 leading-tight italic">Shape the future through research.</h2>
@@ -200,6 +200,14 @@ const InternshipEnrollment = () => {
                         </div>
                     </div>
                 </motion.div>
+
+                {/* Deployment Sync Badge */}
+                <div className="mt-12 pt-6 border-t border-white/10">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-500/30">
+                        <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">v4.1.5 Deployment Live</span>
+                    </div>
+                </div>
             </div>
 
             {/* Right Column: Auth/Form */}

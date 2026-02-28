@@ -5,14 +5,14 @@ const Gallery = () => {
     const [filter, setFilter] = useState('all');
 
     const images = [
-        { id: 1, src: "https://photos.app.goo.gl/dy83Xqvf2REMtPCm6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "education", caption: "Rural Education Drive" },
-        { id: 2, src: "https://images.unsplash.com/photo-1593113598332-cd288d649433?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "health", caption: "Medical Camp 2023" },
-        { id: 3, src: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "events", caption: "Fundraising Gala" },
-        { id: 4, src: "https://images.unsplash.com/photo-1519389950473-47ba0277781c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "team", caption: "Our Volunteers" },
-        { id: 5, src: "https://images.unsplash.com/photo-1542810634-71277d95dcbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "education", caption: "School Supplies Distribution" },
-        { id: 6, src: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "health", caption: "Eye Checkup Camp" },
-        { id: 7, src: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "events", caption: "Marathon for Peace" },
-        { id: 8, src: "https://images.unsplash.com/photo-1529390003868-6c01e7b1e566?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "team", caption: "Leadership Summit" },
+        { id: 1, src: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "education", caption: "Vision 2047: Empowering Rural Classrooms" },
+        { id: 2, src: "https://images.unsplash.com/photo-1542601906990-b4d3fb773b09?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "health", caption: "Medical Outreach & Diagnostic Camps" },
+        { id: 3, src: "https://images.unsplash.com/photo-1532629345422-7515f3d16bb6?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "events", caption: "Institutional Leadership Summits" },
+        { id: 4, src: "https://images.unsplash.com/photo-1519494140681-8b17d830a3e9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "health", caption: "Community Health Awareness Drives" },
+        { id: 5, src: "https://images.unsplash.com/photo-1542810634-71277d95dcbb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "education", caption: "Educational Kit Distribution" },
+        { id: 6, src: "https://images.unsplash.com/photo-1454165833221-d7d028d07543?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "events", caption: "Rural Transformation Workshops" },
+        { id: 7, src: "https://images.unsplash.com/photo-1559027615-cd4628902d4a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "events", caption: "Solidarity for Social Change" },
+        { id: 8, src: "https://images.unsplash.com/photo-1529390003868-6c01e7b1e566?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80", category: "team", caption: "VVV Core Leadership & Volunteers" },
     ];
 
     const categories = ['all', 'education', 'health', 'events', 'team'];
