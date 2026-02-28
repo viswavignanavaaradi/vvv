@@ -17,7 +17,7 @@ const Profile = () => {
     useEffect(() => {
         const storedUser = localStorage.getItem('vvv_user');
         if (!storedUser) {
-            navigate('/login');
+            navigate('/login'); 
             return;
         }
         fetchProfile();
