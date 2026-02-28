@@ -1,5 +1,4 @@
-import React, { useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import axios, { API_BASE_URL } from '../api/axios';
 
 const Gallery = () => {
     const [filter, setFilter] = useState('all');
@@ -9,9 +8,8 @@ const Gallery = () => {
     React.useEffect(() => {
         const fetchImages = async () => {
             try {
-                const res = await fetch('/api/gallery');
-                const data = await res.json();
-                setImages(data);
+                const res = await axios.get('/api/gallery');
+                setImages(res.data);
             } catch (err) {
                 console.error('Gallery fetch error:', err);
             } finally {
