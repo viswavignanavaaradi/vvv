@@ -55,25 +55,34 @@ const Gallery = () => {
                         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-royal"></div>
                     </div>
                 ) : (
-                    <motion.div layout className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                    <motion.div
+                        layout
+                        className="columns-1 md:columns-2 lg:columns-3 xl:columns-4 gap-6 space-y-6"
+                    >
                         <AnimatePresence>
                             {filteredImages.map((image) => (
                                 <motion.div
                                     layout
                                     key={image.id}
-                                    initial={{ opacity: 0, scale: 0.8 }}
-                                    animate={{ opacity: 1, scale: 1 }}
-                                    exit={{ opacity: 0, scale: 0.8 }}
-                                    transition={{ duration: 0.3 }}
-                                    className="relative group overflow-hidden rounded-xl shadow-md bg-white break-inside-avoid"
+                                    initial={{ opacity: 0, y: 20 }}
+                                    animate={{ opacity: 1, y: 0 }}
+                                    exit={{ opacity: 0, scale: 0.9 }}
+                                    transition={{ duration: 0.4 }}
+                                    className="break-inside-avoid relative group overflow-hidden rounded-2xl shadow-sm hover:shadow-xl transition-all duration-500 bg-white"
                                 >
-                                    <img
-                                        src={image.src}
-                                        alt={image.caption}
-                                        className="w-full h-auto object-cover transform transition-transform duration-500 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
-                                        <p className="text-white font-semibold font-merriweather">{image.caption}</p>
+                                    <div className="relative overflow-hidden aspect-auto">
+                                        <img
+                                            src={image.src}
+                                            alt={image.caption}
+                                            className="w-full h-full object-cover transform transition-transform duration-700 group-hover:scale-105"
+                                            loading="lazy"
+                                        />
+                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/40 transition-colors duration-500" />
+                                    </div>
+
+                                    <div className="absolute bottom-0 left-0 right-0 p-6 translate-y-full group-hover:translate-y-0 transition-transform duration-500 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+                                        <p className="text-white font-merriweather font-bold text-lg mb-1">{image.caption}</p>
+                                        <div className="w-12 h-1 bg-primary-royal rounded-full" />
                                     </div>
                                 </motion.div>
                             ))}
