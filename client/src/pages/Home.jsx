@@ -87,7 +87,7 @@ const Missions = () => (
                         </div>
                         <h3 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: 'var(--text-main)', fontFamily: 'Merriweather, serif' }}>{mission.title}</h3>
                         <p style={{ color: 'var(--text-body)', marginBottom: '2rem', lineHeight: '1.7' }}>{mission.desc}</p>
-                        <a href="#" style={{ color: 'var(--primary-royal)', fontWeight: '600', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <a href={`/missions#${mission.title.toLowerCase().replace(/\s+/g, '-')}`} style={{ color: 'var(--primary-royal)', fontWeight: '600', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             View Project Details <span>→</span>
                         </a>
                     </motion.div>
