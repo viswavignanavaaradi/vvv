@@ -120,7 +120,14 @@ const PatronEnrollment = () => {
     ];
 
     return (
-        <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row">
+        <div className="min-h-screen bg-[#FDFCF6] flex flex-col md:flex-row relative">
+            {/* Version Sentinel */}
+            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
+                <div className="px-4 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
+                    Portal Active: v4.1.6
+                </div>
+            </div>
+
             <Navbar />
 
             {/* Left Column: Info */}

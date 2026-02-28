@@ -54,6 +54,13 @@ const GetInvolved = () => {
     return (
         <div className="bg-[#FDFCF6] min-h-screen">
 
+            {/* Version Sentinel - Will show in v4.1.6 */}
+            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
+                <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
+                    System Live: v4.1.6
+                </div>
+            </div>
+
             {/* Hero */}
             <section className="pt-40 pb-20 px-6">
                 <div className="max-w-6xl mx-auto text-center">
