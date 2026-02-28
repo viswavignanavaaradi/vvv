@@ -1,11 +1,13 @@
-import axios, { API_BASE_URL } from '../api/axios';
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import axios from '../api/axios';
 
 const Gallery = () => {
     const [filter, setFilter] = useState('all');
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    React.useEffect(() => {
+    useEffect(() => {
         const fetchImages = async () => {
             try {
                 const res = await axios.get('/api/gallery');

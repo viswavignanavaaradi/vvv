@@ -24,27 +24,29 @@ router.get('/', async (req, res) => {
         const html = response.data;
 
         // Regex to find Google Photos image base URLs in shared albums
-        const regex = /https:\/\/lh3\.googleusercontent\.com\/pw\/[a-zA-Z0-9\-_]+/g;
+        // Improved regex to capture common pattern in shared albums
+        const regex = /https:\/\/lh3\.googleusercontent\.com\/pw\/[a-zA-Z0-9\-_]{50,}/g;
         const matches = html.match(regex);
 
         if (!matches) {
+            console.error('[Gallery Sync] No matches found in HTML. Check if link is still public.');
             throw new Error('No images found in album HTML');
         }
 
         // Filter and transform
         const uniqueMatches = [...new Set(matches)];
+        console.log(`[Gallery Sync] Found ${uniqueMatches.length} raw matches.`);
 
-        // Google Photos results often contain profile pics or UI elements.
-        // Usually, the album photos have longer IDs or appear in specific patterns.
-        // We'll take the ones that look like content (usually the later ones or larger counts)
-        // for now we take all unique lh3 links and append quality parameters.
+        // In Google Photos shared albums, the actual content photos usually appear 
+        // after UI elements. However, we'll take lahat to be safe and let user see.
         const images = uniqueMatches.map((baseUrl, index) => ({
             id: index + 1,
-            // Append =w1600-h1200 to get high res, or =w800 for faster loading
-            src: `${baseUrl}=w1000`,
-            category: 'all', // Categories are hard to determine via scraping
-            caption: 'Impact Moment'
+            src: `${baseUrl}=w1200`, // Using 1200 for high quality
+            category: 'all',
+            caption: 'VVV Impact Moment'
         }));
+
+        console.log(`[Gallery Sync] Successfully parsed ${images.length} images.`);
 
         cache.data = images;
         cache.timestamp = now;
