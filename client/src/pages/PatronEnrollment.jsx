@@ -2,13 +2,17 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate, Link } from 'react-router-dom';
 import axios from '../api/axios';
-import { useAuth } from '../context/AuthContext';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const PatronEnrollment = () => {
     const navigate = useNavigate();
-    const { user } = useAuth();
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('vvv_user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
     const [step, setStep] = useState(1);
     const [loading, setLoading] = useState(false);
     const [alreadyRegistered, setAlreadyRegistered] = useState(false);
@@ -124,11 +128,9 @@ const PatronEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.1.6
+                    Portal Active: v4.1.8
                 </div>
             </div>
-
-            <Navbar />
 
             {/* Left Column: Info */}
             <div className="md:w-1/3 bg-[#0f172a] p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-emerald-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.2)]">

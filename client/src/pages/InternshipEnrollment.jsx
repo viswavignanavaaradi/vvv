@@ -2,13 +2,18 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
 import { geoData, wings, colleges, wingDetails } from '../data/geoData';
-import Navbar from '../components/Navbar';
-import Footer from '../components/Footer';
 
 const InternshipEnrollment = () => {
-    const { user } = useAuth();
+    const [user, setUser] = useState(null);
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem('vvv_user');
+        if (storedUser) {
+            setUser(JSON.parse(storedUser));
+        }
+    }, []);
     const [step, setStep] = useState(1);
     const [formData, setFormData] = useState({
         fullName: '',
@@ -38,7 +43,6 @@ const InternshipEnrollment = () => {
     const [collegeSearch, setCollegeSearch] = useState('');
     const fileInputRef = useRef(null);
     const docInputRef = useRef(null);
-    const navigate = useNavigate();
 
     const bloodGroups = ["A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-"];
     const genders = ["Male", "Female", "Prefer not to say"];
@@ -175,11 +179,9 @@ const InternshipEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.1.6
+                    Portal Active: v4.1.8
                 </div>
             </div>
-
-            <Navbar />
 
             {/* Left Column: Info */}
             <div className="md:w-1/3 bg-[#4f46e5] p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
