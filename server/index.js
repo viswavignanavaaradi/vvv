@@ -212,6 +212,11 @@ app.get('/api/get-key', (req, res) => {
 
 app.post('/api/create-subscription', async (req, res) => {
     const { amount, email, name } = req.body;
+
+    if (!amount || parseInt(amount) <= 0) {
+        return res.status(400).json({ error: 'Please enter a valid amount greater than zero' });
+    }
+
     const planId = plans[amount.toString()];
 
     if (!planId) {
@@ -427,6 +432,10 @@ app.post('/api/subscription-success', async (req, res) => {
 
 app.post('/api/create-order', async (req, res) => {
     const { amount } = req.body;
+
+    if (!amount || parseInt(amount) <= 0) {
+        return res.status(400).json({ error: 'Please enter a valid amount greater than zero' });
+    }
 
     // Robust check for missing or placeholder keys
     const keyId = process.env.RAZORPAY_KEY_ID;

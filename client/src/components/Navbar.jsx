@@ -376,7 +376,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                     )}
 
                     <button
-                        onClick={onDonateClick}
+                        onClick={() => navigate('/donate')}
                         className="btn btn-primary"
                         style={{
                             padding: '0.5rem 1.2rem',
@@ -628,7 +628,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                     </div>
                                 )}
                                 <button
-                                    onClick={() => { onDonateClick(); setMobileMenuOpen(false); }}
+                                    onClick={() => { navigate('/donate'); setMobileMenuOpen(false); }}
                                     className="btn btn-primary"
                                     style={{ width: '100%', background: 'var(--accent-emerald)', shadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
                                 >
