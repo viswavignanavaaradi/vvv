@@ -38,6 +38,13 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
         setMobileMenuOpen(false);
     }, [location]);
 
+    const handleLogout = () => {
+        localStorage.removeItem('vvv_user');
+        setUser(null);
+        navigate('/login');
+        setMobileMenuOpen(false);
+    };
+
     const handleNavClick = (item) => {
         if (item === 'Home') {
             if (location.pathname !== '/') {
@@ -340,11 +347,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                 </span>
                             </div>
                             <button
-                                onClick={() => {
-                                    localStorage.removeItem('vvv_user');
-                                    setUser(null);
-                                    navigate('/login');
-                                }}
+                                onClick={handleLogout}
                                 className="btn btn-outline"
                                 style={{
                                     padding: '0.5rem 1.2rem',
@@ -472,7 +475,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                             cursor: 'pointer'
                                         }}
                                     >
-                                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '1.1rem' }}>About VVV</span>
+                                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '1.1rem' }}>About Us</span>
                                         <span style={{ transform: mobileAboutOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}>▼</span>
                                     </div>
                                     <AnimatePresence>
@@ -541,24 +544,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                     </AnimatePresence>
                                 </div>
 
-                                {/* 4, 5, 6. Gallery, Legal Aid, Contact */}
-                                {['Gallery', 'Legal Aid', 'Contact'].map(item => (
-                                    <div
-                                        key={item}
-                                        onClick={() => handleNavClick(item)}
-                                        style={{
-                                            padding: '0.75rem 0',
-                                            fontWeight: '600',
-                                            color: 'var(--text-main)',
-                                            fontSize: '1.1rem',
-                                            borderBottom: '1px solid #f1f5f9'
-                                        }}
-                                    >
-                                        {item === 'Contact' ? 'Contact Us' : item}
-                                    </div>
-                                ))}
-
-                                {/* Optional: Get Involved (kept but user didn't explicitly place it in the 8-item list, but it's part of the flow) */}
+                                {/* 4. Get Involved */}
                                 <div style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     <div
                                         onClick={() => setMobileInvolvedOpen(!mobileInvolvedOpen)}
@@ -599,6 +585,23 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                         )}
                                     </AnimatePresence>
                                 </div>
+
+                                {/* 5, 6, 7. Gallery, Legal Aid, Contact */}
+                                {['Gallery', 'Legal Aid', 'Contact'].map(item => (
+                                    <div
+                                        key={item}
+                                        onClick={() => handleNavClick(item)}
+                                        style={{
+                                            padding: '0.75rem 0',
+                                            fontWeight: '600',
+                                            color: 'var(--text-main)',
+                                            fontSize: '1.1rem',
+                                            borderBottom: '1px solid #f1f5f9'
+                                        }}
+                                    >
+                                        {item === 'Contact' ? 'Contact Us' : item}
+                                    </div>
+                                ))}
                             </div>
 
                             <div style={{

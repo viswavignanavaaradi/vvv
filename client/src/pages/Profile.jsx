@@ -427,7 +427,7 @@ const Profile = () => {
                                     <div className="space-y-6">
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Primary Email</p>
-                                            <p className="font-bold text-slate-700">{user?.email}</p>
+                                            <p className="font-bold text-slate-700 break-all">{user?.email}</p>
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Member Type</p>
@@ -437,7 +437,7 @@ const Profile = () => {
                                     <div className="space-y-6">
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Account ID</p>
-                                            <p className="font-bold text-slate-700">#{isVolunteer ? profileData.volunteer._id : isIntern ? profileData.intern._id : 'P-' + user?.email.split('@')[0]}</p>
+                                            <p className="font-bold text-slate-700 break-all">#{isVolunteer ? profileData.volunteer._id : isIntern ? profileData.intern._id : 'P-' + user?.email.split('@')[0]}</p>
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Status</p>

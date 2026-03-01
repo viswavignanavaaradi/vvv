@@ -57,7 +57,7 @@ const GetInvolved = () => {
             {/* Version Sentinel - Updated for Fix */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    System Live: v4.5.1
+                    System Live: v4.5.2
                 </div>
             </div>
 
@@ -95,7 +95,7 @@ const GetInvolved = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.5 }}
-                            className="bg-white rounded-[24px] md:rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[350px] md:min-h-[500px]"
+                            className="bg-white rounded-[24px] md:rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-visible md:overflow-hidden flex flex-col md:flex-row min-h-[350px] md:min-h-[500px]"
                         >
                             {/* Left Side: Dynamic Image/Graphic */}
                             <div className={`md:w-1/2 p-8 md:p-12 flex items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
@@ -105,7 +105,7 @@ const GetInvolved = () => {
                                 <div className="relative z-10 text-center">
                                     <span className="text-5xl md:text-8xl mb-3 md:mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
                                     <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-2 rounded-full border border-white/20 text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.3em] text-white shadow-2xl animate-pulse">
-                                        PORTAL ACTIVE: V4.5.1
+                                        PORTAL ACTIVE: V4.5.2
                                     </div>
                                 </div>
                             </div>
