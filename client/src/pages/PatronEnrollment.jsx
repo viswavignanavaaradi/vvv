@@ -127,42 +127,42 @@ const PatronEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.5.0
+                    Portal Active: v4.5.1
                 </div>
             </div>
 
             {/* Left Column: Info */}
-            <div className="md:w-1/3 bg-[#0f172a] p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-emerald-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.2)]">
+            <div className="md:w-1/3 bg-[#0f172a] p-8 md:p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-emerald-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.2)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-                    <div className="mb-6 inline-block px-4 py-1 bg-emerald-500 text-[10px] font-black uppercase tracking-widest rounded-lg">Foundation Patron</div>
-                    <h2 className="text-4xl md:text-5xl font-merriweather font-black mb-8 leading-tight italic">Fueling the mission through legacy.</h2>
-                    <p className="text-slate-300 text-lg leading-relaxed mb-10 opacity-80 font-medium">
+                    <div className="mb-6 inline-block px-4 py-1 bg-emerald-50 text-emerald-900 text-[10px] font-black uppercase tracking-widest rounded-lg">Foundation Patron</div>
+                    <h2 className="text-3xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic text-emerald-50">Fueling the mission through legacy.</h2>
+                    <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 md:mb-10 opacity-80 font-medium">
                         As a Patron, you join the Advisory Council. Your leadership and commitment provide the stability needed for long-term social transformation.
                     </p>
 
-                    <div className="space-y-6">
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                            <span className="text-3xl mt-1">🏛️</span>
+                    <div className="space-y-4 md:space-y-6">
+                        <div className="flex items-start gap-4 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span className="text-2xl md:text-3xl mt-1">🏛️</span>
                             <div>
                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest mb-1">Advisory Rights</h4>
-                                <p className="text-xs text-slate-400 leading-relaxed font-medium">Share your professional expertise to guide our foundation's wings.</p>
+                                <p className="text-[10px] md:text-xs text-slate-400 leading-relaxed font-medium">Share your professional expertise to guide our foundation's wings.</p>
                             </div>
                         </div>
-                        <div className="flex items-start gap-4 p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                            <span className="text-3xl mt-1">🔄</span>
+                        <div className="flex items-start gap-4 p-4 md:p-5 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                            <span className="text-2xl md:text-3xl mt-1">🔄</span>
                             <div>
                                 <h4 className="font-bold text-white uppercase text-xs tracking-widest mb-1">Sustainable Growth</h4>
-                                <p className="text-xs text-slate-400 leading-relaxed font-medium">Recurring support allows us to plan and execute multi-year campaigns.</p>
+                                <p className="text-[10px] md:text-xs text-slate-400 leading-relaxed font-medium">Recurring support allows us to plan and execute multi-year campaigns.</p>
                             </div>
                         </div>
                     </div>
                 </motion.div>
 
                 {/* Deployment Sync Badge */}
-                <div className="mt-12 pt-6 border-t border-white/10">
+                <div className="mt-8 md:mt-12 pt-6 border-t border-white/10">
                     <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-500/30">
                         <span className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse"></span>
-                        <span className="text-[10px] font-bold uppercase tracking-widest">v4.1.5 Deployment Live</span>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">v4.5.1 Deployment Live</span>
                     </div>
                 </div>
             </div>

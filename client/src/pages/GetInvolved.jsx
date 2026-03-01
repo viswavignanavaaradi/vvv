@@ -57,7 +57,7 @@ const GetInvolved = () => {
             {/* Version Sentinel - Updated for Fix */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    System Live: v4.4.6
+                    System Live: v4.5.1
                 </div>
             </div>
 
@@ -95,38 +95,38 @@ const GetInvolved = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.5 }}
-                            className="bg-white rounded-[32px] md:rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[400px] md:min-h-[500px]"
+                            className="bg-white rounded-[24px] md:rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[350px] md:min-h-[500px]"
                         >
                             {/* Left Side: Dynamic Image/Graphic */}
-                            <div className={`md:w-1/2 p-10 md:p-12 flex items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
-                                <div className="absolute inset-0 opacity-10 flex flex-wrap items-center justify-center text-7xl md:text-9xl">
+                            <div className={`md:w-1/2 p-8 md:p-12 flex items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
+                                <div className="absolute inset-0 opacity-10 flex flex-wrap items-center justify-center text-5xl md:text-9xl">
                                     {[...Array(6)].map((_, i) => <span key={i} className="p-4">{options[activeTab].icon}</span>)}
                                 </div>
                                 <div className="relative z-10 text-center">
-                                    <span className="text-6xl md:text-8xl mb-4 md:mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
-                                    <div className="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 text-[10px] font-black tracking-[0.3em] text-white shadow-2xl animate-pulse">
-                                        PORTAL ACTIVE: V4.5.0
+                                    <span className="text-5xl md:text-8xl mb-3 md:mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
+                                    <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-2 rounded-full border border-white/20 text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.3em] text-white shadow-2xl animate-pulse">
+                                        PORTAL ACTIVE: V4.5.1
                                     </div>
                                 </div>
                             </div>
 
                             {/* Right Side: Info */}
-                            <div className="flex-1 p-8 sm:p-12 md:p-20 flex flex-col justify-center">
-                                <h3 className="text-3xl md:text-4xl font-merriweather font-black text-slate-900 mb-4 md:mb-6 italic">{options[activeTab].title}</h3>
-                                <p className="text-slate-500 text-base md:text-lg leading-relaxed mb-6 md:mb-8 font-medium">{options[activeTab].description}</p>
+                            <div className="flex-1 p-6 sm:p-10 md:p-20 flex flex-col justify-center">
+                                <h3 className="text-2xl md:text-4xl font-merriweather font-black text-slate-900 mb-3 md:mb-6 italic">{options[activeTab].title}</h3>
+                                <p className="text-slate-500 text-sm md:text-lg leading-relaxed mb-4 md:mb-8 font-medium">{options[activeTab].description}</p>
 
-                                <div className="space-y-4 mb-10">
+                                <div className="space-y-3 md:space-y-4 mb-6 md:mb-10">
                                     {options[activeTab].features.map((f, i) => (
-                                        <div key={i} className="flex items-center gap-4">
-                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-                                            <span className="text-sm font-bold text-slate-700">{f}</span>
+                                        <div key={i} className="flex items-center gap-3 md:gap-4">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                                            <span className="text-[13px] md:text-[15px] font-bold text-slate-700 leading-tight">{f}</span>
                                         </div>
                                     ))}
                                 </div>
 
                                 <button
                                     onClick={() => navigate(options[activeTab].path)}
-                                    className={`w-full md:w-auto px-12 py-5 rounded-2xl text-white font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all ${options[activeTab].color} hover:brightness-110`}
+                                    className={`w-full md:w-auto px-10 py-4 md:px-12 md:py-5 rounded-xl md:rounded-2xl text-white font-black uppercase tracking-widest text-[10px] md:text-xs shadow-xl active:scale-95 transition-all ${options[activeTab].color} hover:brightness-110`}
                                 >
                                     {options[activeTab].cta}
                                 </button>

@@ -446,23 +446,58 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                             </div>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                                {['Home', 'Gallery', 'Legal Aid', 'Contact'].map(item => (
+                                {/* 1. Home */}
+                                <div
+                                    onClick={() => handleNavClick('Home')}
+                                    style={{
+                                        padding: '0.75rem 0',
+                                        fontWeight: '600',
+                                        color: 'var(--text-main)',
+                                        fontSize: '1.1rem',
+                                        borderBottom: '1px solid #f1f5f9'
+                                    }}
+                                >
+                                    Home
+                                </div>
+
+                                {/* 2. About VVV */}
+                                <div style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     <div
-                                        key={item}
-                                        onClick={() => handleNavClick(item)}
+                                        onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
                                         style={{
-                                            padding: '0.75rem 0',
-                                            fontWeight: '600',
-                                            color: 'var(--text-main)',
-                                            fontSize: '1.1rem',
-                                            borderBottom: '1px solid #f1f5f9'
+                                            display: 'flex',
+                                            justifyContent: 'space-between',
+                                            alignItems: 'center',
+                                            padding: '1rem 0',
+                                            cursor: 'pointer'
                                         }}
                                     >
-                                        {item}
+                                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '1.1rem' }}>About VVV</span>
+                                        <span style={{ transform: mobileAboutOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}>▼</span>
                                     </div>
-                                ))}
+                                    <AnimatePresence>
+                                        {mobileAboutOpen && (
+                                            <motion.div
+                                                initial={{ height: 0, opacity: 0 }}
+                                                animate={{ height: 'auto', opacity: 1 }}
+                                                exit={{ height: 0, opacity: 0 }}
+                                                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
+                                            >
+                                                {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership'].map((subItem) => (
+                                                    <div
+                                                        key={subItem}
+                                                        onClick={() => { handleAboutClick(subItem.toLowerCase().replace(/ /g, '_')); setMobileMenuOpen(false); }}
+                                                        style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}
+                                                    >
+                                                        {subItem}
+                                                    </div>
+                                                ))}
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+                                </div>
 
-                                {/* Collapsible Mobile Section: Missions */}
+                                {/* 3. Missions */}
                                 <div style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     <div
                                         onClick={() => setMobileMissionsOpen(!mobileMissionsOpen)}
@@ -506,7 +541,24 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                     </AnimatePresence>
                                 </div>
 
-                                {/* Collapsible Mobile Section: Get Involved */}
+                                {/* 4, 5, 6. Gallery, Legal Aid, Contact */}
+                                {['Gallery', 'Legal Aid', 'Contact'].map(item => (
+                                    <div
+                                        key={item}
+                                        onClick={() => handleNavClick(item)}
+                                        style={{
+                                            padding: '0.75rem 0',
+                                            fontWeight: '600',
+                                            color: 'var(--text-main)',
+                                            fontSize: '1.1rem',
+                                            borderBottom: '1px solid #f1f5f9'
+                                        }}
+                                    >
+                                        {item === 'Contact' ? 'Contact Us' : item}
+                                    </div>
+                                ))}
+
+                                {/* Optional: Get Involved (kept but user didn't explicitly place it in the 8-item list, but it's part of the flow) */}
                                 <div style={{ borderBottom: '1px solid #f1f5f9' }}>
                                     <div
                                         onClick={() => setMobileInvolvedOpen(!mobileInvolvedOpen)}
@@ -541,43 +593,6 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                         style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}
                                                     >
                                                         {subItem.label}
-                                                    </div>
-                                                ))}
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                </div>
-
-                                {/* Collapsible Mobile Section: About VVV */}
-                                <div style={{ borderBottom: '1px solid #f1f5f9' }}>
-                                    <div
-                                        onClick={() => setMobileAboutOpen(!mobileAboutOpen)}
-                                        style={{
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            padding: '1rem 0',
-                                            cursor: 'pointer'
-                                        }}
-                                    >
-                                        <span style={{ fontWeight: '600', color: 'var(--text-main)', fontSize: '1.1rem' }}>About VVV</span>
-                                        <span style={{ transform: mobileAboutOpen ? 'rotate(180deg)' : 'none', transition: 'transform 0.3s' }}>▼</span>
-                                    </div>
-                                    <AnimatePresence>
-                                        {mobileAboutOpen && (
-                                            <motion.div
-                                                initial={{ height: 0, opacity: 0 }}
-                                                animate={{ height: 'auto', opacity: 1 }}
-                                                exit={{ height: 0, opacity: 0 }}
-                                                style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
-                                            >
-                                                {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership'].map((subItem) => (
-                                                    <div
-                                                        key={subItem}
-                                                        onClick={() => handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'))}
-                                                        style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}
-                                                    >
-                                                        {subItem}
                                                     </div>
                                                 ))}
                                             </motion.div>
