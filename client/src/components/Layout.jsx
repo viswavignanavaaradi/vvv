@@ -5,11 +5,16 @@ import FloatingDock from './FloatingDock';
 
 const Layout = ({ children }) => {
     const [isModalOpen, setModalOpen] = useState(false);
+    const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
     return (
         <div className="flex flex-col min-h-screen">
             {/* Global Navbar */}
-            <Navbar onDonateClick={() => setModalOpen(true)} />
+            <Navbar
+                onDonateClick={() => setModalOpen(true)}
+                mobileMenuOpen={isMobileMenuOpen}
+                setMobileMenuOpen={setMobileMenuOpen}
+            />
 
             {/* 
                 Standardized Spacer 
@@ -23,7 +28,7 @@ const Layout = ({ children }) => {
             </main>
 
             {/* Floating Social Media Dock */}
-            <FloatingDock hide={isModalOpen} />
+            <FloatingDock hide={isModalOpen || isMobileMenuOpen} />
 
             {/* Global Donate Modal */}
             <DonateModal isOpen={isModalOpen} onClose={() => setModalOpen(false)} />

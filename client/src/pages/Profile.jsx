@@ -153,37 +153,37 @@ const Profile = () => {
                     animate={{ opacity: 1, x: 0 }}
                     className="w-full lg:w-80 flex-shrink-0"
                 >
-                    <div className="bg-white rounded-[32px] lg:rounded-[40px] shadow-xl overflow-hidden p-4 lg:p-8 sticky top-24">
-                        <div className="mb-6 lg:mb-10 text-center lg:text-left hidden lg:block px-4">
-                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Welcome back,</p>
-                            <h2 className="text-2xl font-merriweather font-black text-[#1e3a8a]">Hi {user?.name.split(' ')[0]}!</h2>
+                    <div className="bg-white rounded-[24px] md:rounded-[40px] shadow-xl overflow-hidden p-3 md:p-8 sticky top-24">
+                        <div className="mb-4 md:mb-10 text-center md:text-left px-4">
+                            <p className="text-[10px] font-black uppercase tracking-widest text-slate-300">Welcome,</p>
+                            <h2 className="text-xl md:text-2xl font-merriweather font-black text-[#1e3a8a]">{user?.name.split(' ')[0]}</h2>
                         </div>
 
-                        <nav className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-2 lg:pb-0">
+                        <nav className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-visible no-scrollbar pb-3 lg:pb-0 px-2 lg:px-0">
                             {sidebarItems.map((item) => (
                                 <button
                                     key={item.id}
                                     onClick={() => setActiveTab(item.id)}
-                                    className={`flex-shrink-0 lg:w-full flex items-center gap-3 lg:gap-4 px-5 lg:px-6 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-bold transition-all ${activeTab === item.id ? 'bg-[#f0f9ff] text-[#1e3a8a] shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
+                                    className={`flex-shrink-0 lg:w-full flex items-center justify-center lg:justify-start gap-2 md:gap-4 px-4 md:px-6 py-2.5 md:py-4 rounded-xl md:rounded-2xl font-bold transition-all ${activeTab === item.id ? 'bg-[#f0f9ff] text-[#1e3a8a] shadow-sm' : 'text-gray-500 hover:bg-gray-50'}`}
                                 >
                                     <span className="text-lg lg:text-xl">{item.icon}</span>
-                                    <span className="text-xs lg:text-sm whitespace-nowrap">{item.label}</span>
+                                    <span className="text-[10px] md:text-xs lg:text-sm whitespace-nowrap">{item.label}</span>
                                 </button>
                             ))}
-                            <div className="hidden lg:flex flex-col gap-2 mt-4 pt-4 border-t border-slate-50">
+                            <div className="flex lg:flex-col gap-2 mt-2 md:mt-4 pt-2 md:pt-4 border-t border-slate-50 px-2 lg:px-0 overflow-x-auto lg:overflow-visible no-scrollbar">
                                 <button
                                     onClick={() => navigate('/')}
-                                    className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-slate-400 hover:bg-slate-50 hover:text-[#1e3a8a] transition-all"
+                                    className="flex-shrink-0 lg:w-full flex items-center justify-center lg:justify-start gap-2 md:gap-4 px-4 md:px-6 py-2.5 md:py-4 rounded-xl md:rounded-2xl font-bold text-slate-400 hover:bg-slate-50 hover:text-[#1e3a8a] transition-all"
                                 >
-                                    <span className="text-xl">🏠</span>
-                                    <span className="text-sm">Back to Home</span>
+                                    <span className="text-lg lg:text-xl">🏠</span>
+                                    <span className="text-[10px] md:text-xs lg:text-sm whitespace-nowrap">Home</span>
                                 </button>
                                 <button
                                     onClick={handleLogout}
-                                    className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-bold text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
+                                    className="flex-shrink-0 lg:w-full flex items-center justify-center lg:justify-start gap-2 md:gap-4 px-4 md:px-6 py-2.5 md:py-4 rounded-xl md:rounded-2xl font-bold text-gray-400 hover:bg-red-50 hover:text-red-500 transition-all"
                                 >
-                                    <span className="text-xl">🚪</span>
-                                    <span className="text-sm">Log out</span>
+                                    <span className="text-lg lg:text-xl">🚪</span>
+                                    <span className="text-[10px] md:text-xs lg:text-sm whitespace-nowrap">Log out</span>
                                 </button>
                             </div>
                         </nav>
@@ -245,10 +245,10 @@ const Profile = () => {
                                 )}
 
                                 {/* Profile Header Card */}
-                                <div className="bg-white rounded-[50px] shadow-xl p-10 relative overflow-hidden border border-white">
-                                    <div className="flex flex-col md:flex-row items-center gap-8 relative z-10">
+                                <div className="bg-white rounded-[32px] md:rounded-[50px] shadow-xl p-6 sm:p-10 relative overflow-hidden border border-white">
+                                    <div className="flex flex-col md:flex-row items-center gap-6 md:gap-8 relative z-10">
                                         <div className="relative">
-                                            <div className="w-40 h-40 rounded-[35px] overflow-hidden border-4 border-[#FFFDF5] shadow-lg bg-gray-100 flex items-center justify-center">
+                                            <div className="w-32 h-32 md:w-40 md:h-40 rounded-[24px] md:rounded-[35px] overflow-hidden border-4 border-[#FFFDF5] shadow-lg bg-gray-100 flex items-center justify-center">
                                                 {uploading ? (
                                                     <motion.div animate={{ rotate: 360 }} transition={{ repeat: Infinity }} className="text-2xl text-blue-600">⏳</motion.div>
                                                 ) : (
@@ -281,14 +281,14 @@ const Profile = () => {
                                                         <input
                                                             value={editForm.fullName}
                                                             onChange={(e) => setEditForm({ ...editForm, fullName: e.target.value })}
-                                                            className="text-2xl lg:text-4xl font-merriweather font-black text-slate-800 bg-slate-50 rounded-xl px-4 py-2 w-full outline-none focus:ring-4 focus:ring-blue-100"
+                                                            className="text-xl sm:text-2xl md:text-4xl font-merriweather font-black text-slate-800 bg-slate-50 rounded-xl px-4 py-2 w-full outline-none focus:ring-4 focus:ring-blue-100"
                                                         />
                                                     ) : (
-                                                        <h1 className="text-2xl lg:text-4xl font-merriweather font-black text-slate-800 leading-tight">
+                                                        <h1 className="text-xl sm:text-2xl md:text-4xl font-merriweather font-black text-slate-800 leading-tight">
                                                             {isVolunteer ? profileData.volunteer.fullName : isIntern ? profileData.intern.fullName : user?.name}
                                                         </h1>
                                                     )}
-                                                    <p className="text-blue-600 font-black tracking-[0.3em] text-[9px] lg:text-[10px] uppercase mt-1">
+                                                    <p className="text-blue-600 font-black tracking-[0.3em] text-[8px] md:text-[10px] uppercase mt-1 text-center md:text-left">
                                                         {isVolunteer ? `VVV-V-${String(profileData.volunteer._id).slice(-4).toUpperCase()}` : isIntern ? `VVV-I-${String(profileData.intern._id).slice(-4).toUpperCase()}` : 'PATRON'}
                                                     </p>
                                                     {isVolunteer && (
@@ -353,13 +353,13 @@ const Profile = () => {
                                             <h3 className="text-lg font-merriweather font-black mb-2 text-slate-800">Your Contributions</h3>
                                             <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-6">Real-time impact summary</p>
                                         </div>
-                                        <div className="text-center py-6">
-                                            <p className="text-6xl font-black text-[#059669] mb-4">₹{profileData?.donations?.total || 0}</p>
+                                        <div className="text-center py-4 md:py-6">
+                                            <p className="text-4xl sm:text-5xl md:text-6xl font-black text-[#059669] mb-4">₹{profileData?.donations?.total || 0}</p>
                                             <p className="text-[10px] text-gray-300 font-black uppercase tracking-widest leading-none mb-1">{profileData?.donations?.count || 0} Successful Donations</p>
                                         </div>
                                         <button
                                             onClick={() => setActiveTab('donations')}
-                                            className="w-full bg-[#1e3a8a] text-white py-5 rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-[#1e40af] transition-all shadow-xl shadow-blue-100/50 mb-3"
+                                            className="w-full bg-[#1e3a8a] text-white py-4 md:py-5 rounded-2xl md:rounded-3xl font-black text-[10px] uppercase tracking-widest hover:bg-[#1e40af] transition-all shadow-xl shadow-blue-100/50 mb-3"
                                         >
                                             View History
                                         </button>
@@ -458,16 +458,16 @@ const Profile = () => {
                                 animate={{ opacity: 1, y: 0 }}
                                 className="bg-white rounded-[40px] shadow-xl p-12 border border-white"
                             >
-                                <div className="flex flex-col md:flex-row justify-between items-start mb-12 gap-4">
+                                <div className="flex flex-col md:flex-row justify-between items-start mb-8 md:mb-12 gap-4">
                                     <div>
-                                        <h3 className="text-3xl font-merriweather font-black text-slate-800">Personal Information</h3>
-                                        <p className="text-slate-400 font-medium">Your identity and contact verification</p>
+                                        <h3 className="text-2xl md:text-3xl font-merriweather font-black text-slate-800">Personal Information</h3>
+                                        <p className="text-xs md:text-sm text-slate-400 font-medium">Your identity and contact verification</p>
                                     </div>
                                     <button
                                         onClick={() => setIsEditing(!isEditing)}
                                         className="text-[#1e3a8a] text-[10px] font-black uppercase tracking-widest hover:underline"
                                     >
-                                        {isEditing ? 'Cancel Edit' : 'Modify Information'}
+                                        {isEditing ? 'Cancel Edit' : 'Modify Info'}
                                     </button>
                                 </div>
 
@@ -495,12 +495,12 @@ const Profile = () => {
                                                 />
                                             </div>
                                         ))}
-                                        <div className="md:col-span-2 pt-8">
+                                        <div className="md:col-span-2 pt-4 md:pt-8">
                                             <button
                                                 onClick={handleUpdateProfile}
-                                                className="w-full bg-[#059669] text-white py-5 rounded-3xl font-black text-[12px] uppercase tracking-widest shadow-xl shadow-emerald-100"
+                                                className="w-full bg-[#059669] text-white py-4 md:py-5 rounded-2xl md:rounded-3xl font-black text-[11px] md:text-[12px] uppercase tracking-widest shadow-xl shadow-emerald-100"
                                             >
-                                                Apply Changes & Update Database
+                                                Apply Changes
                                             </button>
                                         </div>
                                     </div>

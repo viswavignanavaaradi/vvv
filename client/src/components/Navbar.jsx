@@ -4,12 +4,11 @@ import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import logo from '../assets/logo.png';
 
-const Navbar = ({ onDonateClick }) => {
+const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
     const [scrolled, setScrolled] = useState(false);
     const [aboutDropdownOpen, setAboutDropdownOpen] = useState(false);
     const [involvedDropdownOpen, setInvolvedDropdownOpen] = useState(false);
     const [missionsDropdownOpen, setMissionsDropdownOpen] = useState(false);
-    const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
     const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
     const [mobileInvolvedOpen, setMobileInvolvedOpen] = useState(false);
     const [mobileMissionsOpen, setMobileMissionsOpen] = useState(false);
@@ -98,7 +97,8 @@ const Navbar = ({ onDonateClick }) => {
         }}>
             <div
                 onClick={() => navigate('/')}
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '15px' }}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px sm:15px' }}
+                className="logo-container"
             >
                 <img src={logo} alt="Viswa Vignana Logo" className="logo-img" style={{
                     height: '60px',
@@ -107,17 +107,16 @@ const Navbar = ({ onDonateClick }) => {
                     borderRadius: '50%',
                     boxShadow: '0 4px 6px rgba(0,0,0,0.1)'
                 }} />
-                <div>
+                <div className="logo-text-wrapper">
                     <h1 className="logo-text" style={{
                         color: 'var(--text-main)',
-                        fontSize: '1.35rem',
+                        fontSize: '1.2rem',
                         fontWeight: '900',
-                        letterSpacing: '0.5px',
+                        letterSpacing: '0.2px',
                         fontFamily: 'Merriweather, serif',
                         margin: 0,
-                        lineHeight: 1,
-                        textTransform: 'uppercase',
-                        whiteSpace: 'nowrap'
+                        lineHeight: 1.1,
+                        textTransform: 'uppercase'
                     }}>
                         VISWA VIGNANA VAARADHI
                     </h1>
@@ -425,13 +424,13 @@ const Navbar = ({ onDonateClick }) => {
                                 position: 'fixed',
                                 top: 0,
                                 right: 0,
-                                width: '80%',
-                                maxWidth: '300px',
+                                width: '85%',
+                                maxWidth: '320px',
                                 height: '100vh',
                                 background: 'white',
                                 zIndex: 1200,
                                 boxShadow: '-10px 0 30px rgba(0,0,0,0.1)',
-                                padding: '2rem 1.5rem',
+                                padding: '1.5rem 1.25rem',
                                 display: 'flex',
                                 flexDirection: 'column',
                                 overflowY: 'auto'
@@ -645,17 +644,21 @@ const Navbar = ({ onDonateClick }) => {
                 @media (max-width: 1100px) {
                     .desktop-menu { display: none !important; }
                     .mobile-toggle { display: block !important; }
-                    nav { padding: 1rem 1.5rem !important; height: 85px !important; }
+                    nav { padding: 0.5rem 1rem !important; height: 70px !important; }
                 }
 
                 @media (max-width: 600px) {
-                    .logo-text { font-size: 1rem !important; white-space: normal !important; max-width: 150px; }
-                    .logo-img { height: 50px !important; width: 50px !important; }
-                    nav { height: 75px !important; }
+                    .logo-text { font-size: 0.95rem !important; line-height: 1.2 !important; }
+                    .logo-img { height: 45px !important; width: 45px !important; }
+                    .logo-container { gap: 10px !important; }
+                    nav { height: 65px !important; }
+                    .logo-text-wrapper { max-width: 180px; }
                 }
 
-                @media (max-width: 380px) {
+                @media (max-width: 400px) {
                     .logo-text { font-size: 0.85rem !important; }
+                    .logo-text-wrapper { max-width: 140px; }
+                    nav { padding: 0.5rem 0.75rem !important; }
                 }
             `}</style>
         </nav>

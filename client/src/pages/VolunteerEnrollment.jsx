@@ -206,11 +206,11 @@ const VolunteerEnrollment = () => {
             </div>
 
             {/* Left Column: Info */}
-            <div className="md:w-1/3 bg-[#1e3a8a] p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
+            <div className="md:w-1/3 bg-[#1e3a8a] p-8 md:p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-0 md:border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
-                    <div className="mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Mission 2047</div>
-                    <h2 className="text-4xl md:text-5xl font-merriweather font-black mb-8 leading-tight italic">Be the bridge to transformation.</h2>
-                    <p className="text-blue-100 text-lg leading-relaxed mb-10 opacity-80 font-medium">
+                    <div className="mb-4 md:mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Mission 2047</div>
+                    <h2 className="text-3xl sm:text-4xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic">Be the bridge to transformation.</h2>
+                    <p className="text-blue-100 text-base md:text-lg leading-relaxed mb-8 md:mb-10 opacity-80 font-medium">
                         Join Viswa Vignana Vaaradhi to contribute towards legal awareness, rural empowerment, and educational growth. Every volunteer is a cornerstone of our foundation.
                     </p>
 
@@ -242,13 +242,13 @@ const VolunteerEnrollment = () => {
             </div>
 
             {/* Right Column: Auth/Form */}
-            <div className="flex-1 p-6 md:p-16 pt-32 bg-white flex items-center justify-center">
+            <div className="flex-1 p-4 sm:p-8 md:p-16 pt-24 md:pt-32 bg-white flex items-center justify-center">
                 <div className="max-w-2xl w-full">
                     {!user ? (
-                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center bg-slate-50 p-12 rounded-[50px] border border-slate-100 shadow-2xl">
-                            <div className="text-6xl mb-8">🔐</div>
-                            <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Start Your Journey</h2>
-                            <p className="text-slate-500 mb-10 text-lg font-medium leading-relaxed">
+                        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center bg-slate-50 p-8 sm:p-12 rounded-[32px] md:rounded-[50px] border border-slate-100 shadow-2xl">
+                            <div className="text-5xl md:text-6xl mb-6 md:mb-8">🔐</div>
+                            <h2 className="text-2xl md:text-3xl font-merriweather font-black text-slate-800 mb-4">Start Your Journey</h2>
+                            <p className="text-slate-500 mb-8 md:mb-10 text-base md:text-lg font-medium leading-relaxed">
                                 To enroll as a volunteer, please first create an account or sign in to your dashboard. This helps us maintain secure and accurate records.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -261,7 +261,7 @@ const VolunteerEnrollment = () => {
                         <div className="space-y-12">
                             <div className="text-center">
                                 <p className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Volunteer Step {step} of 6</p>
-                                <h3 className="text-4xl font-merriweather font-black text-slate-900 leading-tight">
+                                <h3 className="text-2xl sm:text-3xl md:text-4xl font-merriweather font-black text-slate-900 leading-tight">
                                     {step === 1 && "The Mission Awaits"}
                                     {step === 2 && "Identification Details"}
                                     {step === 3 && "Locality & Institution"}

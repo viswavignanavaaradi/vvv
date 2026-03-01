@@ -47,30 +47,30 @@ const Hero = ({ onDonate }) => (
 );
 
 const Missions = () => (
-    <section id="missions" className="section bg-subtle" style={{ padding: '7rem 0' }}>
+    <section id="missions" className="section bg-subtle py-16 md:py-28">
         <div className="container">
-            <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-                <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Our Core Initiatives</span>
-                <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Driving Change Where It Matters</h2>
+            <div className="text-center mb-10 md:mb-12 px-4">
+                <span className="text-emerald-600 font-bold tracking-[2px] uppercase text-[10px] md:text-xs">Our Core Initiatives</span>
+                <h2 className="fluid-h2 mt-2 text-royal-blue-900 font-merriweather">Driving Change Where It Matters</h2>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '2.5rem' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-10 px-4 md:px-0">
                 {[
-                    { icon: '📖', title: 'Mission Medha', desc: 'Providing scholarships and digital learning tools to gifted students in rural government schools.' },
-                    { icon: '⚖️', title: 'Nyaya Sadan', desc: 'Nyaya Sadan addresses this gap by transforming legal awareness into legal empowerment.' },
-                    { icon: '🍛', title: 'Mission Trupti', desc: 'Daily nutritional support for the elderly and abandoned, ensuring no one sleeps hungry.' },
-                    { icon: '🧠', title: 'Mission Mano Swasthya', desc: 'A strong nation requires not only educated citizens, but emotionally balanced and mentally healthy individuals.' },
-                    { icon: '🔬', title: 'Mission Jeeva Dhara', desc: 'Mission Jeevadhara is the rural innovation and technological empowerment wing dedicated to bringing sustainable, practical, and locally adaptable solutions to rural and tribal communities.' }
+                    { icon: '📖', title: 'Mission Medha', id: 'mission-medha', desc: 'Providing scholarships and digital learning tools to gifted students in rural government schools.' },
+                    { icon: '⚖️', title: 'Nyaya Sadan', id: 'nyaya-sadan', desc: 'Nyaya Sadan addresses this gap by transforming legal awareness into legal empowerment.' },
+                    { icon: '🍛', title: 'Mission Trupti', id: 'mission-trupti', desc: 'Daily nutritional support for the elderly and abandoned, ensuring no one sleeps hungry.' },
+                    { icon: '🧠', title: 'Mission Mano Swasthya', id: 'mission-manoswasthya', desc: 'A strong nation requires not only educated citizens, but emotionally balanced and mentally healthy individuals.' },
+                    { icon: '🔬', title: 'Mission Jeeva Dhara', id: 'mission-jeevadhara', desc: 'Mission Jeevadhara is the rural innovation and technological empowerment wing dedicated to bringing sustainable solutions.' }
                 ].map((mission, index) => (
                     <motion.div
                         key={index}
-                        className="card"
+                        className="card p-8 md:p-10"
                         whileHover={{ y: -8 }}
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.5, delay: index * 0.1 }}
-                        style={{ textAlign: 'left', padding: '3rem', borderRadius: '8px', borderTop: '4px solid var(--primary-royal)' }}
+                        style={{ textAlign: 'left', borderRadius: '24px', borderTop: '4px solid var(--primary-royal)', display: 'flex', flexDirection: 'column' }}
                     >
                         <div style={{
                             width: '60px',
@@ -85,9 +85,9 @@ const Missions = () => (
                         }}>
                             {mission.icon}
                         </div>
-                        <h3 style={{ marginBottom: '1rem', fontSize: '1.4rem', color: 'var(--text-main)', fontFamily: 'Merriweather, serif' }}>{mission.title}</h3>
-                        <p style={{ color: 'var(--text-body)', marginBottom: '2rem', lineHeight: '1.7' }}>{mission.desc}</p>
-                        <a href={`/missions#${mission.title.toLowerCase().replace(/\s+/g, '-')}`} style={{ color: 'var(--primary-royal)', fontWeight: '600', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                        <h3 style={{ marginBottom: '1rem', fontSize: '1.25rem', color: 'var(--text-main)', fontFamily: 'Merriweather, serif' }}>{mission.title}</h3>
+                        <p style={{ color: 'var(--text-body)', marginBottom: '1.5rem', lineHeight: '1.6', fontSize: '0.95rem', flexGrow: 1 }}>{mission.desc}</p>
+                        <a href={`/missions#${mission.id}`} style={{ color: 'var(--primary-royal)', fontWeight: '700', fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
                             View Project Details <span>→</span>
                         </a>
                     </motion.div>
@@ -102,9 +102,9 @@ const JoinMission = () => {
     return (
         <section id="get-involved" className="section" style={{ background: '#f8fafc', padding: '7rem 0' }}>
             <div className="container">
-                <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-                    <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Join the Movement</span>
-                    <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Choose Your Path to Impact</h2>
+                <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                    <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.8rem' }}>Join the Movement</span>
+                    <h2 className="fluid-h2" style={{ marginTop: '0.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Choose Your Path to Impact</h2>
                 </div>
 
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
@@ -116,7 +116,8 @@ const JoinMission = () => {
                         <motion.div
                             key={idx}
                             whileHover={{ scale: 1.02 }}
-                            style={{ background: 'white', padding: '3rem', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', textAlign: 'center', border: '1px solid #f1f5f9' }}
+                            className="card"
+                            style={{ background: 'white', borderRadius: '24px', boxShadow: '0 20px 40px rgba(0,0,0,0.05)', textAlign: 'center', border: '1px solid #f1f5f9', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
                         >
                             <div style={{ fontSize: '3rem', marginBottom: '1.5rem' }}>{item.icon}</div>
                             <h3 style={{ fontFamily: 'Merriweather, serif', fontSize: '1.5rem', marginBottom: '1rem', color: '#1e293b' }}>{item.title}</h3>

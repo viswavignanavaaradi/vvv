@@ -201,6 +201,47 @@ textarea:focus {
   background-color: #fff;
 }
 
+/* Responsive Utilities */
+.fluid-h1 {
+  font-size: clamp(2.5rem, 8vw, 5rem);
+}
+
+.fluid-h2 {
+  font-size: clamp(2rem, 5vw, 3.5rem);
+}
+
+.fluid-p {
+  font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
+@media (max-width: 768px) {
+  .section {
+    padding: 4rem 0 !important;
+  }
+
+  .container {
+    padding: 0 1.5rem !important;
+  }
+
+  .card {
+    padding: 1.5rem !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .section {
+    padding: 3rem 0 !important;
+  }
+
+  .container {
+    padding: 0 1rem !important;
+  }
+
+  .card {
+    padding: 1.25rem !important;
+  }
+}
+
 /* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;

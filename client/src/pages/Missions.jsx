@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useLocation } from 'react-router-dom';
 
 const MissionSection = ({ id, title, subtitle, intro, rationale, objectives, programs, vision, philosophy, color, icon, integration }) => (
-    <section id={id} className="py-24 border-b border-slate-100 scroll-mt-24">
+    <section id={id} className="py-16 md:py-24 border-b border-slate-100 scroll-mt-24">
         <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row gap-16">
                 {/* Left: Sticky Identity */}
@@ -12,20 +12,20 @@ const MissionSection = ({ id, title, subtitle, intro, rationale, objectives, pro
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9 }}
                             whileInView={{ opacity: 1, scale: 1 }}
-                            className="w-24 h-24 rounded-3xl flex items-center justify-center text-5xl mb-8 shadow-2xl relative"
+                            className="w-20 h-20 md:w-24 md:h-24 rounded-2xl md:rounded-3xl flex items-center justify-center text-4xl md:text-5xl mb-6 md:mb-8 shadow-2xl relative"
                             style={{ backgroundColor: color + '15', color: color }}
                         >
-                            <div className="absolute inset-0 rounded-3xl border-2 opacity-20" style={{ borderColor: color }}></div>
+                            <div className="absolute inset-0 rounded-2xl md:rounded-3xl border-2 opacity-20" style={{ borderColor: color }}></div>
                             {icon}
                         </motion.div>
-                        <h2 className="text-4xl lg:text-5xl font-merriweather font-black text-slate-900 mb-6 leading-tight">{title}</h2>
-                        <p className="text-xl text-slate-500 font-medium italic mb-10 border-l-4 pl-6" style={{ borderColor: color }}>{subtitle}</p>
+                        <h2 className="text-3xl md:text-4xl lg:text-5xl font-merriweather font-black text-slate-900 mb-4 md:mb-6 leading-tight">{title}</h2>
+                        <p className="text-lg md:text-xl text-slate-500 font-medium italic mb-8 md:mb-10 border-l-4 pl-4 md:pl-6" style={{ borderColor: color }}>{subtitle}</p>
 
-                        <div className="bg-slate-50 rounded-[32px] p-8 border border-slate-100 shadow-sm">
-                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-6">Core Mission Objectives</h4>
-                            <ul className="space-y-4">
+                        <div className="bg-slate-50 rounded-[24px] md:rounded-[32px] p-6 md:p-8 border border-slate-100 shadow-sm">
+                            <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-4 md:mb-6">Core Mission Objectives</h4>
+                            <ul className="space-y-3 md:space-y-4">
                                 {objectives.map((obj, i) => (
-                                    <li key={i} className="flex gap-4 text-sm text-slate-600 font-semibold leading-relaxed">
+                                    <li key={i} className="flex gap-3 md:gap-4 text-xs md:text-sm text-slate-600 font-semibold leading-relaxed">
                                         <span className="shrink-0" style={{ color: color }}>◆</span>
                                         {obj}
                                     </li>
@@ -40,31 +40,31 @@ const MissionSection = ({ id, title, subtitle, intro, rationale, objectives, pro
                     {/* Introduction */}
                     <div>
                         <div className="inline-block px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest text-white mb-6" style={{ backgroundColor: color }}>Introduction</div>
-                        <p className="text-2xl text-slate-700 leading-relaxed font-medium font-merriweather">
+                        <p className="text-xl md:text-2xl text-slate-700 leading-relaxed font-medium font-merriweather">
                             {intro}
                         </p>
                     </div>
 
                     {/* Rationale Section */}
                     <div className="relative">
-                        <div className="absolute -left-8 top-0 bottom-0 w-1 rounded-full opacity-10" style={{ backgroundColor: color }}></div>
-                        <h3 className="text-2xl font-black text-slate-800 mb-8 flex items-center gap-4">
+                        <div className="absolute -left-4 md:-left-8 top-0 bottom-0 w-1 rounded-full opacity-10" style={{ backgroundColor: color }}></div>
+                        <h3 className="text-xl md:text-2xl font-black text-slate-800 mb-6 md:mb-8 flex items-center gap-4">
                             The Rationale
                             <span className="h-px bg-slate-200 flex-grow"></span>
                         </h3>
-                        <div className="bg-white rounded-[40px] p-10 lg:p-14 shadow-xl shadow-slate-200/50 border border-slate-50">
-                            <p className="text-lg text-slate-600 leading-relaxed mb-10 font-medium">{rationale.text}</p>
+                        <div className="bg-white rounded-[32px] md:rounded-[40px] p-6 sm:p-10 lg:p-14 shadow-xl shadow-slate-200/50 border border-slate-50">
+                            <p className="text-base md:text-lg text-slate-600 leading-relaxed mb-8 md:mb-10 font-medium">{rationale.text}</p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
                                 {rationale.lists.map((list, li) => (
-                                    <div key={li} className="space-y-4 p-8 rounded-[32px] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-lg transition-all duration-300">
+                                    <div key={li} className="space-y-4 p-6 md:p-8 rounded-[24px] md:rounded-[32px] bg-slate-50/50 border border-slate-100 hover:bg-white hover:shadow-lg transition-all duration-300">
                                         <h5 className="font-black text-[11px] uppercase tracking-widest text-[#1e3a8a] flex items-center gap-2">
                                             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: color }}></span>
                                             {list.title}
                                         </h5>
                                         <ul className="grid grid-cols-1 gap-2">
                                             {list.items.map((item, ii) => (
-                                                <li key={ii} className="text-sm text-slate-500 font-bold flex items-center gap-3">
+                                                <li key={ii} className="text-xs md:text-sm text-slate-500 font-bold flex items-center gap-3">
                                                     <span className="text-xs text-slate-300">•</span> {item}
                                                 </li>
                                             ))}
@@ -78,26 +78,26 @@ const MissionSection = ({ id, title, subtitle, intro, rationale, objectives, pro
                     {/* Programs Grid */}
                     <div className="space-y-8">
                         <div className="flex items-center gap-4">
-                            <h3 className="text-2xl font-black text-slate-800 shrink-0">Strategic Initiatives</h3>
+                            <h3 className="text-xl md:text-2xl font-black text-slate-800 shrink-0">Strategic Initiatives</h3>
                             <div className="h-px bg-slate-200 flex-grow"></div>
                         </div>
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8">
                             {programs.map((prog, pi) => (
                                 <motion.div
                                     key={pi}
                                     whileHover={{ y: -5 }}
-                                    className="bg-white rounded-[32px] p-10 shadow-lg shadow-slate-200/30 border border-slate-100 flex flex-col"
+                                    className="bg-white rounded-[24px] md:rounded-[32px] p-8 md:p-10 shadow-lg shadow-slate-200/30 border border-slate-100 flex flex-col"
                                 >
-                                    <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-2xl mb-6" style={{ backgroundColor: color + '10' }}>
+                                    <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl md:rounded-2xl flex items-center justify-center text-xl md:text-2xl mb-6" style={{ backgroundColor: color + '10' }}>
                                         {icon}
                                     </div>
-                                    <h4 className="text-xl font-black text-slate-900 mb-4">{prog.name}</h4>
-                                    <p className="text-sm text-slate-500 leading-relaxed font-medium mb-6 flex-grow">{prog.desc}</p>
+                                    <h4 className="text-lg md:text-xl font-black text-slate-900 mb-3 md:mb-4">{prog.name}</h4>
+                                    <p className="text-xs md:text-sm text-slate-500 leading-relaxed font-medium mb-6 flex-grow">{prog.desc}</p>
                                     {prog.points && (
                                         <div className="pt-6 border-t border-slate-50 mt-auto">
                                             <div className="flex flex-wrap gap-2">
                                                 {prog.points.map((pt, pti) => (
-                                                    <span key={pti} className="text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500">
+                                                    <span key={pti} className="text-[9px] md:text-[10px] font-black uppercase tracking-widest px-3 py-1.5 rounded-lg bg-slate-100 text-slate-500">
                                                         {pt}
                                                     </span>
                                                 ))}
@@ -110,7 +110,7 @@ const MissionSection = ({ id, title, subtitle, intro, rationale, objectives, pro
                     </div>
 
                     {/* Vision & Ethics Card */}
-                    <div className="bg-[#1e3a8a] rounded-[50px] p-12 lg:p-20 text-white relative overflow-hidden shadow-2xl">
+                    <div className="bg-[#1e3a8a] rounded-[32px] md:rounded-[50px] p-8 md:p-16 lg:p-20 text-white relative overflow-hidden shadow-2xl">
                         {/* Decor */}
                         <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-white/5 rounded-full blur-3xl"></div>
                         <div className="absolute top-0 left-0 w-full h-full opacity-10 pointer-events-none">
@@ -385,7 +385,7 @@ const Missions = () => {
             </div>
 
             {/* Premium Hero */}
-            <section className="relative py-32 lg:py-48 bg-[#1e3a8a] overflow-hidden">
+            <section className="relative py-20 sm:py-32 lg:py-48 bg-[#1e3a8a] overflow-hidden">
                 {/* Background Art */}
                 <div className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-gradient-to-br from-blue-900 via-[#1e3a8a] to-emerald-900 opacity-95"></div>
@@ -404,10 +404,10 @@ const Missions = () => {
                         <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-blue-200 font-black uppercase tracking-[0.3em] text-[10px] mb-8 border border-white/10 backdrop-blur-sm">
                             The Strategic Wings of Change
                         </span>
-                        <h1 className="text-6xl md:text-8xl font-merriweather font-black text-white mb-8 tracking-tight">
+                        <h1 className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-merriweather font-black text-white mb-6 md:mb-8 tracking-tight">
                             Our Missions
                         </h1>
-                        <p className="text-xl md:text-2xl text-white/70 font-medium leading-relaxed max-w-2xl mx-auto">
+                        <p className="text-lg md:text-xl lg:text-2xl text-white/70 font-medium leading-relaxed max-w-2xl mx-auto">
                             Transforming the socio-legal, educational, and nutritional landscape of India through systematic intervention.
                         </p>
                     </motion.div>
@@ -422,30 +422,30 @@ const Missions = () => {
             </div>
 
             {/* Strategic Partnerships Section */}
-            <section className="py-32 bg-slate-50 relative overflow-hidden">
+            <section className="py-16 md:py-32 bg-slate-50 relative overflow-hidden">
                 <div className="container mx-auto px-4 text-center">
-                    <div className="max-w-5xl mx-auto bg-white rounded-[64px] p-16 lg:p-24 shadow-2xl border border-slate-100 relative">
+                    <div className="max-w-5xl mx-auto bg-white rounded-[32px] md:rounded-[64px] p-8 sm:p-16 lg:p-24 shadow-2xl border border-slate-100 relative">
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-1.5 bg-gradient-to-r from-blue-600 to-emerald-600 rounded-b-full"></div>
 
-                        <h2 className="text-4xl md:text-6xl font-merriweather font-black text-slate-900 mb-10 leading-tight">
+                        <h2 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-merriweather font-black text-slate-900 mb-6 md:mb-10 leading-tight">
                             Build the Future <br />With Us
                         </h2>
-                        <p className="text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-16 leading-relaxed">
+                        <p className="text-base md:text-lg lg:text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-10 md:mb-16 leading-relaxed">
                             Every professional skill is a tool for liberation. Join our volunteer network to power these missions with your expertise.
                         </p>
 
-                        <div className="flex flex-wrap justify-center gap-6">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6">
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => window.location.href = '/volunteer-enrollment'}
-                                className="bg-[#1e3a8a] text-white px-12 py-6 rounded-[24px] font-black uppercase tracking-widest text-[11px] shadow-2xl shadow-blue-900/20 hover:bg-blue-800 transition-all"
+                                className="w-full sm:w-auto bg-[#1e3a8a] text-white px-8 md:px-12 py-4 md:py-6 rounded-[16px] md:rounded-[24px] font-black uppercase tracking-widest text-[10px] md:text-[11px] shadow-2xl shadow-blue-900/20 hover:bg-blue-800 transition-all"
                             >
                                 Become a Volunteer
                             </motion.button>
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
                                 onClick={() => window.location.href = '/get-involved'}
-                                className="bg-white text-[#1e3a8a] border-2 border-slate-200 px-12 py-6 rounded-[24px] font-black uppercase tracking-widest text-[11px] hover:border-[#1e3a8a] transition-all"
+                                className="w-full sm:w-auto bg-white text-[#1e3a8a] border-2 border-slate-200 px-8 md:px-12 py-4 md:py-6 rounded-[16px] md:rounded-[24px] font-black uppercase tracking-widest text-[10px] md:text-[11px] hover:border-[#1e3a8a] transition-all"
                             >
                                 Partner with VVV
                             </motion.button>

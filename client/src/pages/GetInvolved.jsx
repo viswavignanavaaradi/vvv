@@ -62,11 +62,11 @@ const GetInvolved = () => {
             </div>
 
             {/* Hero */}
-            <section className="pt-40 pb-20 px-6">
+            <section className="pt-28 md:pt-40 pb-16 md:pb-20 px-4 md:px-6">
                 <div className="max-w-6xl mx-auto text-center">
                     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-                        <h1 className="text-5xl md:text-7xl font-merriweather font-black text-slate-900 mb-6 italic leading-tight">Join the movement for change.</h1>
-                        <p className="text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">Choose your path to impact. Whether you're a student, professional, or a community leader, your presence matters.</p>
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-merriweather font-black text-slate-900 mb-6 italic leading-tight">Join the movement for change.</h1>
+                        <p className="text-lg md:text-xl text-slate-500 max-w-2xl mx-auto font-medium leading-relaxed">Choose your path to impact. Whether you're a student, professional, or a community leader, your presence matters.</p>
                     </motion.div>
                 </div>
             </section>
@@ -75,12 +75,12 @@ const GetInvolved = () => {
             <section className="pb-32 px-6">
                 <div className="max-w-6xl mx-auto">
                     {/* Tabs */}
-                    <div className="flex justify-center flex-wrap gap-4 mb-16">
+                    <div className="flex justify-center flex-wrap gap-3 md:gap-4 mb-10 md:mb-16">
                         {Object.keys(options).map((key) => (
                             <button
                                 key={key}
                                 onClick={() => setActiveTab(key)}
-                                className={`px-10 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === key ? 'bg-slate-900 text-white shadow-2xl scale-105' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'}`}
+                                className={`px-6 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === key ? 'bg-slate-900 text-white shadow-2xl scale-105' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'}`}
                             >
                                 {key}
                             </button>
@@ -95,23 +95,23 @@ const GetInvolved = () => {
                             animate={{ opacity: 1, scale: 1 }}
                             exit={{ opacity: 0, scale: 0.95 }}
                             transition={{ duration: 0.5 }}
-                            className="bg-white rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[500px]"
+                            className="bg-white rounded-[32px] md:rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-hidden flex flex-col md:flex-row min-h-[400px] md:min-h-[500px]"
                         >
                             {/* Left Side: Dynamic Image/Graphic */}
-                            <div className={`md:w-1/2 p-12 flex items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
-                                <div className="absolute inset-0 opacity-10 flex flex-wrap items-center justify-center text-9xl">
+                            <div className={`md:w-1/2 p-10 md:p-12 flex items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
+                                <div className="absolute inset-0 opacity-10 flex flex-wrap items-center justify-center text-7xl md:text-9xl">
                                     {[...Array(6)].map((_, i) => <span key={i} className="p-4">{options[activeTab].icon}</span>)}
                                 </div>
                                 <div className="relative z-10 text-center">
-                                    <span className="text-8xl mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
-                                    <h2 className="text-white text-3xl font-black uppercase tracking-[0.2em]">{options[activeTab].subtitle}</h2>
+                                    <span className="text-6xl md:text-8xl mb-4 md:mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
+                                    <h2 className="text-white text-xl md:text-3xl font-black uppercase tracking-[0.2em]">{options[activeTab].subtitle}</h2>
                                 </div>
                             </div>
 
                             {/* Right Side: Info */}
-                            <div className="flex-1 p-12 md:p-20 flex flex-col justify-center">
-                                <h3 className="text-4xl font-merriweather font-black text-slate-900 mb-6 italic">{options[activeTab].title}</h3>
-                                <p className="text-slate-500 text-lg leading-relaxed mb-8 font-medium">{options[activeTab].description}</p>
+                            <div className="flex-1 p-8 sm:p-12 md:p-20 flex flex-col justify-center">
+                                <h3 className="text-3xl md:text-4xl font-merriweather font-black text-slate-900 mb-4 md:mb-6 italic">{options[activeTab].title}</h3>
+                                <p className="text-slate-500 text-base md:text-lg leading-relaxed mb-6 md:mb-8 font-medium">{options[activeTab].description}</p>
 
                                 <div className="space-y-4 mb-10">
                                     {options[activeTab].features.map((f, i) => (
@@ -135,23 +135,23 @@ const GetInvolved = () => {
             </section>
 
             {/* Other Ways to Help */}
-            <section className="bg-slate-900 py-32 px-6">
+            <section className="bg-slate-900 py-20 md:py-32 px-4 md:px-6">
                 <div className="max-w-6xl mx-auto">
-                    <div className="text-center mb-16">
-                        <h2 className="text-3xl md:text-5xl font-merriweather font-black text-white italic mb-4">More ways to contribute.</h2>
-                        <p className="text-slate-400 text-lg">Beyond enrollment, every gesture counts towards the Varadi.</p>
+                    <div className="text-center mb-12 md:mb-16">
+                        <h2 className="text-2xl md:text-5xl font-merriweather font-black text-white italic mb-4">More ways to contribute.</h2>
+                        <p className="text-slate-400 text-base md:text-lg">Beyond enrollment, every gesture counts towards the Varadi.</p>
                     </div>
 
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
                         {[
                             { title: "CSR Partnerships", desc: "Corporate collaborations for institutional social change.", icon: "🏢" },
                             { title: "Material Support", desc: "Donate books, health kits, and essential materials.", icon: "📦" },
                             { title: "Mentorship", desc: "Share your professional expertise with our youth wings.", icon: "💡" }
                         ].map((item, i) => (
-                            <div key={i} className="p-10 rounded-[40px] bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-all group">
-                                <div className="text-5xl mb-6 group-hover:scale-110 transition-transform">{item.icon}</div>
-                                <h4 className="text-white font-black mb-3 uppercase tracking-widest text-sm">{item.title}</h4>
-                                <p className="text-slate-400 text-sm leading-relaxed font-medium">{item.desc}</p>
+                            <div key={i} className="p-8 md:p-10 rounded-[24px] md:rounded-[40px] bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-all group">
+                                <div className="text-4xl md:text-5xl mb-4 md:mb-6 group-hover:scale-110 transition-transform">{item.icon}</div>
+                                <h4 className="text-white font-black mb-2 md:mb-3 uppercase tracking-widest text-xs md:text-sm">{item.title}</h4>
+                                <p className="text-slate-400 text-xs md:text-sm leading-relaxed font-medium">{item.desc}</p>
                             </div>
                         ))}
                     </div>

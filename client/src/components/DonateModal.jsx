@@ -153,147 +153,55 @@ const DonateModal = ({ isOpen, onClose }) => {
     const monthlyTiers = ['99', '199', '299', '499', '999', '1499', '1999', '2499', '2999', '4999'];
 
     return (
-        <div style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(15, 23, 42, 0.8)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 9999,
-            backdropFilter: 'blur(8px)',
-            padding: '1rem'
-        }}>
+        <div className="fixed inset-0 bg-slate-900/80 flex items-center justify-center z-[9999] backdrop-blur-sm p-4 overflow-y-auto">
             <motion.div
                 initial={{ scale: 0.95, opacity: 0, y: 20 }}
                 animate={{ scale: 1, opacity: 1, y: 0 }}
-                style={{
-                    background: 'white',
-                    padding: '2.5rem',
-                    borderRadius: '24px',
-                    width: '100%',
-                    maxWidth: '520px',
-                    maxHeight: '90vh',
-                    overflowY: 'auto',
-                    position: 'relative',
-                    boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)',
-                    border: '1px solid #f1f5f9'
-                }}
+                className="bg-white p-6 sm:p-10 rounded-[24px] w-full max-w-[520px] max-h-[90vh] overflow-y-auto relative shadow-2xl border border-slate-100"
             >
                 <button
                     onClick={onClose}
-                    style={{
-                        position: 'absolute',
-                        top: '1.25rem',
-                        right: '1.25rem',
-                        background: '#f8fafc',
-                        border: 'none',
-                        width: '32px',
-                        height: '32px',
-                        borderRadius: '10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '1.2rem',
-                        cursor: 'pointer',
-                        color: '#64748b',
-                        transition: 'all 0.2s'
-                    }}
-                    onMouseOver={(e) => { e.currentTarget.style.background = '#fee2e2'; e.currentTarget.style.color = '#ef4444'; }}
-                    onMouseOut={(e) => { e.currentTarget.style.background = '#f8fafc'; e.currentTarget.style.color = '#64748b'; }}
+                    className="absolute top-4 right-4 bg-slate-50 border-none w-8 h-8 rounded-lg flex items-center justify-center text-xl cursor-pointer text-slate-400 hover:bg-rose-50 hover:text-rose-500 transition-all"
                 >&times;</button>
 
-                <div style={{ textAlign: 'center', marginBottom: '2rem' }}>
-                    <div style={{
-                        display: 'inline-block',
-                        padding: '8px 16px',
-                        background: '#ecfdf5',
-                        color: '#059669',
-                        borderRadius: '20px',
-                        fontSize: '0.75rem',
-                        fontWeight: '800',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
-                        marginBottom: '1rem'
-                    }}>
+                <div className="text-center mb-8">
+                    <div className="inline-block px-4 py-1.5 bg-emerald-50 text-emerald-600 rounded-full text-[10px] font-black uppercase tracking-widest mb-4">
                         Support Our Mission
                     </div>
-                    <h2 style={{
-                        fontFamily: 'Merriweather, serif',
-                        fontSize: '1.85rem',
-                        fontWeight: '900',
-                        color: '#0f172a',
-                        lineHeight: '1.2'
-                    }}>Join the Movement</h2>
-                    <p style={{ color: '#64748b', fontSize: '0.95rem', marginTop: '0.5rem' }}>Your contribution drives direct social change.</p>
+                    <h2 className="font-merriweather text-2xl sm:text-3xl font-black text-slate-900 leading-tight">Join the Movement</h2>
+                    <p className="text-slate-500 text-sm sm:text-base mt-2">Your contribution drives direct social change.</p>
 
                     {/* Mode Toggle */}
-                    <div style={{
-                        display: 'flex',
-                        background: '#f1f5f9',
-                        padding: '6px',
-                        borderRadius: '14px',
-                        marginTop: '2rem',
-                        gap: '6px',
-                        border: '1px solid #e2e8f0'
-                    }}>
+                    <div className="flex bg-slate-100 p-1.5 rounded-[16px] mt-6 gap-1 border border-slate-200">
                         <button
                             type="button"
                             onClick={() => { setIsMonthly(false); setSelectedTier(null); setFormData(prev => ({ ...prev, amount: '' })); }}
-                            style={{
-                                flex: 1,
-                                padding: '10px',
-                                borderRadius: '10px',
-                                border: 'none',
-                                fontSize: '0.9rem',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                background: !isMonthly ? 'white' : 'transparent',
-                                color: !isMonthly ? '#059669' : '#64748b',
-                                boxShadow: !isMonthly ? '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)' : 'none'
-                            }}
+                            className={`flex-1 py-2.5 rounded-[12px] border-none text-xs font-black transition-all ${!isMonthly ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-white/50'}`}
                         >One-time</button>
                         <button
                             type="button"
                             onClick={() => { setIsMonthly(true); setFormData(prev => ({ ...prev, amount: '' })); }}
-                            style={{
-                                flex: 1,
-                                padding: '10px',
-                                borderRadius: '10px',
-                                border: 'none',
-                                fontSize: '0.9rem',
-                                fontWeight: '700',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                background: isMonthly ? 'white' : 'transparent',
-                                color: isMonthly ? '#059669' : '#64748b',
-                                boxShadow: isMonthly ? '0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06)' : 'none'
-                            }}
+                            className={`flex-1 py-2.5 rounded-[12px] border-none text-xs font-black transition-all ${isMonthly ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-white/50'}`}
                         >Monthly (Autopay)</button>
                     </div>
                 </div>
 
                 {loading ? (
-                    <div style={{ textAlign: 'center', padding: '3rem 0' }}>
-                        <div className="spinner" style={{ border: '4px solid #f1f5f9', borderTop: '4px solid #059669', borderRadius: '50%', width: '48px', height: '48px', animation: 'spin 1s linear infinite', margin: '0 auto' }}></div>
-                        <p style={{ marginTop: '1.5rem', color: '#334155', fontSize: '1rem', fontWeight: '600' }}>Preparing secure gateway...</p>
-                        <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+                    <div className="flex flex-col items-center py-8">
+                        <div className="border-[4px] border-slate-100 border-t-emerald-600 rounded-full w-12 h-12 animate-spin mb-4"></div>
+                        <p className="text-slate-800 font-black text-sm uppercase tracking-widest">Securing Gateway...</p>
                     </div>
                 ) : (
-                    <form onSubmit={handleDonate} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>Full Name</label>
-                                <input name="name" required value={formData.name} onChange={handleChange} placeholder="Aravind Vantaku" style={{ width: '100%', padding: '0.85rem 1rem', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s' }} onFocus={(e) => e.target.style.borderColor = '#059669'} onBlur={(e) => e.target.style.borderColor = '#e2e8f0'} />
+                    <form onSubmit={handleDonate} className="flex flex-col gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="sm:col-span-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">Full Name</label>
+                                <input name="name" required value={formData.name} onChange={handleChange} placeholder="Aravind Vantaku" className="w-full px-5 py-3.5 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white focus:border-emerald-500 transition-all font-bold text-sm" />
                             </div>
 
-                            <div style={{ gridColumn: 'span 2' }}>
-                                <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>Email Address</label>
-                                <input name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="aravind@example.com" style={{ width: '100%', padding: '0.85rem 1rem', border: '1px solid #e2e8f0', borderRadius: '12px', fontSize: '1rem', outline: 'none', transition: 'border-color 0.2s' }} onFocus={(e) => e.target.style.borderColor = '#059669'} onBlur={(e) => e.target.style.borderColor = '#e2e8f0'} />
+                            <div className="sm:col-span-2">
+                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1 mb-1.5 block">Email Address</label>
+                                <input name="email" type="email" required value={formData.email} onChange={handleChange} placeholder="aravind@example.com" className="w-full px-5 py-3.5 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white focus:border-emerald-500 transition-all font-bold text-sm" />
                             </div>
                         </div>
 
@@ -352,26 +260,10 @@ const DonateModal = ({ isOpen, onClose }) => {
 
                         <button
                             type="submit"
-                            disabled={loading || (isMonthly && !formData.amount) || (!isMonthly && !formData.amount)}
-                            style={{
-                                width: '100%',
-                                padding: '1.15rem',
-                                borderRadius: '16px',
-                                fontSize: '1.1rem',
-                                fontWeight: '900',
-                                background: '#1e293b',
-                                color: 'white',
-                                border: 'none',
-                                cursor: 'pointer',
-                                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-                                marginTop: '1rem',
-                                boxShadow: '0 10px 15px -3px rgba(30, 41, 59, 0.3)',
-                                opacity: (isMonthly && !formData.amount) || (!isMonthly && !formData.amount) ? 0.5 : 1
-                            }}
-                            onMouseOver={(e) => { if (!e.currentTarget.disabled) e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.background = '#0f172a'; }}
-                            onMouseOut={(e) => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = '#1e293b'; }}
+                            disabled={loading || !formData.amount}
+                            className="w-full bg-slate-900 text-white py-4 sm:py-5 rounded-xl sm:rounded-2xl font-black text-sm sm:text-lg uppercase tracking-widest shadow-xl shadow-slate-900/20 active:scale-[0.98] transition-all disabled:opacity-50 disabled:pointer-events-none mt-4"
                         >
-                            {isMonthly ? 'Start Monthly Patronage' : 'Complete Secure Donation'}
+                            {isMonthly ? 'Activate Patronage' : 'Complete Donation'}
                         </button>
 
                         <div style={{

@@ -241,7 +241,7 @@ const About = () => {
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 20 }}
                         transition={{ duration: 0.8, ease: "backOut" }}
-                        className="max-w-3xl pt-20 md:pt-0"
+                        className="max-w-3xl pt-24 md:pt-0"
                     >
                         <motion.span
                             initial={{ opacity: 0, y: 10 }}
@@ -501,15 +501,15 @@ const About = () => {
                             className="relative group"
                         >
                             <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/5 to-royal-blue-500/5 rounded-[2rem] md:rounded-[4rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                            <div className="relative bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[3rem] p-6 md:p-20 shadow-2xl shadow-slate-200/50 overflow-hidden">
-                                <div className="absolute top-0 right-0 w-96 h-96 bg-slate-50 rounded-full -mr-48 -mt-48 mix-blend-multiply opacity-50" />
-                                <div className="grid lg:grid-cols-12 gap-16 items-center">
+                            <div className="relative bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[3rem] p-6 sm:p-10 md:p-20 shadow-2xl shadow-slate-200/50 overflow-hidden">
+                                <div className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-slate-50 rounded-full -mr-32 -mt-32 md:-mr-48 md:-mt-48 mix-blend-multiply opacity-50" />
+                                <div className="grid lg:grid-cols-12 gap-8 md:gap-16 items-center">
                                     <div className="lg:col-span-5">
-                                        <div className="flex items-center gap-4 mb-8">
+                                        <div className="flex items-center gap-4 mb-4 md:mb-8">
                                             <div className="w-12 h-1 bg-emerald-500 rounded-full" />
-                                            <span className="text-xs font-black text-emerald-600 uppercase tracking-[0.4em]">Presidential Profile</span>
+                                            <span className="text-[10px] md:text-xs font-black text-emerald-600 uppercase tracking-[0.4em]">Presidential Profile</span>
                                         </div>
-                                        <h3 className="text-4xl md:text-7xl font-black text-slate-900 font-merriweather mb-6 md:mb-8 leading-[1.05] tracking-tighter italic">
+                                        <h3 className="text-3xl sm:text-4xl md:text-7xl font-black text-slate-900 font-merriweather mb-4 md:mb-8 leading-[1.1] tracking-tighter italic">
                                             {president.name}
                                         </h3>
                                         <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 border-l-4 border-slate-100 pl-6">{president.role}</p>
@@ -518,10 +518,10 @@ const About = () => {
                                         </div>
                                     </div>
                                     <div className="lg:col-span-7">
-                                        <div className="space-y-8 relative">
-                                            <div className="absolute -left-10 top-0 text-8xl font-black text-slate-50 font-merriweather select-none opacity-50 italic">"</div>
+                                        <div className="space-y-6 md:space-y-8 relative">
+                                            <div className="absolute -left-6 md:-left-10 top-0 text-6xl md:text-8xl font-black text-slate-50 font-merriweather select-none opacity-50 italic">"</div>
                                             {president.bio.split('\n\n').map((para, i) => (
-                                                <p key={i} className={`text-slate-600 leading-relaxed font-merriweather text-xl opacity-90 ${i === 0 ? 'text-slate-900 font-bold' : ''}`}>
+                                                <p key={i} className={`text-slate-600 leading-relaxed font-merriweather text-base md:text-xl opacity-90 ${i === 0 ? 'text-slate-900 font-bold' : ''}`}>
                                                     {para}
                                                 </p>
                                             ))}
@@ -540,7 +540,7 @@ const About = () => {
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     transition={{ delay: i * 0.1 }}
                                     viewport={{ once: true }}
-                                    className="group relative p-12 rounded-[2.5rem] bg-white border border-slate-100 hover:border-emerald-200 hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-500 text-center"
+                                    className="group relative p-8 md:p-12 rounded-[2rem] md:rounded-[2.5rem] bg-white border border-slate-100 hover:border-emerald-200 hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-500 text-center"
                                 >
                                     <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-all transform group-hover:rotate-6 shadow-sm">
                                         {i === 0 ? '🏛️' : i === 1 ? '📜' : '🏦'}
@@ -677,9 +677,9 @@ const About = () => {
                             <button
                                 key={tab}
                                 onClick={() => setActiveTab(tab)}
-                                className={`px-4 md:px-10 py-5 md:py-8 text-[10px] md:text-[11px] font-black uppercase tracking-[0.2em] md:tracking-[0.3em] transition-all relative group ${activeTab === tab ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-900'}`}
+                                className={`px-4 md:px-10 py-5 md:py-8 text-[9px] md:text-[11px] font-black uppercase tracking-[0.15em] md:tracking-[0.3em] transition-all relative group ${activeTab === tab ? 'text-emerald-600' : 'text-slate-400 hover:text-slate-900'}`}
                             >
-                                <span className="relative z-10">{aboutContent[tab].title}</span>
+                                <span className="relative z-10 whitespace-nowrap">{aboutContent[tab].title}</span>
                                 {activeTab === tab ? (
                                     <motion.div
                                         layoutId="activeTabUnderline"
