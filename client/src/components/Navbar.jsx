@@ -118,7 +118,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                         lineHeight: 1.1,
                         textTransform: 'uppercase'
                     }}>
-                        VISWA VIGNANA VAARADHI
+                          VISWA VIGNANA VAARADHI
                     </h1>
                 </div>
             </div>
