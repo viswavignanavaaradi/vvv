@@ -181,7 +181,11 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                         gap: '4px',
                                         padding: '10px 0'
                                     }}
-                                    onClick={() => navigate(item.label === 'About Us' ? '/about' : '/get-involved')}
+                                    onClick={() => {
+                                        if (item.path) navigate(item.path);
+                                        else if (item.label === 'About Us') navigate('/about');
+                                        else if (item.label === 'Get Involved') navigate('/get-involved');
+                                    }}
                                     className="nav-link"
                                 >
                                     {item.label} <span style={{ fontSize: '0.6rem', opacity: 0.5 }}>▼</span>

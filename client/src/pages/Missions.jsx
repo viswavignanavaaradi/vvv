@@ -401,6 +401,12 @@ const Missions = () => {
                         animate={{ opacity: 1, y: 0 }}
                         className="max-w-4xl mx-auto"
                     >
+                        {/* Version Sentinel - Updated for Fix */}
+                        <div className="mb-6 pointer-events-none">
+                            <div className="inline-block px-4 py-1 bg-white/10 text-emerald-400 text-[10px] font-black uppercase tracking-[0.2em] rounded-full backdrop-blur-sm border border-white/10">
+                                System Status: v4.4.6
+                            </div>
+                        </div>
                         <span className="inline-block px-4 py-1.5 rounded-full bg-white/10 text-blue-200 font-black uppercase tracking-[0.3em] text-[10px] mb-8 border border-white/10 backdrop-blur-sm">
                             The Strategic Wings of Change
                         </span>
