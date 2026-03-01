@@ -118,7 +118,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                         lineHeight: 1.1,
                         textTransform: 'uppercase'
                     }}>
-                          VISWA VIGNANA VAARADHI
+                        VISWA VIGNANA VAARADHI
                     </h1>
                 </div>
             </div>
@@ -146,7 +146,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                         label: 'Get Involved', type: 'dropdown', subItems: [
                             { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                             { label: 'Internship Enrollment', path: '/internship-enrollment' },
-                            { label: 'Patron Enrollment', path: '/patron-enrollment' },
+                            { label: 'Be a Patron', path: '/donate' },
                             { label: 'Learn More', path: '/get-involved' }
                         ]
                     },
@@ -532,7 +532,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                 {[
                                                     { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                                                     { label: 'Internship Enrollment', path: '/internship-enrollment' },
-                                                    { label: 'Patron Enrollment', path: '/patron-enrollment' },
+                                                    { label: 'Be a Patron', path: '/donate' },
                                                     { label: 'Overview', path: '/get-involved' }
                                                 ].map((subItem) => (
                                                     <div
