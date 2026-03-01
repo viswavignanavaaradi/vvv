@@ -104,7 +104,9 @@ const GetInvolved = () => {
                                 </div>
                                 <div className="relative z-10 text-center">
                                     <span className="text-6xl md:text-8xl mb-4 md:mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
-                                    <h2 className="text-white text-xl md:text-3xl font-black uppercase tracking-[0.2em]">{options[activeTab].subtitle}</h2>
+                                    <div className="bg-white/10 backdrop-blur-md px-6 py-2 rounded-full border border-white/20 text-[10px] font-black tracking-[0.3em] text-white shadow-2xl animate-pulse">
+                                        PORTAL ACTIVE: V4.5.0
+                                    </div>
                                 </div>
                             </div>
 
