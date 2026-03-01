@@ -29,7 +29,14 @@ const DonatePage = () => {
     }, []);
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'amount') {
+            // Prevent negative numbers and invalid characters
+            const sanitizedValue = value.replace(/[^0-9]/g, '');
+            setFormData(prev => ({ ...prev, amount: sanitizedValue }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleTierSelect = (amt) => {
@@ -148,7 +155,7 @@ const DonatePage = () => {
         }
     };
 
-    const monthlyTiers = ['99', '299', '499', '999', '1999', '4999'];
+    const monthlyTiers = ['99', '199', '299', '499', '999', '1499', '1999', '2499', '2999', '4999'];
 
     return (
         <div className="bg-[#FDFCF6] min-h-screen pt-28 md:pt-40 pb-20 px-4">
@@ -156,7 +163,7 @@ const DonatePage = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20">
-                    Secure Portal: v4.4.7
+                    Secure Portal: v4.4.8
                 </div>
             </div>
 
@@ -256,10 +263,14 @@ const DonatePage = () => {
                                     <input
                                         name="amount"
                                         type="number"
+                                        min="1"
                                         placeholder="1000"
                                         required
                                         value={formData.amount}
                                         onChange={handleChange}
+                                        onKeyDown={(e) => {
+                                            if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
+                                        }}
                                         className="w-full pl-12 pr-6 py-8 rounded-[32px] bg-slate-50 border-2 border-slate-100 outline-none focus:bg-white focus:border-emerald-500 transition-all font-black text-4xl text-slate-900 placeholder:text-slate-200 shadow-inner"
                                     />
                                 </div>

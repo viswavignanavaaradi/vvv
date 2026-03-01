@@ -31,7 +31,13 @@ const DonateModal = ({ isOpen, onClose }) => {
     if (!isOpen) return null;
 
     const handleChange = (e) => {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        if (name === 'amount') {
+            const sanitizedValue = value.replace(/[^0-9]/g, '');
+            setFormData(prev => ({ ...prev, amount: sanitizedValue }));
+        } else {
+            setFormData(prev => ({ ...prev, [name]: value }));
+        }
     };
 
     const handleTierSelect = (amt) => {
@@ -253,7 +259,21 @@ const DonateModal = ({ isOpen, onClose }) => {
                                 <label style={{ fontSize: '0.75rem', fontWeight: '800', color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', display: 'block', marginBottom: '0.5rem' }}>Donation Amount (₹)</label>
                                 <div style={{ position: 'relative' }}>
                                     <span style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', fontWeight: '900', color: '#1e293b', fontSize: '1.25rem' }}>₹</span>
-                                    <input name="amount" type="number" placeholder="500" required value={formData.amount} onChange={handleChange} style={{ width: '100%', padding: '1rem 1rem 1rem 2.5rem', border: '1px solid #e2e8f0', borderRadius: '16px', fontSize: '1.5rem', fontWeight: '900', color: '#1e293b', outline: 'none', transition: 'all 0.2s' }} onFocus={(e) => { e.target.style.borderColor = '#059669'; e.target.style.boxShadow = '0 0 0 4px rgba(5, 150, 105, 0.1)'; }} onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }} />
+                                    <input
+                                        name="amount"
+                                        type="number"
+                                        min="1"
+                                        placeholder="500"
+                                        required
+                                        value={formData.amount}
+                                        onChange={handleChange}
+                                        onKeyDown={(e) => {
+                                            if (['-', '+', 'e', 'E'].includes(e.key)) e.preventDefault();
+                                        }}
+                                        style={{ width: '100%', padding: '1rem 1rem 1rem 2.5rem', border: '1px solid #e2e8f0', borderRadius: '16px', fontSize: '1.5rem', fontWeight: '900', color: '#1e293b', outline: 'none', transition: 'all 0.2s' }}
+                                        onFocus={(e) => { e.target.style.borderColor = '#059669'; e.target.style.boxShadow = '0 0 0 4px rgba(5, 150, 105, 0.1)'; }}
+                                        onBlur={(e) => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; }}
+                                    />
                                 </div>
                             </div>
                         )}
