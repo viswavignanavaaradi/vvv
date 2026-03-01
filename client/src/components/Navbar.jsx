@@ -97,7 +97,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
         }}>
             <div
                 onClick={() => navigate('/')}
-                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px sm:15px' }}
+                style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '20px' }}
                 className="logo-container"
             >
                 <img src={logo} alt="Viswa Vignana Logo" className="logo-img" style={{

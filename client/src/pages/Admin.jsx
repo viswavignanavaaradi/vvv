@@ -222,14 +222,26 @@ const Admin = () => {
 
             <div className="flex-1 flex flex-col overflow-hidden">
                 <header className="h-20 bg-white border-b border-slate-200 flex items-center justify-between px-10 relative z-10 shadow-sm">
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-6 flex-1">
                         <button onClick={() => navigate(-1)} className="w-10 h-10 flex items-center justify-center rounded-xl bg-slate-50 text-slate-400 hover:text-[#1e3a8a] hover:bg-slate-100 transition-all border border-slate-100">
                             <span className="text-lg">←</span>
                         </button>
-                        <h1 className="text-xl font-merriweather font-black text-slate-800">{menuItems.find(m => m.id === activeTab)?.label}</h1>
+                        <h1 className="hidden lg:block text-xl font-merriweather font-black text-slate-800 whitespace-nowrap">{menuItems.find(m => m.id === activeTab)?.label}</h1>
+
+                        {/* Global Search Bar */}
+                        <div className="max-w-md w-full relative">
+                            <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+                            <input
+                                type="text"
+                                placeholder={`Search ${menuItems.find(m => m.id === activeTab)?.label.toLowerCase()}...`}
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full pl-11 pr-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:bg-white focus:border-emerald-500 outline-none transition-all text-sm font-medium"
+                            />
+                        </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                        <div className="text-right">
+                    <div className="flex items-center gap-6 ml-6">
+                        <div className="hidden sm:block text-right">
                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Authenticated</p>
                             <p className="text-sm font-bold text-slate-700">Root Admin</p>
                         </div>
@@ -269,11 +281,22 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
-                                                    {legalRequests.map((req, idx) => (
+                                                    {legalRequests.filter(req =>
+                                                        req.requestId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        req.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        req.email.toLowerCase().includes(searchTerm.toLowerCase())
+                                                    ).map((req, idx) => (
                                                         <tr key={req._id}>
                                                             <td className="px-10 py-8">{(idx + 1).toString().padStart(2, '0')}</td>
-                                                            <td className="px-10 py-8 font-black text-[#1e3a8a]">{req.requestId}</td>
-                                                            <td className="px-10 py-8"><span className="px-3 py-1 bg-blue-50 text-blue-600 rounded-full font-black text-[9px] uppercase">{req.status}</span></td>
+                                                            <td className="px-10 py-8">
+                                                                <div className="font-black text-[#1e3a8a]">{req.requestId}</div>
+                                                                <div className="text-[10px] text-slate-400 font-bold">{req.fullName}</div>
+                                                            </td>
+                                                            <td className="px-10 py-8">
+                                                                <span className={`px-3 py-1 rounded-full font-black text-[9px] uppercase ${req.status === 'Done' ? 'bg-emerald-50 text-emerald-600' :
+                                                                    req.status === 'Rejected' ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'
+                                                                    }`}>{req.status}</span>
+                                                            </td>
                                                             <td className="px-10 py-8 text-right">
                                                                 <button onClick={() => { setSelectedRequest(req); setAdminMsg(req.adminMessage || ''); setStatusUpdate(req.status); }} className="bg-slate-900 text-white px-6 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest">Review</button>
                                                             </td>
@@ -334,9 +357,16 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
-                                                    {donations.map((d, idx) => (
+                                                    {donations.filter(d =>
+                                                        (d.donor_name || 'Anonymous').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        d.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (d.payment_id || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    ).map((d, idx) => (
                                                         <tr key={idx}>
-                                                            <td className="px-10 py-8 font-black text-slate-800">{d.donor_name || 'Anonymous'}</td>
+                                                            <td className="px-10 py-8">
+                                                                <div className="font-black text-slate-800">{d.donor_name || 'Anonymous'}</div>
+                                                                <div className="text-[10px] text-slate-400 font-bold">{d.email}</div>
+                                                            </td>
                                                             <td className="px-10 py-8 font-black text-emerald-600">₹{d.amount.toLocaleString()}</td>
                                                             <td className="px-10 py-8 font-bold text-slate-400">{formatDate(d.date)}</td>
                                                             <td className="px-10 py-8 text-right">
@@ -389,11 +419,18 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {volunteers.map((v, idx) => (
+                                                    {volunteers.filter(v =>
+                                                        v.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        v.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (v.district || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    ).map((v, idx) => (
                                                         <tr key={idx} className="border-b last:border-0">
                                                             <td className="px-10 py-8 font-black">{v.fullName}</td>
                                                             <td className="px-10 py-8 font-bold text-slate-400">{formatDate(v.createdAt)}</td>
-                                                            <td className="px-10 py-8 font-bold text-slate-500">{v.email}</td>
+                                                            <td className="px-10 py-8">
+                                                                <div className="font-bold text-slate-500">{v.email}</div>
+                                                                <div className="text-[10px] text-emerald-600 font-bold">{v.phone}</div>
+                                                            </td>
                                                             <td className="px-10 py-8 text-right">
                                                                 <button onClick={() => setSelectedVolunteer(v)} className="text-emerald-600 font-black uppercase text-[10px] tracking-widest underline">View Profile</button>
                                                             </td>
@@ -454,7 +491,11 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {interns.map((i, idx) => (
+                                                    {interns.filter(i =>
+                                                        i.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        i.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (i.college || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    ).map((i, idx) => (
                                                         <tr key={idx} className="border-b last:border-0 hover:bg-slate-50 transition-all">
                                                             <td className="px-10 py-8 font-black">{i.fullName}</td>
                                                             <td className="px-10 py-8 font-bold text-slate-400">{formatDate(i.date)}</td>
@@ -521,10 +562,17 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
-                                                    {patrons.map((p, idx) => (
+                                                    {patrons.filter(p =>
+                                                        p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (p.subscription_id || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    ).map((p, idx) => (
                                                         <tr key={idx} className="hover:bg-slate-50/50 transition-all">
                                                             <td className="px-10 py-8 font-black text-slate-800">{p.fullName}</td>
-                                                            <td className="px-10 py-8 font-black text-yellow-600">₹{p.amount.toLocaleString()}</td>
+                                                            <td className="px-10 py-8">
+                                                                <div className="font-black text-yellow-600">₹{p.amount.toLocaleString()}</div>
+                                                                <div className="text-[9px] text-slate-400 font-bold">{p.email}</div>
+                                                            </td>
                                                             <td className="px-10 py-8 font-bold text-slate-400">{formatDate(p.date)}</td>
                                                             <td className="px-10 py-8 text-right">
                                                                 <button onClick={() => setSelectedPatron(p)} className="text-slate-900 border border-slate-200 px-5 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">View Details</button>

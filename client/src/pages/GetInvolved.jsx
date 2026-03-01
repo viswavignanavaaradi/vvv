@@ -36,16 +36,16 @@ const GetInvolved = () => {
             icon: "🎓"
         },
         patron: {
-            title: "Legacy of Leadership",
-            subtitle: "Advisory Council Patronage",
-            description: "Foundational Patrons are the pillars of VVV. By joining our Advisory Council, you provide the sustained leadership and financial stability needed for long-term social disruption and rural transformation.",
+            title: "Legacy of Support",
+            subtitle: "Monthly Patronage",
+            description: "Foundational Patrons are the pillars of VVV. Your monthly contribution provides the sustained financial stability needed for our long-term missions and rural transformation projects.",
             features: [
-                "Advisory Council voting rights",
+                "Sustainable monthly support",
                 "Impact reporting & strategy",
-                "Sustainable monthly support"
+                "Council recognition"
             ],
-            cta: "Become a Patron",
-            path: "/patron-enrollment",
+            cta: "Be a Patron",
+            path: "/donate",
             color: "bg-emerald-600",
             icon: "🏛️"
         }
