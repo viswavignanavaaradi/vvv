@@ -100,7 +100,7 @@ function generateCertificate(data, verificationUrl) {
             // Organisation name — bigger font
             doc.fillColor(primaryTeal)
                 .font('Times-Bold')
-                .fontSize(38)
+                .fontSize(42)
                 .text('VISWA VIGNANA VAARADHI', textLeft, headerTop + 2, {
                     width: textWidth,
                     align: 'left',
@@ -111,7 +111,7 @@ function generateCertificate(data, verificationUrl) {
             // Tagline — centred across full page, slightly larger
             doc.fillColor(textDark)
                 .font('Times-Roman')
-                .fontSize(17)
+                .fontSize(22)
                 .text('foundation  for  a  better  tomorrow', 0, headerTop + 52, {
                     width: W,
                     align: 'center',
@@ -197,9 +197,9 @@ function generateCertificate(data, verificationUrl) {
                 });
 
             // ─── 10. SEAL (centred) ───────────────────────────────────────
-            const sealSize = 140;
+            const sealSize = 185;
             const sealX = (W - sealSize) / 2;
-            const sealY = 415;
+            const sealY = 390;
 
             try {
                 if (fs.existsSync(sealPath)) {
@@ -252,7 +252,7 @@ function generateCertificate(data, verificationUrl) {
 
             // ─── 12. QR CODE VERIFICATION (bottom left) ──────────────────
             if (verificationUrl) {
-                const qrSize = 80;
+                const qrSize = 115;
                 const qrX = 62;
                 const qrY = H - 62 - qrSize;
 
