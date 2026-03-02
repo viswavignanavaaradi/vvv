@@ -127,12 +127,12 @@ const PatronEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.5.2
+                    Portal Active: v4.5.4
                 </div>
             </div>
 
             {/* Left Column: Info */}
-            <div className="md:w-1/3 bg-[#0f172a] p-8 md:p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-4 border-emerald-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.2)]">
+            <div className="hidden md:flex md:w-1/3 bg-[#0f172a] p-8 md:p-12 text-white flex-col justify-between relative md:sticky md:top-0 h-auto md:h-screen overflow-y-auto border-r-4 border-emerald-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.2)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
                     <div className="mb-6 inline-block px-4 py-1 bg-emerald-50 text-emerald-900 text-[10px] font-black uppercase tracking-widest rounded-lg">Foundation Patron</div>
                     <h2 className="text-3xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic text-emerald-50">Fueling the mission through legacy.</h2>
@@ -168,7 +168,7 @@ const PatronEnrollment = () => {
             </div>
 
             {/* Right Column: Auth/Form */}
-            <div className="flex-1 p-6 md:p-16 pt-32 bg-white flex items-center justify-center">
+            <div className="flex-1 p-6 md:p-16 pt-12 md:pt-32 bg-white flex items-center justify-center">
                 <div className="max-w-xl w-full">
                     {!user ? (
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center bg-slate-50 p-12 rounded-[50px] border border-slate-100 shadow-2xl">

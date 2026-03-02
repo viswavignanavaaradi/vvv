@@ -201,12 +201,12 @@ const VolunteerEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-blue-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.5.3
+                    Portal Active: v4.5.4
                 </div>
             </div>
 
             {/* Left Column: Info */}
-            <div className="md:w-1/3 bg-[#1e3a8a] p-8 md:p-12 text-white flex flex-col justify-between relative md:sticky md:top-0 h-auto md:h-screen overflow-y-auto border-r-0 md:border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
+            <div className="hidden md:flex md:w-1/3 bg-[#1e3a8a] p-8 md:p-12 text-white flex-col justify-between relative md:sticky md:top-0 h-auto md:h-screen overflow-y-auto border-r-0 md:border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
                     <div className="mb-4 md:mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Mission 2047</div>
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic">Be the bridge to transformation.</h2>

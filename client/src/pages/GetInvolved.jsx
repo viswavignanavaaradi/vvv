@@ -57,7 +57,7 @@ const GetInvolved = () => {
             {/* Version Sentinel - Updated for Fix */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    System Live: v4.5.3
+                    System Live: v4.5.4
                 </div>
             </div>
 
@@ -98,7 +98,7 @@ const GetInvolved = () => {
                             className="bg-white rounded-[24px] md:rounded-[60px] shadow-[0_40px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 overflow-visible md:overflow-hidden flex flex-col md:flex-row min-h-[350px] md:min-h-[500px]"
                         >
                             {/* Left Side: Dynamic Image/Graphic */}
-                            <div className={`md:w-1/2 p-8 md:p-12 flex items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
+                            <div className={`hidden md:flex md:w-1/2 p-8 md:p-12 items-center justify-center relative overflow-hidden ${options[activeTab].color}`}>
                                 <div className="absolute inset-0 opacity-10 flex flex-wrap items-center justify-center text-5xl md:text-9xl">
                                     {[...Array(6)].map((_, i) => <span key={i} className="p-4">{options[activeTab].icon}</span>)}
                                 </div>
