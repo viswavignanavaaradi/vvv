@@ -116,7 +116,11 @@ const aboutContent = {
                 bio: "Mr. Vinod Vantaku, a law graduate and engineering professional, is an alumnus of Andhra University and holds a Diploma in Mechanical Engineering from Government Polytechnic College, along with a B.Tech in Mechanical Engineering from NSRIT Engineering College. He is a practicing advocate enrolled with the Delhi Bar Council, with professional practice spanning both Visakhapatnam and New Delhi.\n\nWith a multidisciplinary academic foundation and professional exposure across technical and legal domains, Mr. Vantaku specialises in strategic planning, social development, and institution building. His integrated understanding of governance, systems thinking, and institutional frameworks enables him to contribute effectively to sustainable development initiatives and organisational growth.\n\nOver the years, he has actively engaged in initiatives focused on structured planning, community-oriented development, and long-term institutional strengthening, combining professional expertise with a commitment to social impact."
             },
             { name: "Paruchuri Sujith", role: "Vice-President" },
-            { name: "M. Paradhasaardhi", role: "General Secretary" },
+            {
+                name: "M. Paradha Saradhi",
+                role: "General Secretary",
+                bio: "Malyala Pardha Saradhi, the General Secretary of VVV, is a proud Army Brat and a member of the legal fraternity from Dr. B.R. Ambedkar School of Law, Andhra University. He holds a Diploma in Cyber Security and is a National Sport Athletic in Volleyball. Currently, he practices law at JPR Law Chambers, Vizag. His leadership roles include serving as the Student Convener of the Free Legal Center at Andhra University and as a Para Legal Member of the District Legal Services Authority, Visakhapatnam, Andhra Pradesh.\n\nHis journey reflects a blend of discipline, service, and professional growth. Being an Army Brat instills values of integrity, resilience, and a strong sense of duty, which naturally shape his approach to law and public service. Academic training at Dr. B.R. Ambedkar School of Law provides a solid foundation in legal reasoning, constitutional values, and social justice. Experience in team management and student community leadership reflects his ability to coordinate diverse individuals toward a common purpose, balancing discipline with empathy. Managing teams involves planning, delegation, and conflict resolution, ensuring that every member contributes effectively while learning collaboratively."
+            },
             { name: "Dr. N. Rama Chandra Naidu", role: "Treasurer" },
             { name: "M. Devi Sree Vatsha", role: "Addl. General Secretary" },
             { name: "Uppara Suresh", role: "Executive Member" },
@@ -487,51 +491,59 @@ const About = () => {
             }
 
             if (activeTab === 'people_behind_vvv') {
-                const president = data.members[0];
-                const officers = data.members.slice(1, 4);
-                const body = data.members.slice(4);
+                const featuredMembers = data.members.filter(m => m.bio);
+                const otherMembers = data.members.filter(m => !m.bio);
+                // First few non-featured members are "Officers"
+                const officers = otherMembers.slice(0, 3);
+                // Rest are "Executive Body"
+                const body = otherMembers.slice(3);
 
                 return (
                     <div className="space-y-32">
-                        {/* Tier I: The President (Board Chair) */}
-                        <motion.div
-                            initial={{ opacity: 0, y: 40 }}
-                            whileInView={{ opacity: 1, y: 0 }}
-                            viewport={{ once: true }}
-                            className="relative group"
-                        >
-                            <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/5 to-royal-blue-500/5 rounded-[2rem] md:rounded-[4rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
-                            <div className="relative bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[3rem] p-6 sm:p-10 md:p-20 shadow-2xl shadow-slate-200/50 overflow-hidden">
-                                <div className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-slate-50 rounded-full -mr-32 -mt-32 md:-mr-48 md:-mt-48 mix-blend-multiply opacity-50" />
-                                <div className="grid lg:grid-cols-12 gap-8 md:gap-16 items-center">
-                                    <div className="lg:col-span-5">
-                                        <div className="flex items-center gap-4 mb-4 md:mb-8">
-                                            <div className="w-12 h-1 bg-emerald-500 rounded-full" />
-                                            <span className="text-[10px] md:text-xs font-black text-emerald-600 uppercase tracking-[0.4em]">Presidential Profile</span>
-                                        </div>
-                                        <h3 className="text-3xl sm:text-4xl md:text-7xl font-black text-slate-900 font-merriweather mb-4 md:mb-8 leading-[1.1] tracking-tighter italic">
-                                            {president.name}
-                                        </h3>
-                                        <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 border-l-4 border-slate-100 pl-6">{president.role}</p>
-                                        <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-3xl shadow-2xl shadow-slate-900/20">
-                                            ⚖️
+                        {/* Tier I: Featured Leadership (Those with Bios) */}
+                        <div className="space-y-32">
+                            {featuredMembers.map((member, idx) => (
+                                <motion.div
+                                    key={idx}
+                                    initial={{ opacity: 0, y: 40 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    className="relative group"
+                                >
+                                    <div className="absolute -inset-4 bg-gradient-to-r from-emerald-500/5 to-royal-blue-500/5 rounded-[2rem] md:rounded-[4rem] blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                                    <div className="relative bg-white border border-slate-100 rounded-[1.5rem] md:rounded-[3rem] p-6 sm:p-10 md:p-20 shadow-2xl shadow-slate-200/50 overflow-hidden">
+                                        <div className="absolute top-0 right-0 w-64 h-64 md:w-96 md:h-96 bg-slate-50 rounded-full -mr-32 -mt-32 md:-mr-48 md:-mt-48 mix-blend-multiply opacity-50" />
+                                        <div className="grid lg:grid-cols-12 gap-8 md:gap-16 items-center">
+                                            <div className="lg:col-span-5">
+                                                <div className="flex items-center gap-4 mb-4 md:mb-8">
+                                                    <div className="w-12 h-1 bg-emerald-500 rounded-full" />
+                                                    <span className="text-[10px] md:text-xs font-black text-emerald-600 uppercase tracking-[0.4em]">Leadership Profile</span>
+                                                </div>
+                                                <h3 className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 font-merriweather mb-4 md:mb-8 leading-[1.1] tracking-tighter italic">
+                                                    {member.name}
+                                                </h3>
+                                                <p className="text-sm font-black text-slate-400 uppercase tracking-widest mb-10 border-l-4 border-slate-100 pl-6">{member.role}</p>
+                                                <div className="w-20 h-20 bg-slate-900 rounded-3xl flex items-center justify-center text-white text-3xl shadow-2xl shadow-slate-900/20">
+                                                    {member.role.includes('President') ? '🛡️' : '📜'}
+                                                </div>
+                                            </div>
+                                            <div className="lg:col-span-7">
+                                                <div className="space-y-6 md:space-y-8 relative">
+                                                    <div className="absolute -left-6 md:-left-10 top-0 text-6xl md:text-8xl font-black text-slate-50 font-merriweather select-none opacity-50 italic">"</div>
+                                                    {member.bio.split('\n\n').map((para, i) => (
+                                                        <p key={i} className={`text-slate-600 leading-relaxed font-merriweather text-base md:text-xl opacity-90 ${i === 0 ? 'text-slate-900 font-bold' : ''}`}>
+                                                            {para}
+                                                        </p>
+                                                    ))}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="lg:col-span-7">
-                                        <div className="space-y-6 md:space-y-8 relative">
-                                            <div className="absolute -left-6 md:-left-10 top-0 text-6xl md:text-8xl font-black text-slate-50 font-merriweather select-none opacity-50 italic">"</div>
-                                            {president.bio.split('\n\n').map((para, i) => (
-                                                <p key={i} className={`text-slate-600 leading-relaxed font-merriweather text-base md:text-xl opacity-90 ${i === 0 ? 'text-slate-900 font-bold' : ''}`}>
-                                                    {para}
-                                                </p>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </motion.div>
+                                </motion.div>
+                            ))}
+                        </div>
 
-                        {/* Tier II: Core Officers (The Secretariat) */}
+                        {/* Tier II: Core Secretariat */}
                         <div className="grid md:grid-cols-3 gap-8">
                             {officers.map((person, i) => (
                                 <motion.div
@@ -543,7 +555,7 @@ const About = () => {
                                     className="group relative p-8 md:p-12 rounded-[2rem] md:rounded-[2.5rem] bg-white border border-slate-100 hover:border-emerald-200 hover:shadow-2xl hover:shadow-emerald-100/50 transition-all duration-500 text-center"
                                 >
                                     <div className="w-20 h-20 bg-slate-50 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-8 group-hover:bg-emerald-500 group-hover:text-white transition-all transform group-hover:rotate-6 shadow-sm">
-                                        {i === 0 ? '🏛️' : i === 1 ? '📜' : '🏦'}
+                                        {person.role.includes('Vice') ? '🏛️' : person.role.includes('Addl') ? '🤝' : '🏦'}
                                     </div>
                                     <h4 className="text-2xl font-black text-slate-900 font-merriweather mb-3 tracking-tight">{person.name}</h4>
                                     <p className="text-[10px] font-black text-emerald-600 uppercase tracking-[0.2em]">{person.role}</p>
@@ -551,7 +563,7 @@ const About = () => {
                             ))}
                         </div>
 
-                        {/* Tier III: Executive Body (The Council) */}
+                        {/* Tier III: Executive Council */}
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                             {body.map((person, i) => (
                                 <motion.div
