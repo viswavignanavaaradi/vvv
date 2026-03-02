@@ -16,7 +16,7 @@ const GetInvolved = () => {
                 "Impact reporting & strategy",
                 "Council recognition"
             ],
-            cta: "⭐ Be a Patron (Autopay) ⭐",
+            cta: "⭐ Be a Patron ⭐",
             path: "/donate",
             color: "bg-emerald-600",
             icon: "🏛️"
@@ -54,12 +54,6 @@ const GetInvolved = () => {
     return (
         <div className="bg-[#FDFCF6] min-h-screen">
 
-            {/* Version Sentinel - Updated for Fix */}
-            <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
-                <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    System Live: v4.5.7
-                </div>
-            </div>
 
             {/* Hero */}
             <section className="pt-28 md:pt-40 pb-16 md:pb-20 px-4 md:px-6">
@@ -104,9 +98,6 @@ const GetInvolved = () => {
                                 </div>
                                 <div className="relative z-10 text-center">
                                     <span className="text-5xl md:text-8xl mb-3 md:mb-6 block drop-shadow-2xl">{options[activeTab].icon}</span>
-                                    <div className="bg-white/10 backdrop-blur-md px-4 py-1.5 md:px-6 md:py-2 rounded-full border border-white/20 text-[8px] md:text-[10px] font-black tracking-[0.2em] md:tracking-[0.3em] text-white shadow-2xl animate-pulse">
-                                        PORTAL ACTIVE: V4.5.2
-                                    </div>
                                 </div>
                             </div>
 
