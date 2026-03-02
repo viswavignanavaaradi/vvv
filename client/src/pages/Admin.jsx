@@ -3,27 +3,51 @@ import axios, { API_BASE_URL } from '../api/axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 
-const StatCard = ({ label, value, icon, trend, colorClass }) => (
+const StatCard = ({ label, value, icon, trend, colorClass, gradient }) => (
     <motion.div
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 flex flex-col justify-between h-full hover:shadow-md transition-shadow"
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        whileHover={{ y: -5, shadow: '0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)' }}
+        className={`relative overflow-hidden p-8 rounded-[32px] border border-white/20 bg-white shadow-sm transition-all group`}
     >
-        <div className="flex justify-between items-start mb-4">
-            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center text-xl shadow-inner ${colorClass}`}>
-                {icon}
+        <div className={`absolute inset-0 opacity-[0.03] bg-gradient-to-br ${gradient}`} />
+        <div className="relative z-10">
+            <div className="flex justify-between items-start mb-6">
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg shadow-black/5 ${colorClass}`}>
+                    {icon}
+                </div>
+                {trend && (
+                    <div className="flex flex-col items-end">
+                        <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2.5 py-1 rounded-lg uppercase tracking-wider mb-1">
+                            {trend}
+                        </span>
+                        <div className="w-12 h-1 bg-emerald-100 rounded-full overflow-hidden">
+                            <motion.div initial={{ width: 0 }} animate={{ width: '70%' }} className="h-full bg-emerald-500" />
+                        </div>
+                    </div>
+                )}
             </div>
-            {trend && (
-                <span className="text-[10px] font-black text-emerald-500 bg-emerald-50 px-2 py-1 rounded-lg uppercase tracking-wider">
-                    {trend}
-                </span>
-            )}
-        </div>
-        <div>
-            <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-            <h4 className="text-3xl font-merriweather font-black text-slate-900">{value}</h4>
+            <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{label}</p>
+            <div className="flex items-baseline gap-2">
+                <h4 className="text-4xl font-merriweather font-black text-slate-900 tracking-tight">{value}</h4>
+                <span className="text-[10px] font-bold text-slate-300">Live</span>
+            </div>
         </div>
     </motion.div>
+);
+
+const ActivityItem = ({ icon, title, subtitle, time, color }) => (
+    <div className="flex items-center gap-4 p-4 rounded-2xl hover:bg-slate-50 transition-colors group">
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg ${color} shadow-sm group-hover:scale-110 transition-transform`}>
+            {icon}
+        </div>
+        <div className="flex-1">
+            <h5 className="text-sm font-bold text-slate-800">{title}</h5>
+            <p className="text-[10px] text-slate-400 font-medium">{subtitle}</p>
+        </div>
+        <span className="text-[9px] font-black text-slate-300 uppercase tracking-widest">{time}</span>
+    </div>
 );
 
 const Admin = () => {
@@ -252,13 +276,93 @@ const Admin = () => {
                 <main className="flex-1 overflow-y-auto p-10 bg-[#F8FAFC]">
                     <AnimatePresence mode="wait">
                         {activeTab === 'dashboard' && (
-                            <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-10">
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                                    <StatCard label="Total Capital" value={`₹${donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}`} icon="💰" colorClass="bg-emerald-50 text-emerald-600" />
-                                    <StatCard label="Volunteers" value={volunteers.length.toLocaleString()} icon="👥" colorClass="bg-blue-50 text-blue-600" />
-                                    <StatCard label="Legal Cases" value={legalRequests.filter(r => r.status !== 'Done').length} icon="⚖️" colorClass="bg-orange-50 text-orange-600" />
-                                    <StatCard label="Interns" value={interns.length.toLocaleString()} icon="🎓" colorClass="bg-indigo-50 text-indigo-600" />
-                                    <StatCard label="Active Patrons" value={patrons.length.toLocaleString()} icon="🌟" colorClass="bg-yellow-50 text-yellow-600" />
+                            <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
+                                {/* Hero Metrics */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
+                                    <StatCard label="Total Capital" value={`₹${donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}`} icon="💰" trend="+12%" colorClass="bg-emerald-50 text-emerald-600" gradient="from-emerald-500 to-teal-500" />
+                                    <StatCard label="Volunteers" value={volunteers.length.toLocaleString()} icon="👥" trend="Active" colorClass="bg-blue-50 text-blue-600" gradient="from-blue-500 to-indigo-500" />
+                                    <StatCard label="Legal Cases" value={legalRequests.filter(r => r.status !== 'Done').length} icon="⚖️" trend="Critical" colorClass="bg-orange-50 text-orange-600" gradient="from-orange-500 to-rose-500" />
+                                    <StatCard label="Interns" value={interns.length.toLocaleString()} icon="🎓" trend="Pending" colorClass="bg-indigo-50 text-indigo-600" gradient="from-indigo-500 to-purple-500" />
+                                    <StatCard label="Active Patrons" value={patrons.length.toLocaleString()} icon="🌟" trend="Premium" colorClass="bg-yellow-50 text-yellow-600" gradient="from-yellow-400 to-amber-600" />
+                                </div>
+
+                                <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
+                                    {/* Recent Activity Feed */}
+                                    <div className="xl:col-span-2 bg-white rounded-[40px] p-10 shadow-sm border border-slate-200">
+                                        <div className="flex justify-between items-center mb-10">
+                                            <div>
+                                                <h3 className="text-xl font-merriweather font-black text-slate-800">Organizational Pulse</h3>
+                                                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Live Unified Feed</p>
+                                            </div>
+                                            <button className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-xl">Archives →</button>
+                                        </div>
+                                        <div className="space-y-2">
+                                            {/* Combined Recent Activities */}
+                                            {[
+                                                ...donations.slice(0, 3).map(d => ({ type: 'donation', data: d })),
+                                                ...volunteers.slice(0, 3).map(v => ({ type: 'volunteer', data: v })),
+                                                ...legalRequests.slice(0, 3).map(r => ({ type: 'legal', data: r }))
+                                            ].sort((a, b) => new Date(b.data.date || b.data.createdAt) - new Date(a.data.date || a.data.createdAt))
+                                                .slice(0, 6)
+                                                .map((item, idx) => (
+                                                    <ActivityItem
+                                                        key={idx}
+                                                        icon={item.type === 'donation' ? '💰' : item.type === 'volunteer' ? '👥' : '⚖️'}
+                                                        color={item.type === 'donation' ? 'bg-emerald-50 text-emerald-600' : item.type === 'volunteer' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}
+                                                        title={item.type === 'donation' ? `Donation from ${item.data.donor_name || 'Anonymous'}` : item.type === 'volunteer' ? `New Volunteer: ${item.data.fullName}` : `Legal Aid: ${item.data.requestId}`}
+                                                        subtitle={item.type === 'donation' ? `Amount: ₹${item.data.amount.toLocaleString()}` : item.type === 'volunteer' ? `From ${item.data.district}` : `Status: ${item.data.status}`}
+                                                        time={formatDate(item.data.date || item.data.createdAt)}
+                                                    />
+                                                ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Performance Distribution */}
+                                    <div className="space-y-8">
+                                        <div className="bg-[#0F172A] rounded-[40px] p-10 text-white shadow-2xl relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-bl-full" />
+                                            <h3 className="text-lg font-merriweather font-black mb-6">Sector Efficiency</h3>
+                                            <div className="space-y-6">
+                                                <div>
+                                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                                        <span>Legal Clearance</span>
+                                                        <span className="text-emerald-400">{(legalRequests.filter(r => r.status === 'Done').length / (legalRequests.length || 1) * 100).toFixed(0)}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                        <motion.div initial={{ width: 0 }} animate={{ width: `${(legalRequests.filter(r => r.status === 'Done').length / (legalRequests.length || 1) * 100)}%` }} className="h-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                                                    </div>
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between text-[10px] font-black uppercase tracking-widest mb-2">
+                                                        <span>Intern Validation</span>
+                                                        <span className="text-blue-400">{(interns.filter(i => i.status === 'Accepted').length / (interns.length || 1) * 100).toFixed(0)}%</span>
+                                                    </div>
+                                                    <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
+                                                        <motion.div initial={{ width: 0 }} animate={{ width: `${(interns.filter(i => i.status === 'Accepted').length / (interns.length || 1) * 100)}%` }} className="h-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <div className="mt-10 p-4 bg-white/5 border border-white/10 rounded-2xl">
+                                                <p className="text-[10px] font-medium text-slate-400 leading-relaxed italic">
+                                                    "Our metrics reflect institutional growth and social impact stability."
+                                                </p>
+                                            </div>
+                                        </div>
+
+                                        <div className="bg-white rounded-[40px] p-10 border border-slate-200">
+                                            <h4 className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-6 leading-none">Resource Nexus</h4>
+                                            <div className="grid grid-cols-2 gap-4">
+                                                <div className="p-4 bg-slate-50 rounded-2xl">
+                                                    <p className="text-2xl font-black text-slate-800">{patrons.length}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Patrons</p>
+                                                </div>
+                                                <div className="p-4 bg-indigo-50/50 rounded-2xl">
+                                                    <p className="text-2xl font-black text-indigo-600">{interns.length}</p>
+                                                    <p className="text-[9px] font-black text-slate-400 uppercase">Scholars</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </motion.div>
                         )}
