@@ -178,12 +178,12 @@ const InternshipEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-indigo-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.1.8
+                    Portal Active: v4.5.3
                 </div>
             </div>
 
             {/* Left Column: Info */}
-            <div className="md:w-1/3 bg-[#4f46e5] p-8 md:p-12 text-white flex flex-col justify-between sticky top-0 md:h-screen overflow-y-auto border-r-0 md:border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
+            <div className="md:w-1/3 bg-[#4f46e5] p-8 md:p-12 text-white flex flex-col justify-between relative md:sticky md:top-0 h-auto md:h-screen overflow-y-auto border-r-0 md:border-r-4 border-white/10 shadow-[20px_0_50px_rgba(0,0,0,0.1)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
                     <div className="mb-4 md:mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Future Leaders</div>
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic">Shape the future through research.</h2>
@@ -219,7 +219,7 @@ const InternshipEnrollment = () => {
             </div>
 
             {/* Right Column: Auth/Form */}
-            <div className="flex-1 p-4 sm:p-8 md:p-16 pt-24 md:pt-32 bg-white flex items-center justify-center">
+            <div className="flex-1 p-4 sm:p-8 md:p-16 pt-12 md:pt-32 bg-white flex items-center justify-center">
                 <div className="max-w-2xl w-full">
                     {!user ? (
                         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="text-center bg-slate-50 p-8 sm:p-12 rounded-[32px] md:rounded-[50px] border border-slate-100 shadow-2xl">
