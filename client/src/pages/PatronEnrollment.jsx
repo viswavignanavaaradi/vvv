@@ -127,7 +127,7 @@ const PatronEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.5.6
+                    Portal Active: v4.5.7
                 </div>
             </div>
 
@@ -189,7 +189,7 @@ const PatronEnrollment = () => {
                                 <h3 className="text-4xl font-merriweather font-black text-slate-900 leading-tight">
                                     {step === 1 && "⭐ Identity & Contact ⭐"}
                                     {step === 2 && "⭐ Leadership Context ⭐"}
-                                    {step === 3 && "⭐ Impact Commitment ⭐"}
+                                    {step === 3 && "⭐ Secure Autopay Commitment ⭐"}
                                 </h3>
                             </div>
 
@@ -250,19 +250,19 @@ const PatronEnrollment = () => {
                                             {[500, 1000, 2500, 5000].map(amt => (
                                                 <button key={amt} onClick={() => handleAmountChange(amt)} className={`py-6 rounded-2xl border-2 transition-all flex flex-col items-center justify-center gap-1 ${formData.amount === amt ? 'bg-emerald-50 border-emerald-500' : 'bg-slate-50 border-slate-50'}`}>
                                                     <span className={`text-sm font-black ${formData.amount === amt ? 'text-emerald-500' : 'text-slate-400'}`}>₹{amt}</span>
-                                                    <span className="text-[8px] font-bold uppercase tracking-tighter opacity-50">Monthly</span>
+                                                    <span className="text-[8px] font-bold uppercase tracking-tighter opacity-50">🔄 Autopay</span>
                                                 </button>
                                             ))}
                                         </div>
 
                                         <div className="p-10 bg-[#0f172a] rounded-[40px] text-white shadow-2xl relative overflow-hidden">
-                                            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">👑</div>
-                                            <p className="text-[10px] font-black uppercase text-emerald-400 mb-2 tracking-[0.2em]">Council Pledge</p>
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">🔄</div>
+                                            <p className="text-[10px] font-black uppercase text-emerald-400 mb-2 tracking-[0.2em]">Council Pledge (Secure Autopay)</p>
                                             <p className="text-sm font-medium leading-relaxed mb-8 opacity-90">
-                                                By contributing ₹{formData.amount}/mo, you ensure that our core systems remain resilient and our reach continues to expand into underserved regions.
+                                                By enabling ₹{formData.amount}/mo autopay, you ensure our core systems remain resilient. You can pause or cancel anytime.
                                             </p>
                                             <button onClick={handleSubscription} disabled={loading} className="w-full py-5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl font-black uppercase tracking-widest text-xs transition-all shadow-xl shadow-emerald-900/20 disabled:opacity-50 active:scale-95">
-                                                {loading ? 'Activating Protocol...' : 'Finalize Patronage'}
+                                                {loading ? 'Activating Protocol...' : 'Finalize Autopay Protocol'}
                                             </button>
                                         </div>
 

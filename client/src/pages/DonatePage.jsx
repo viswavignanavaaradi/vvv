@@ -170,7 +170,7 @@ const DonatePage = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20">
-                    Secure Portal: v4.5.6
+                    Secure Portal: v4.5.7
                 </div>
             </div>
 
@@ -251,7 +251,8 @@ const DonatePage = () => {
                         ) : (
                             <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
                                 <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em]">⭐ Foundation Patron Protocol ⭐</span>
-                                <h4 className="text-lg font-black text-slate-900 mt-1">Monthly Patronage Only</h4>
+                                <h4 className="text-lg font-black text-slate-900 mt-1">🔄 Secure Autopay Only</h4>
+                                <p className="text-[8px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Automatic recurring contributions</p>
                             </div>
                         )}
                     </div>
@@ -280,10 +281,13 @@ const DonatePage = () => {
                                             className={`py-4 rounded-2xl font-black transition-all border-2 ${formData.amount === amt ? 'bg-white border-emerald-600 text-emerald-600 shadow-lg' : 'bg-white border-transparent text-slate-600 shadow-sm hover:border-slate-200'}`}
                                         >
                                             <div className="text-lg">₹{amt}</div>
-                                            <div className="text-[8px] opacity-60 uppercase tracking-wider">/ month</div>
+                                            <div className="text-[8px] opacity-60 uppercase tracking-wider">/ autopay</div>
                                         </button>
                                     ))}
                                 </div>
+                                <p className="text-[10px] text-slate-400 font-medium italic text-center mt-3">
+                                    🔄 Amount will be auto-debited monthly. Cancel anytime from your account.
+                                </p>
                             </div>
                         ) : (
                             <div>
@@ -316,7 +320,7 @@ const DonatePage = () => {
                                 <div className="w-6 h-6 border-4 border-white/20 border-t-white rounded-full animate-spin"></div>
                             ) : (
                                 <>
-                                    {isMonthly ? 'Activate Patronage' : 'Complete Donation'}
+                                    {isMonthly ? 'Activate Secure Autopay' : 'Complete Donation'}
                                     <span className="text-xl">→</span>
                                 </>
                             )}

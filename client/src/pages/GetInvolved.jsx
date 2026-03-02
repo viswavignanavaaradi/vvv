@@ -9,14 +9,14 @@ const GetInvolved = () => {
     const options = {
         patron: {
             title: "⭐ Legacy of Support ⭐",
-            subtitle: "Monthly Patronage",
-            description: "Foundational Patrons are the pillars of VVV. Your monthly contribution provides the sustained financial stability needed for our long-term missions and rural transformation projects.",
+            subtitle: "Monthly Autopay Patronage",
+            description: "Foundational Patrons are the pillars of VVV. Your monthly autopay contribution provides the sustained financial stability needed for our long-term missions.",
             features: [
-                "Sustainable monthly support",
+                "Secure monthly autopay",
                 "Impact reporting & strategy",
                 "Council recognition"
             ],
-            cta: "⭐ Be a Patron ⭐",
+            cta: "⭐ Be a Patron (Autopay) ⭐",
             path: "/donate",
             color: "bg-emerald-600",
             icon: "🏛️"
@@ -57,7 +57,7 @@ const GetInvolved = () => {
             {/* Version Sentinel - Updated for Fix */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    System Live: v4.5.6
+                    System Live: v4.5.7
                 </div>
             </div>
 
