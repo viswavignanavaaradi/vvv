@@ -25,6 +25,13 @@ const DonatePage = () => {
                 email: user.email || ''
             }));
         }
+
+        // Check for Patron flow
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('type') === 'patron') {
+            setIsMonthly(true);
+        }
+
         window.scrollTo(0, 0);
     }, []);
 
@@ -163,7 +170,7 @@ const DonatePage = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none">
                 <div className="px-4 py-1 bg-emerald-500 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20">
-                    Secure Portal: v4.4.8
+                    Secure Portal: v4.5.6
                 </div>
             </div>
 
@@ -173,6 +180,20 @@ const DonatePage = () => {
                 <div className="flex-1 space-y-8">
                     <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
                         <h1 className="text-4xl md:text-7xl font-merriweather font-black text-slate-900 leading-tight mb-6 italic">Your generosity is the spark of our change.</h1>
+
+                        {/* Mobile Quick Donate Button - Requested Fix */}
+                        <div className="block lg:hidden mt-6 mb-8">
+                            <button
+                                onClick={() => {
+                                    const formElement = document.getElementById('donation-form');
+                                    if (formElement) formElement.scrollIntoView({ behavior: 'smooth' });
+                                }}
+                                className="w-full py-4 bg-emerald-600 text-white font-black rounded-2xl shadow-xl shadow-emerald-200 border-none transition-all active:scale-95"
+                            >
+                                Start Donation Below
+                            </button>
+                        </div>
+
                         <p className="text-xl text-slate-500 font-medium leading-relaxed max-w-xl">
                             Viswa Vignana Vaaradi is dedicated to hunger eradication, rural empowerment, and legal aid. Every rupee you contribute goes directly to the field.
                         </p>
@@ -207,23 +228,32 @@ const DonatePage = () => {
 
                 {/* Right: Donation Form - Premium Glass Card */}
                 <motion.div
+                    id="donation-form"
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     className="w-full lg:w-[480px] bg-white rounded-[40px] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.08)] border border-slate-100 p-8 md:p-10 sticky top-32"
                 >
                     <div className="mb-10">
-                        <div className="flex bg-slate-50 p-1.5 rounded-2xl gap-1 border border-slate-100">
-                            <button
-                                type="button"
-                                onClick={() => { setIsMonthly(false); setFormData(prev => ({ ...prev, amount: '' })); }}
-                                className={`flex-1 py-3 rounded-xl border-none text-[10px] uppercase tracking-widest font-black transition-all ${!isMonthly ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-white/50'}`}
-                            >One-time Contribution</button>
-                            <button
-                                type="button"
-                                onClick={() => { setIsMonthly(true); setFormData(prev => ({ ...prev, amount: '' })); }}
-                                className={`flex-1 py-3 rounded-xl border-none text-[10px] uppercase tracking-widest font-black transition-all ${isMonthly ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-white/50'}`}
-                            >Monthly Patronage</button>
-                        </div>
+                        {/* Hide toggle if strictly Patron Flow */}
+                        {new URLSearchParams(window.location.search).get('type') !== 'patron' ? (
+                            <div className="flex bg-slate-50 p-1.5 rounded-2xl gap-1 border border-slate-100">
+                                <button
+                                    type="button"
+                                    onClick={() => { setIsMonthly(false); setFormData(prev => ({ ...prev, amount: '' })); }}
+                                    className={`flex-1 py-3 rounded-xl border-none text-[10px] uppercase tracking-widest font-black transition-all ${!isMonthly ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-white/50'}`}
+                                >One-time Contribution</button>
+                                <button
+                                    type="button"
+                                    onClick={() => { setIsMonthly(true); setFormData(prev => ({ ...prev, amount: '' })); }}
+                                    className={`flex-1 py-3 rounded-xl border-none text-[10px] uppercase tracking-widest font-black transition-all ${isMonthly ? 'bg-white text-emerald-600 shadow-sm' : 'text-slate-400 hover:bg-white/50'}`}
+                                >Monthly Patronage</button>
+                            </div>
+                        ) : (
+                            <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
+                                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em]">⭐ Foundation Patron Protocol ⭐</span>
+                                <h4 className="text-lg font-black text-slate-900 mt-1">Monthly Patronage Only</h4>
+                            </div>
+                        )}
                     </div>
 
                     <form onSubmit={handleDonate} className="space-y-6">

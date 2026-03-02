@@ -127,7 +127,7 @@ const PatronEnrollment = () => {
             {/* Version Sentinel */}
             <div className="fixed top-24 left-1/2 -translate-x-1/2 z-[9999] pointer-events-none md:left-2/3">
                 <div className="px-4 py-1 bg-emerald-600 text-white text-[10px] font-black uppercase tracking-[0.2em] rounded-full shadow-2xl border border-white/20 animate-bounce">
-                    Portal Active: v4.5.5
+                    Portal Active: v4.5.6
                 </div>
             </div>
 
@@ -135,7 +135,7 @@ const PatronEnrollment = () => {
             <div className="hidden md:flex md:w-1/3 bg-[#0f172a] p-8 md:p-12 text-white flex-col justify-between relative md:sticky md:top-0 h-auto md:h-screen overflow-y-auto border-r-4 border-emerald-500/10 shadow-[20px_0_50px_rgba(0,0,0,0.2)]">
                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.8 }}>
                     <div className="mb-6 inline-block px-4 py-1 bg-emerald-50 text-emerald-900 text-[10px] font-black uppercase tracking-widest rounded-lg">Foundation Patron</div>
-                    <h2 className="text-3xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic text-emerald-50">Fueling the mission through legacy.</h2>
+                    <h2 className="text-3xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic text-emerald-50">⭐ Fueling the mission through legacy. ⭐</h2>
                     <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 md:mb-10 opacity-80 font-medium">
                         As a Patron, you join the Advisory Council. Your leadership and commitment provide the stability needed for long-term social transformation.
                     </p>
@@ -187,9 +187,9 @@ const PatronEnrollment = () => {
                             <div className="text-center">
                                 <p className="text-emerald-500 font-black uppercase tracking-[0.3em] text-[10px] mb-2">Protocol Step {step} of 3</p>
                                 <h3 className="text-4xl font-merriweather font-black text-slate-900 leading-tight">
-                                    {step === 1 && "Identity & Contact"}
-                                    {step === 2 && "Leadership Context"}
-                                    {step === 3 && "Impact Commitment"}
+                                    {step === 1 && "⭐ Identity & Contact ⭐"}
+                                    {step === 2 && "⭐ Leadership Context ⭐"}
+                                    {step === 3 && "⭐ Impact Commitment ⭐"}
                                 </h3>
                             </div>
 

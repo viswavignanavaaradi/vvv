@@ -151,9 +151,9 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                     },
                     {
                         label: 'Get Involved', type: 'dropdown', subItems: [
+                            { label: '⭐ Be a Patron ⭐', path: '/donate?type=patron' },
                             { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                             { label: 'Internship Enrollment', path: '/internship-enrollment' },
-                            { label: 'Be a Patron', path: '/donate' },
                             { label: 'Learn More', path: '/get-involved' }
                         ]
                     },
@@ -568,9 +568,9 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                 style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
                                             >
                                                 {[
+                                                    { label: '⭐ Be a Patron ⭐', path: '/donate?type=patron' },
                                                     { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                                                     { label: 'Internship Enrollment', path: '/internship-enrollment' },
-                                                    { label: 'Be a Patron', path: '/donate' },
                                                     { label: 'Overview', path: '/get-involved' }
                                                 ].map((subItem) => (
                                                     <div
@@ -645,13 +645,31 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                         </button>
                                     </div>
                                 )}
-                                <button
-                                    onClick={() => { navigate('/donate'); setMobileMenuOpen(false); }}
-                                    className="btn btn-primary"
-                                    style={{ width: '100%', background: 'var(--accent-emerald)', shadow: '0 4px 12px rgba(5, 150, 105, 0.2)' }}
-                                >
-                                    Donate Now
-                                </button>
+                                <div style={{ marginTop: '1rem', padding: '0 0.5rem' }}>
+                                    <p style={{
+                                        fontSize: '0.75rem',
+                                        fontWeight: '600',
+                                        color: '#64748b',
+                                        fontStyle: 'italic',
+                                        marginBottom: '0.75rem',
+                                        textAlign: 'center',
+                                        lineHeight: '1.4'
+                                    }}>
+                                        "Your generosity is the spark of our change."
+                                    </p>
+                                    <button
+                                        onClick={() => { navigate('/donate'); setMobileMenuOpen(false); }}
+                                        className="btn btn-primary"
+                                        style={{
+                                            width: '100%',
+                                            background: 'linear-gradient(to right, #10b981, #059669)',
+                                            fontWeight: '800',
+                                            padding: '1rem'
+                                        }}
+                                    >
+                                        Donate Now
+                                    </button>
+                                </div>
                             </div>
                         </motion.div>
                     </>
