@@ -80,6 +80,13 @@ const Profile = () => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Size validation
+        const IMAGE_SIZE_LIMIT = 3 * 1024 * 1024; // 3MB
+        if (file.size > IMAGE_SIZE_LIMIT) {
+            alert("Image file size exceeds 3MB limit. Please upload a smaller photo.");
+            return;
+        }
+
         const formData = new FormData();
         formData.append('email', user.email);
         formData.append('photo', file);

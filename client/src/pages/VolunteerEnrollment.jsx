@@ -88,6 +88,22 @@ const VolunteerEnrollment = () => {
         const file = e.target.files[0];
         if (!file) return;
 
+        // Size validation
+        const PDF_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
+        const IMAGE_SIZE_LIMIT = 3 * 1024 * 1024; // 3MB
+
+        if (file.type === 'application/pdf') {
+            if (file.size > PDF_SIZE_LIMIT) {
+                alert("PDF file size exceeds 10MB limit. Please upload a smaller file.");
+                return;
+            }
+        } else if (file.type.startsWith('image/')) {
+            if (file.size > IMAGE_SIZE_LIMIT) {
+                alert("Image file size exceeds 3MB limit. Please upload a smaller file.");
+                return;
+            }
+        }
+
         const uploadData = new FormData();
         uploadData.append('email', formData.email);
         uploadData.append(type === 'photo' ? 'photo' : 'document', file);

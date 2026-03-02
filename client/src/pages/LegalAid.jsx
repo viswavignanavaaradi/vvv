@@ -92,7 +92,34 @@ const FormView = ({ formData, setFormData, files, setFiles, submitting, error, h
                     <div className="space-y-8">
                         <h3 className="text-lg font-merriweather font-black text-[#1e3a8a] mb-4">Upload Files</h3>
                         <div className="relative group">
-                            <input type="file" multiple onChange={e => setFiles(Array.from(e.target.files))} className="hidden" id="file-upload" />
+                            <input
+                                type="file"
+                                multiple
+                                onChange={e => {
+                                    const selectedFiles = Array.from(e.target.files);
+                                    const PDF_SIZE_LIMIT = 10 * 1024 * 1024; // 10MB
+                                    const IMAGE_SIZE_LIMIT = 3 * 1024 * 1024; // 3MB
+
+                                    const validFiles = selectedFiles.filter(file => {
+                                        if (file.type === 'application/pdf') {
+                                            if (file.size > PDF_SIZE_LIMIT) {
+                                                alert(`File ${file.name} exceeds 10MB limit.`);
+                                                return false;
+                                            }
+                                        } else if (file.type.startsWith('image/')) {
+                                            if (file.size > IMAGE_SIZE_LIMIT) {
+                                                alert(`File ${file.name} exceeds 3MB limit.`);
+                                                return false;
+                                            }
+                                        }
+                                        return true;
+                                    });
+
+                                    setFiles(validFiles);
+                                }}
+                                className="hidden"
+                                id="file-upload"
+                            />
                             <label htmlFor="file-upload" className="w-32 h-32 bg-slate-50/50 rounded-3xl border-2 border-dashed border-slate-200 flex flex-col items-center justify-center gap-2 cursor-pointer hover:bg-white hover:border-emerald-300 transition-all">
                                 <span className="text-4xl text-slate-300">+</span>
                             </label>
