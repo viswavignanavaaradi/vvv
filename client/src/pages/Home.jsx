@@ -169,16 +169,16 @@ const Contact = () => (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>First Name</label>
-                            <input type="text" placeholder="John" style={{ marginBottom: 0 }} />
+                            <input type="text" placeholder="Ram" style={{ marginBottom: 0 }} />
                         </div>
                         <div>
                             <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Last Name</label>
-                            <input type="text" placeholder="Doe" style={{ marginBottom: 0 }} />
+                            <input type="text" placeholder="Vantaku" style={{ marginBottom: 0 }} />
                         </div>
                     </div>
                     <div style={{ marginTop: '1.5rem' }}>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Email Address</label>
-                        <input type="email" placeholder="john@example.com" style={{ marginBottom: 0 }} />
+                        <input type="email" placeholder="ram@example.com" style={{ marginBottom: 0 }} />
                     </div>
                     <div style={{ marginTop: '1.5rem' }}>
                         <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Message</label>
