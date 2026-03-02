@@ -294,7 +294,12 @@ const Admin = () => {
                                                 <h3 className="text-xl font-merriweather font-black text-slate-800">Organizational Pulse</h3>
                                                 <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Live Unified Feed</p>
                                             </div>
-                                            <button className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-xl">Archives →</button>
+                                            <button
+                                                onClick={() => setActiveTab('donations')}
+                                                className="text-[10px] font-black text-blue-600 uppercase tracking-widest bg-blue-50 px-4 py-2 rounded-xl hover:bg-blue-600 hover:text-white transition-all shadow-sm active:scale-95"
+                                            >
+                                                Donations Ledger →
+                                            </button>
                                         </div>
                                         <div className="space-y-2">
                                             {/* Combined Recent Activities */}
