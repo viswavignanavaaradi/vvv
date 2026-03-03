@@ -27,6 +27,15 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
+// Email Transporter for OTP and Contact (v4.6.3)
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'viswavignanavaaradi@gmail.com',
+        pass: process.env.EMAIL_PASS || 'visogbgddtpztsbp'
+    }
+});
+
 const VERSION = "4.4.0";
 const LAST_UPDATED = "2024-03-01 01:05 IST";
 
