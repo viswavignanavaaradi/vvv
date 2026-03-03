@@ -29,10 +29,15 @@ dotenv.config();
 
 // Email Transporter for OTP and Contact (v4.6.3)
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // true for 465, false for 587
     auth: {
         user: 'viswavignanavaaradi@gmail.com',
         pass: (process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
+    },
+    tls: {
+        rejectUnauthorized: false // Helps in some cloud environments
     }
 });
 
@@ -45,8 +50,8 @@ transporter.verify(function (error, success) {
     }
 });
 
-const VERSION = "4.4.0";
-const LAST_UPDATED = "2024-03-01 01:05 IST";
+const VERSION = "4.6.5";
+const LAST_UPDATED = "2026-03-03 23:25 IST";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
