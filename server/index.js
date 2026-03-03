@@ -12,6 +12,12 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { createObjectCsvWriter } = require('csv-writer');
 const nodemailer = require('nodemailer');
+const dns = require('dns');
+
+// Force IPv4 preference for all network operations (v4.6.7)
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 
 // Models
 const User = require('./models/User');
@@ -54,8 +60,8 @@ transporter.verify(function (error, success) {
     }
 });
 
-const VERSION = "4.6.6";
-const LAST_UPDATED = "2026-03-03 23:58 IST";
+const VERSION = "4.6.7";
+const LAST_UPDATED = "2026-03-04 00:15 IST";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
