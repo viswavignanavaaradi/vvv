@@ -151,7 +151,8 @@ const Contact = () => {
             setFormData({ firstName: '', lastName: '', email: '', message: '' });
             setTimeout(() => setSuccess(false), 5000);
         } catch (err) {
-            alert("Failed to send message: " + err.message);
+            const errorMsg = err.response?.data?.error || err.message;
+            alert("Failed to send message: " + errorMsg);
         } finally {
             setLoading(false);
         }

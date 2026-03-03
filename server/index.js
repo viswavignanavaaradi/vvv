@@ -32,7 +32,16 @@ const transporter = nodemailer.createTransport({
     service: 'gmail',
     auth: {
         user: 'viswavignanavaaradi@gmail.com',
-        pass: process.env.EMAIL_PASS || 'visogbgddtpztsbp'
+        pass: (process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
+    }
+});
+
+// Verify Transporter
+transporter.verify(function (error, success) {
+    if (error) {
+        console.error('[Nodemailer] Transporter Error:', error);
+    } else {
+        console.log('[Nodemailer] Transporter is ready to take messages');
     }
 });
 
@@ -987,6 +996,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
 app.post('/api/contact/submit', async (req, res) => {
     const { firstName, lastName, email, message } = req.body;
     try {
+        console.log(`[Contact] Sending email from ${email}...`);
         await transporter.sendMail({
             from: 'viswavignanavaaradi@gmail.com',
             to: 'viswavignanavaaradi@gmail.com',
@@ -998,8 +1008,10 @@ app.post('/api/contact/submit', async (req, res) => {
                 <p>${message}</p>
             `
         });
+        console.log(`[Contact] Message sent successfully from ${email}`);
         res.json({ status: 'success' });
     } catch (err) {
+        console.error('[Contact] Error submitting form:', err);
         res.status(500).json({ error: err.message });
     }
 });
