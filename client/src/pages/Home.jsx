@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import axios from '../api/axios';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import heroVideo from '../assets/video.mp4';
