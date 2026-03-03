@@ -11,6 +11,7 @@ const multer = require('multer');
 const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { createObjectCsvWriter } = require('csv-writer');
+const nodemailer = require('nodemailer');
 
 // Models
 const User = require('./models/User');
@@ -907,6 +908,87 @@ app.put('/api/admin/legal-requests/:id/status', async (req, res) => {
     const { status, adminMessage } = req.body;
     try {
         await LegalRequest.findByIdAndUpdate(req.params.id, { status, adminMessage });
+        res.json({ status: 'success' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Auth & Contact Flow (v4.6.1)
+app.post('/api/auth/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    try {
+        const user = await User.findOne({ email: { $regex: new RegExp(`^${email.trim()}$`, 'i') } });
+        if (!user) return res.status(404).json({ error: 'User not found' });
+
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        user.resetOTP = otp;
+        user.resetOTPExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+        await user.save();
+
+        await transporter.sendMail({
+            from: 'viswavignanavaaradi@gmail.com',
+            to: email,
+            subject: 'Your VVV Password Reset OTP',
+            html: `<h3>Forgot your password?</h3><p>It happens to the best of us. Your OTP is: <b>${otp}</b></p><p>Expires in 10 minutes.</p>`
+        });
+
+        res.json({ status: 'success', message: 'OTP sent to email' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/auth/verify-otp', async (req, res) => {
+    const { email, otp } = req.body;
+    try {
+        const user = await User.findOne({
+            email: { $regex: new RegExp(`^${email.trim()}$`, 'i') },
+            resetOTP: otp,
+            resetOTPExpires: { $gt: Date.now() }
+        });
+        if (!user) return res.status(400).json({ error: 'Invalid or expired OTP' });
+        res.json({ status: 'success' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/auth/reset-password', async (req, res) => {
+    const { email, otp, password } = req.body;
+    try {
+        const user = await User.findOne({
+            email: { $regex: new RegExp(`^${email.trim()}$`, 'i') },
+            resetOTP: otp,
+            resetOTPExpires: { $gt: Date.now() }
+        });
+        if (!user) return res.status(400).json({ error: 'Session expired. Please try again.' });
+
+        user.password = password; // Should hash in production
+        user.resetOTP = undefined;
+        user.resetOTPExpires = undefined;
+        await user.save();
+
+        res.json({ status: 'success', message: 'Password updated successfully' });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/contact/submit', async (req, res) => {
+    const { firstName, lastName, email, message } = req.body;
+    try {
+        await transporter.sendMail({
+            from: 'viswavignanavaaradi@gmail.com',
+            to: 'viswavignanavaaradi@gmail.com',
+            subject: `New Contact Message from ${firstName} ${lastName}`,
+            html: `
+                <h3>New message received</h3>
+                <p><b>From:</b> ${firstName} ${lastName} (${email})</p>
+                <p><b>Message:</b></p>
+                <p>${message}</p>
+            `
+        });
         res.json({ status: 'success' });
     } catch (err) {
         res.status(500).json({ error: err.message });

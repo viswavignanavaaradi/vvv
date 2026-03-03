@@ -136,60 +136,84 @@ const JoinMission = () => {
     );
 };
 
-const Contact = () => (
-    <section id="contact" className="section" style={{ background: 'white' }}>
-        <div className="container">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '5rem' }}>
-                <div>
-                    <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Reach Out</span>
-                    <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', marginBottom: '1.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Contact Us</h2>
-                    <p style={{ marginBottom: '2.5rem', color: 'var(--text-body)', fontSize: '1.1rem' }}>
-                        Whether you want to volunteer your time, partner with us, or have a question, we are here to listen.
-                    </p>
+const Contact = () => {
+    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', message: '' });
+    const [loading, setLoading] = useState(false);
+    const [success, setSuccess] = useState(false);
 
-                    <div style={{ display: 'grid', gap: '2rem' }}>
-                        <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'flex-start' }}>
-                            <div style={{ width: '48px', height: '48px', background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', fontSize: '1.2rem' }}>📍</div>
-                            <div>
-                                <h4 style={{ marginBottom: '0.4rem', fontFamily: 'Inter, sans-serif' }}>Headquarters</h4>
-                                <p style={{ color: 'var(--text-body)' }}>14-15-171/17/SF-1/YEGUVAPETA VEEDI WARD NO-1, Bakkannapalem, VISAKHAPATNAM<br />AndhraPradesh, India - 531163</p>
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            await axios.post('/api/contact/submit', formData);
+            setSuccess(true);
+            setFormData({ firstName: '', lastName: '', email: '', message: '' });
+            setTimeout(() => setSuccess(false), 5000);
+        } catch (err) {
+            alert("Failed to send message: " + err.message);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <section id="contact" className="section" style={{ background: 'white' }}>
+            <div className="container">
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '5rem' }}>
+                    <div>
+                        <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Reach Out</span>
+                        <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', marginBottom: '1.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Contact Us</h2>
+                        <p style={{ marginBottom: '2.5rem', color: 'var(--text-body)', fontSize: '1.1rem' }}>
+                            Whether you want to volunteer your time, partner with us, or have a question, we are here to listen.
+                        </p>
+
+                        <div style={{ display: 'grid', gap: '2rem' }}>
+                            <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'flex-start' }}>
+                                <div style={{ width: '48px', height: '48px', background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', fontSize: '1.2rem' }}>📍</div>
+                                <div>
+                                    <h4 style={{ marginBottom: '0.4rem', fontFamily: 'Inter, sans-serif' }}>Headquarters</h4>
+                                    <p style={{ color: 'var(--text-body)' }}>14-15-171/17/SF-1/YEGUVAPETA VEEDI WARD NO-1, Bakkannapalem, VISAKHAPATNAM<br />AndhraPradesh, India - 531163</p>
+                                </div>
                             </div>
-                        </div>
-                        <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'flex-start' }}>
-                            <div style={{ width: '48px', height: '48px', background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', fontSize: '1.2rem' }}>✉️</div>
-                            <div>
-                                <h4 style={{ marginBottom: '0.4rem', fontFamily: 'Inter, sans-serif' }}>Email Support</h4>
-                                <p style={{ color: 'var(--text-body)' }}>viswavignanavaaradhi@gmail.com</p>
+                            <div style={{ display: 'flex', gap: '1.2rem', alignItems: 'flex-start' }}>
+                                <div style={{ width: '48px', height: '48px', background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', fontSize: '1.2rem' }}>✉️</div>
+                                <div>
+                                    <h4 style={{ marginBottom: '0.4rem', fontFamily: 'Inter, sans-serif' }}>Email Support</h4>
+                                    <p style={{ color: 'var(--text-body)' }}>viswavignanavaaradi@gmail.com</p>
+                                </div>
                             </div>
                         </div>
                     </div>
+
+                    <form onSubmit={handleSubmit} style={{ background: '#f8fafc', padding: '3rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>First Name</label>
+                                <input type="text" required value={formData.firstName} onChange={e => setFormData({ ...formData, firstName: e.target.value })} placeholder="Ram" style={{ marginBottom: 0 }} />
+                            </div>
+                            <div>
+                                <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Last Name</label>
+                                <input type="text" required value={formData.lastName} onChange={e => setFormData({ ...formData, lastName: e.target.value })} placeholder="Vantaku" style={{ marginBottom: 0 }} />
+                            </div>
+                        </div>
+                        <div style={{ marginTop: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Email Address</label>
+                            <input type="email" required value={formData.email} onChange={e => setFormData({ ...formData, email: e.target.value })} placeholder="ram@example.com" style={{ marginBottom: 0 }} />
+                        </div>
+                        <div style={{ marginTop: '1.5rem' }}>
+                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Message</label>
+                            <textarea rows="4" required value={formData.message} onChange={e => setFormData({ ...formData, message: e.target.value })} placeholder="How can we help you?" style={{ marginBottom: 0, width: '100%', padding: '0.8rem', borderRadius: '8px', border: '1px solid #e2e8f0' }}></textarea>
+                        </div>
+                        {success && <p className="text-emerald-600 text-sm font-bold mt-4">Message sent successfully! We'll get back to you soon.</p>}
+                        <button type="submit" disabled={loading} className="btn btn-primary" style={{ width: '100%', marginTop: '2rem', padding: '1rem' }}>
+                            {loading ? 'Sending...' : 'Send Message'}
+                        </button>
+                    </form>
                 </div>
-
-                <form style={{ background: '#f8fafc', padding: '3rem', borderRadius: '12px', border: '1px solid #e2e8f0' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>First Name</label>
-                            <input type="text" placeholder="Ram" style={{ marginBottom: 0 }} />
-                        </div>
-                        <div>
-                            <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Last Name</label>
-                            <input type="text" placeholder="Vantaku" style={{ marginBottom: 0 }} />
-                        </div>
-                    </div>
-                    <div style={{ marginTop: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Email Address</label>
-                        <input type="email" placeholder="ram@example.com" style={{ marginBottom: 0 }} />
-                    </div>
-                    <div style={{ marginTop: '1.5rem' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', fontWeight: '500' }}>Message</label>
-                        <textarea rows="4" placeholder="How can we help you?" style={{ marginBottom: 0 }}></textarea>
-                    </div>
-                    <button className="btn btn-primary" style={{ width: '100%', marginTop: '2rem', padding: '1rem' }}>Send Message</button>
-                </form>
             </div>
-        </div>
-    </section>
-);
+        </section>
+    );
+};
 
 const Footer = () => (
     <footer style={{ background: '#111827', color: '#9ca3af', padding: '6rem 0 3rem', fontSize: '0.95rem' }}>
