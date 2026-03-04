@@ -42,9 +42,15 @@ const transporter = nodemailer.createTransport({
         user: 'viswavignanavaaradi@gmail.com',
         pass: (process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
     },
+    lookup: (hostname, options, callback) => {
+        dns.lookup(hostname, { family: 4 }, (err, address, family) => {
+            if (!err) console.log(`[Nodemailer] Resolved ${hostname} to ${address} (IPv${family})`);
+            callback(err, address, family);
+        });
+    },
     family: 4, // Force IPv4
-    connectionTimeout: 10000,
-    greetingTimeout: 10000,
+    connectionTimeout: 15000, // Increase slightly
+    greetingTimeout: 15000,
     socketTimeout: 30000,
     tls: {
         rejectUnauthorized: false
@@ -60,8 +66,8 @@ transporter.verify(function (error, success) {
     }
 });
 
-const VERSION = "4.6.9";
-const LAST_UPDATED = "2026-03-04 00:45 IST";
+const VERSION = "4.7.0";
+const LAST_UPDATED = "2026-03-04 11:40 IST";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
