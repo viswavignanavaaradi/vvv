@@ -33,7 +33,7 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
-// Email Transporter for OTP and Contact (v4.6.3)
+// Email Transporter for OTP and Contact (v4.9.1)
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -42,16 +42,10 @@ const transporter = nodemailer.createTransport({
         user: 'viswavignanavaaradi@gmail.com',
         pass: (process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
     },
-    lookup: (hostname, options, callback) => {
-        dns.lookup(hostname, { family: 4 }, (err, address, family) => {
-            if (!err) console.log(`[Nodemailer] Resolved ${hostname} to ${address} (IPv${family})`);
-            callback(err, address, family);
-        });
-    },
     family: 4, // Force IPv4
-    connectionTimeout: 15000,
-    greetingTimeout: 15000,
-    socketTimeout: 30000,
+    connectionTimeout: 20000, // 20s
+    greetingTimeout: 20000, // 20s
+    socketTimeout: 40000, // 40s
     tls: {
         rejectUnauthorized: false
     }
@@ -984,14 +978,19 @@ app.post('/api/auth/login', async (req, res) => {
 
 app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
+    console.log(`[Auth] Forgot Password requested for: ${email}`);
     try {
         const user = await User.findOne({ email: { $regex: new RegExp(`^${email.trim()}$`, 'i') } });
-        if (!user) return res.status(404).json({ error: 'User not found' });
+        if (!user) {
+            console.log(`[Auth] User not found for: ${email}`);
+            return res.status(404).json({ error: 'User not found' });
+        }
 
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
         user.resetOTP = otp;
         user.resetOTPExpires = Date.now() + 10 * 60 * 1000; // 10 mins
         await user.save();
+        console.log(`[Auth] OTP generated for ${email}. Attempting to send...`);
 
         await transporter.sendMail({
             from: 'viswavignanavaaradi@gmail.com',
@@ -1000,8 +999,10 @@ app.post('/api/auth/forgot-password', async (req, res) => {
             html: `<h3>Forgot your password?</h3><p>It happens to the best of us. Your OTP is: <b>${otp}</b></p><p>Expires in 10 minutes.</p>`
         });
 
+        console.log(`[Auth] OTP sent successfully to: ${email}`);
         res.json({ status: 'success', message: 'OTP sent to email' });
     } catch (err) {
+        console.error(`[Auth Error] Failed to process forgot-password for ${email}:`, err.message);
         res.status(500).json({ error: err.message });
     }
 });

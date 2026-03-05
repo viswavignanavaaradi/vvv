@@ -31,7 +31,8 @@ const ForgotPassword = () => {
             setStep(2);
             setTimer(59);
         } catch (err) {
-            setError(err.response?.data?.error || 'Failed to send OTP');
+            console.error('[Auth Debug] Send OTP Error:', err.response?.data || err.message);
+            setError(err.response?.data?.error || 'Failed to send OTP. Check network or email.');
         } finally {
             setLoading(false);
         }
