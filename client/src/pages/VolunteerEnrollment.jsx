@@ -28,10 +28,14 @@ const VolunteerEnrollment = () => {
         education: '',
         preferredWings: [],
         mainPriorityWing: '',
-        areaOfInterest: [],
+        interests: [],
         willingToContribute: 'no',
         profilePhoto: '',
-        documents: []
+        documents: [],
+        profession: 'Student', // Added: Student or Working Professional
+        occupation: '',        // Added
+        organization: '',      // Added
+        experience: ''         // Added
     });
 
     const [loading, setLoading] = useState(false);
@@ -133,8 +137,16 @@ const VolunteerEnrollment = () => {
             }
         }
         if (step === 3) {
-            if (!formData.state || !formData.district || !formData.collegeName || !formData.education) {
+            if (!formData.state || !formData.district || !formData.profession || !formData.education) {
                 alert("All address and education fields are mandatory.");
+                return false;
+            }
+            if (formData.profession === 'Student' && !formData.collegeName) {
+                alert("Please provide your College/Institution name.");
+                return false;
+            }
+            if (formData.profession === 'Working Professional' && (!formData.occupation || !formData.organization)) {
+                alert("Please provide your current occupation and organization.");
                 return false;
             }
         }
@@ -354,15 +366,45 @@ const VolunteerEnrollment = () => {
                                                     {formData.state && geoData[formData.state].map(d => <option key={d} value={d}>{d}</option>)}
                                                 </select>
                                             </div>
-                                            <div className="sm:col-span-2 space-y-2 relative">
-                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">College/Institution *</label>
-                                                <input value={collegeSearch} onChange={(e) => { setCollegeSearch(e.target.value); setFormData(p => ({ ...p, collegeName: e.target.value })); }} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" placeholder="Start typing institution name..." />
-                                                {collegeSearch && !colleges.includes(collegeSearch) && (
-                                                    <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-48 overflow-y-auto">
-                                                        {colleges.filter(c => c.toLowerCase().includes(collegeSearch.toLowerCase())).map(c => <div key={c} onClick={() => { setCollegeSearch(c); setFormData(p => ({ ...p, collegeName: c })); }} className="px-6 py-3 hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-600 transition-colors">{c}</div>)}
-                                                    </div>
-                                                )}
+                                            <div className="sm:col-span-2 space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Profession *</label>
+                                                <div className="flex gap-4">
+                                                    {['Student', 'Working Professional'].map(p => (
+                                                        <button key={p} type="button" onClick={() => setFormData(prev => ({ ...prev, profession: p }))} className={`flex-1 py-4 rounded-xl border-2 font-black uppercase text-[10px] tracking-widest transition-all ${formData.profession === p ? 'bg-blue-50 border-[#1e3a8a] text-[#1e3a8a]' : 'bg-slate-50 border-slate-50 text-slate-400'}`}>
+                                                            {p}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             </div>
+
+                                            {formData.profession === 'Student' ? (
+                                                <>
+                                                    <div className="sm:col-span-2 space-y-2 relative">
+                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">College/Institution *</label>
+                                                        <input value={collegeSearch} onChange={(e) => { setCollegeSearch(e.target.value); setFormData(p => ({ ...p, collegeName: e.target.value })); }} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" placeholder="Start typing institution name..." />
+                                                        {collegeSearch && !colleges.includes(collegeSearch) && (
+                                                            <div className="absolute z-50 w-full mt-2 bg-white rounded-2xl shadow-2xl border border-slate-100 max-h-48 overflow-y-auto">
+                                                                {colleges.filter(c => c.toLowerCase().includes(collegeSearch.toLowerCase())).map(c => <div key={c} onClick={() => { setCollegeSearch(c); setFormData(p => ({ ...p, collegeName: c })); }} className="px-6 py-3 hover:bg-slate-50 cursor-pointer text-xs font-bold text-slate-600 transition-colors">{c}</div>)}
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Current Occupation *</label>
+                                                        <input name="occupation" value={formData.occupation} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                                    </div>
+                                                    <div className="space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Organization/Company *</label>
+                                                        <input name="organization" value={formData.organization} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                                    </div>
+                                                    <div className="sm:col-span-2 space-y-2">
+                                                        <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Years of Experience (Optional)</label>
+                                                        <input name="experience" value={formData.experience} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />
+                                                    </div>
+                                                </>
+                                            )}
                                             <div className="sm:col-span-2 space-y-2">
                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Education/Degree *</label>
                                                 <input name="education" value={formData.education} onChange={handleChange} className="w-full px-6 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white transition-all font-bold text-sm" />

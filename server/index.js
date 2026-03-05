@@ -531,7 +531,7 @@ app.post('/api/volunteer/enroll', async (req, res) => {
         fullName, email, contactNumber, age, gender, bloodGroup,
         state, district, collegeName, education, preferredWings,
         mainPriorityWing, interests, willingToContribute, profilePhoto,
-        documents
+        documents, profession, occupation, organization, experience
     } = req.body;
 
     try {
@@ -548,6 +548,10 @@ app.post('/api/volunteer/enroll', async (req, res) => {
                 district,
                 college: collegeName,
                 education,
+                profession,
+                occupation,
+                organization,
+                experience,
                 wings: preferredWings,
                 priorityWing: mainPriorityWing,
                 interests,

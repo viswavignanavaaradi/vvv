@@ -56,7 +56,11 @@ const Profile = () => {
                     district: res.data.volunteer.district,
                     college: res.data.volunteer.college,
                     wings: res.data.volunteer.wings,
-                    priorityWing: res.data.volunteer.priorityWing
+                    priorityWing: res.data.volunteer.priorityWing,
+                    profession: res.data.volunteer.profession,
+                    occupation: res.data.volunteer.occupation,
+                    organization: res.data.volunteer.organization,
+                    experience: res.data.volunteer.experience
                 });
             } else if (res.data.intern) {
                 setEditForm({
@@ -486,6 +490,10 @@ const Profile = () => {
                                             { label: 'Gender', field: 'gender' },
                                             { label: 'Blood Group', field: 'bloodGroup' },
                                             { label: 'Phone Number', field: 'phone' },
+                                            { label: 'Profession', field: 'profession' },
+                                            { label: 'Occupation', field: 'occupation' },
+                                            { label: 'Organization', field: 'organization' },
+                                            { label: 'Experience', field: 'experience' },
                                             { label: 'Education', field: 'education' },
                                             { label: 'College', field: 'college' },
                                             { label: 'District', field: 'district' },
@@ -543,13 +551,36 @@ const Profile = () => {
                                         </div>
                                         <div className="space-y-8">
                                             <div>
-                                                <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Education</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.education : isIntern ? profileData.intern.education : '--'}</p>
+                                                <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Profession</p>
+                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.profession : '--'}</p>
                                             </div>
-                                            <div>
-                                                <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">College/Work</p>
-                                                <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.college : isIntern ? profileData.intern.collegeName : '--'}</p>
-                                            </div>
+                                            {isVolunteer && profileData.volunteer.profession === 'Working Professional' ? (
+                                                <>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Occupation</p>
+                                                        <p className="font-bold text-slate-800">{profileData.volunteer.occupation}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Organization</p>
+                                                        <p className="font-bold text-slate-800">{profileData.volunteer.organization}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Experience</p>
+                                                        <p className="font-bold text-slate-800">{profileData.volunteer.experience || 'N/A'}</p>
+                                                    </div>
+                                                </>
+                                            ) : (
+                                                <>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Education</p>
+                                                        <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.education : isIntern ? profileData.intern.education : '--'}</p>
+                                                    </div>
+                                                    <div>
+                                                        <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">College/Work</p>
+                                                        <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.college : isIntern ? profileData.intern.collegeName : '--'}</p>
+                                                    </div>
+                                                </>
+                                            )}
                                             <div>
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Main Mission (Wing)</p>
                                                 <p className="font-bold text-blue-600">{isVolunteer ? (profileData.volunteer.priorityWing || 'General') : isIntern ? (profileData.intern.priorityWing || 'General') : '--'}</p>
