@@ -7,6 +7,7 @@ const ForgotPassword = () => {
     const [email, setEmail] = useState('');
     const [otp, setOtp] = useState('');
     const [newPassword, setNewPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [step, setStep] = useState(1); // 1: Email, 2: OTP, 3: Reset
     const [timer, setTimer] = useState(59);
     const [loading, setLoading] = useState(false);
@@ -174,14 +175,23 @@ const ForgotPassword = () => {
                                             <p className="text-slate-400 mt-1 text-sm font-medium">Set your new password below.</p>
                                         </div>
                                         <form onSubmit={handleResetPassword} className="space-y-6">
-                                            <input
-                                                type="password"
-                                                required
-                                                placeholder="New Password"
-                                                value={newPassword}
-                                                onChange={(e) => setNewPassword(e.target.value)}
-                                                className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 outline-none"
-                                            />
+                                            <div className="relative">
+                                                <input
+                                                    type={showPassword ? "text" : "password"}
+                                                    required
+                                                    placeholder="New Password"
+                                                    value={newPassword}
+                                                    onChange={(e) => setNewPassword(e.target.value)}
+                                                    className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 outline-none pr-14"
+                                                />
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setShowPassword(!showPassword)}
+                                                    className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#059669] transition-colors"
+                                                >
+                                                    {showPassword ? "👁️" : "👁️‍🗨️"}
+                                                </button>
+                                            </div>
                                             {error && <p className="text-red-500 text-[10px] font-black uppercase text-center">{error}</p>}
                                             <button type="submit" disabled={loading} className="w-full bg-[#1e3a8a] text-white font-black py-4 rounded-[20px]">
                                                 {loading ? 'Updating...' : 'Reset Password'}

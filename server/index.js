@@ -66,8 +66,8 @@ transporter.verify(function (error, success) {
     }
 });
 
-const VERSION = "4.7.1";
-const LAST_UPDATED = "2026-03-04 22:35 IST";
+const VERSION = "4.9.0";
+const LAST_UPDATED = "2026-03-06 01:35 IST";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -365,34 +365,6 @@ app.post('/api/razorpay-webhook', async (req, res) => {
     }
 
     res.json({ status: 'ok' });
-});
-
-app.post('/api/patron/enroll', async (req, res) => {
-    const { fullName, email, phone, profession, experience, advisoryWing, linkedinProfile, amount, subscriptionId } = req.body;
-    try {
-        const patron = await Patron.findOneAndUpdate(
-            { email },
-            {
-                fullName, email, phone, profession, experience,
-                advisoryWing, linkedinProfile, amount,
-                subscription_id: subscriptionId,
-                status: 'active',
-                date: new Date()
-            },
-            { upsert: true, new: true }
-        );
-
-        // Update User info
-        await User.findOneAndUpdate(
-            { email },
-            { name: fullName, role: 'patron' },
-            { upsert: true }
-        );
-
-        res.json({ status: 'success', patron });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
 });
 
 app.post('/api/patron/enroll', async (req, res) => {
@@ -957,7 +929,59 @@ app.put('/api/admin/legal-requests/:id/status', async (req, res) => {
     }
 });
 
-// Auth & Contact Flow (v4.6.1)
+// Auth & Contact Flow (v4.9.0)
+app.post('/api/auth/signup', async (req, res) => {
+    const { fullName, username, email, password, role } = req.body;
+    try {
+        const existingUser = await User.findOne({ $or: [{ email }, { username }] });
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email or Username already exists' });
+        }
+
+        const user = new User({
+            name: fullName,
+            username,
+            email,
+            password, // NOTE: Simple storage as per current project pattern. Should hash in PROD.
+            role: role || 'patron'
+        });
+
+        await user.save();
+        res.json({ status: 'success', user: { name: user.name, email: user.email, username: user.username, role: user.role } });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+app.post('/api/auth/login', async (req, res) => {
+    const { username, password } = req.body; // username can be email or username
+    try {
+        const user = await User.findOne({
+            $or: [
+                { username: username },
+                { email: username }
+            ]
+        });
+
+        if (!user || user.password !== password) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+
+        res.json({
+            status: 'success',
+            user: {
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                picture: user.picture
+            }
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
     try {

@@ -9,7 +9,9 @@ const Login = () => {
         username: '',
         password: ''
     });
+    const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleChange = (e) => {
@@ -56,17 +58,23 @@ const Login = () => {
         setError('Google Login failed. Please try again.');
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        if (formData.username === 'admin' && formData.password === 'password') {
-            localStorage.setItem('vvv_user', JSON.stringify({
-                name: 'Administrator',
-                email: 'admin@vvv.org',
-                role: 'admin'
-            }));
-            navigate('/admin');
-        } else {
-            setError('Wrong username or password');
+        setLoading(true);
+        setError('');
+        try {
+            const res = await axios.post('/api/auth/login', formData);
+            localStorage.setItem('vvv_user', JSON.stringify(res.data.user));
+
+            if (res.data.user.role === 'admin') {
+                navigate('/admin');
+            } else {
+                navigate('/profile');
+            }
+        } catch (err) {
+            setError(err.response?.data?.error || 'Login failed. Please check credentials.');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -159,19 +167,28 @@ const Login = () => {
                                         className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
+                                <div className="space-y-1.5 relative">
                                     <div className="flex justify-between items-center px-1">
                                         <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Password</label>
                                         <Link to="/forgot-password" size="sm" className="text-[10px] text-[#059669] font-black hover:underline underline-offset-4">Forgot?</Link>
                                     </div>
-                                    <input
-                                        type="password"
-                                        name="password"
-                                        value={formData.password}
-                                        onChange={handleChange}
-                                        placeholder="••••••••"
-                                        className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
-                                    />
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            placeholder="••••••••"
+                                            className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#059669] transition-colors"
+                                        >
+                                            {showPassword ? "👁️" : "👁️‍🗨️"}
+                                        </button>
+                                    </div>
                                 </div>
 
                                 {error && (
@@ -186,9 +203,10 @@ const Login = () => {
 
                                 <button
                                     type="submit"
-                                    className="w-full bg-[#1e3a8a] text-white font-black py-4 rounded-[20px] shadow-xl shadow-blue-900/10 hover:shadow-blue-900/20 hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-[0.98] mt-4 text-sm"
+                                    disabled={loading}
+                                    className="w-full bg-[#1e3a8a] text-white font-black py-4 rounded-[20px] shadow-xl shadow-blue-900/10 hover:shadow-blue-900/20 hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-[0.98] mt-4 text-sm disabled:opacity-50"
                                 >
-                                    Sign In
+                                    {loading ? 'Authenticating...' : 'Sign In'}
                                 </button>
                             </form>
 

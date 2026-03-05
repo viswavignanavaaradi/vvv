@@ -2,10 +2,25 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { GoogleLogin } from '@react-oauth/google';
+import axios from '../api/axios';
 
 const Signup = () => {
     const [userType, setUserType] = useState('patron');
     const navigate = useNavigate();
+    const [formData, setFormData] = useState({
+        fullName: '',
+        username: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    });
+    const [showPassword, setShowPassword] = useState(false);
+    const [error, setError] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSignupSuccess = (credentialResponse) => {
         console.log('Google Signup Success:', credentialResponse);
@@ -30,6 +45,33 @@ const Signup = () => {
             navigate('/internship-enrollment');
         } else {
             navigate('/profile');
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        if (formData.password !== formData.confirmPassword) {
+            return setError('Passwords do not match');
+        }
+        setLoading(true);
+        try {
+            const res = await axios.post('/api/auth/signup', {
+                ...formData,
+                role: userType
+            });
+            localStorage.setItem('vvv_user', JSON.stringify(res.data.user));
+            if (userType === 'volunteer') {
+                navigate('/volunteer-enrollment');
+            } else if (userType === 'intern') {
+                navigate('/internship-enrollment');
+            } else {
+                navigate('/profile');
+            }
+        } catch (err) {
+            setError(err.response?.data?.error || 'Signup failed');
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -127,41 +169,89 @@ const Signup = () => {
                                 <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">I am joining as a <span className="text-[#F59E0B] italic">{userType}</span></p>
                             </div>
 
-                            <form className="space-y-4">
+                            <form onSubmit={handleSubmit} className="h-[380px] overflow-y-auto pr-2 custom-scrollbar space-y-4">
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Full Name</label>
+                                    <input
+                                        type="text"
+                                        name="fullName"
+                                        required
+                                        value={formData.fullName}
+                                        onChange={handleChange}
+                                        placeholder="Enter your full name"
+                                        className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
+                                    />
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                                    <input
+                                        type="email"
+                                        name="email"
+                                        required
+                                        value={formData.email}
+                                        onChange={handleChange}
+                                        placeholder="johndoe@example.com"
+                                        className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
+                                    />
+                                </div>
                                 <div className="space-y-1.5">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Username</label>
                                     <input
                                         type="text"
                                         name="username"
+                                        required
+                                        value={formData.username}
+                                        onChange={handleChange}
                                         placeholder="Pick a username"
                                         className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
                                     />
                                 </div>
-                                <div className="space-y-1.5">
+                                <div className="space-y-1.5 relative">
                                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Password</label>
+                                    <div className="relative">
+                                        <input
+                                            type={showPassword ? "text" : "password"}
+                                            name="password"
+                                            required
+                                            value={formData.password}
+                                            onChange={handleChange}
+                                            placeholder="••••••••"
+                                            className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="absolute right-6 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#059669] transition-colors"
+                                        >
+                                            {showPassword ? "👁️" : "👁️‍🗨️"}
+                                        </button>
+                                    </div>
+                                </div>
+                                <div className="space-y-1.5">
+                                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Confirm Password</label>
                                     <input
                                         type="password"
-                                        name="password"
+                                        name="confirmPassword"
+                                        required
+                                        value={formData.confirmPassword}
+                                        onChange={handleChange}
                                         placeholder="••••••••"
                                         className="w-full px-6 py-4 rounded-[20px] bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#059669] focus:ring-4 focus:ring-[#059669]/5 outline-none transition-all placeholder:text-slate-300 font-medium text-slate-700 text-sm"
                                     />
                                 </div>
 
+                                {error && (
+                                    <div className="text-red-500 text-[10px] font-black uppercase text-center py-2 animate-bounce">
+                                        {error}
+                                    </div>
+                                )}
+
                                 <button
-                                    type="button"
-                                    onClick={() => {
-                                        if (userType === 'volunteer') {
-                                            navigate('/volunteer-enrollment');
-                                        } else if (userType === 'intern') {
-                                            navigate('/internship-enrollment');
-                                        } else {
-                                            // Normal signup logic for patrons
-                                            alert('Patron signup coming soon or use Google Login');
-                                        }
-                                    }}
-                                    className="w-full bg-[#1e3a8a] text-white font-black py-4 rounded-[20px] shadow-xl shadow-blue-900/10 hover:shadow-blue-900/20 hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-[0.98] mt-2 text-sm"
+                                    type="submit"
+                                    disabled={loading}
+                                    className="w-full bg-[#1e3a8a] text-white font-black py-4 rounded-[20px] shadow-xl shadow-blue-900/10 hover:shadow-blue-900/20 hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-[0.98] mt-2 text-sm disabled:opacity-50"
                                 >
-                                    Create Account
+                                    {loading ? 'Processing...' : 'Create Account'}
                                 </button>
                             </form>
 
