@@ -980,16 +980,21 @@ app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
     console.log(`[Auth] Forgot Password requested for: ${email}`);
     try {
-        const user = await User.findOne({ email: { $regex: new RegExp(`^${email.trim()}$`, 'i') } });
+        const otp = Math.floor(100000 + Math.random() * 900000).toString();
+        const otpExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+
+        // Use findOneAndUpdate to bypass unnecessary schema validation on other fields
+        const user = await User.findOneAndUpdate(
+            { email: { $regex: new RegExp(`^${email.trim()}$`, 'i') } },
+            { resetOTP: otp, resetOTPExpires: otpExpires },
+            { new: true }
+        );
+
         if (!user) {
             console.log(`[Auth] User not found for: ${email}`);
             return res.status(404).json({ error: 'User not found' });
         }
 
-        const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        user.resetOTP = otp;
-        user.resetOTPExpires = Date.now() + 10 * 60 * 1000; // 10 mins
-        await user.save();
         console.log(`[Auth] OTP generated for ${email}. Attempting to send...`);
 
         await transporter.sendMail({
