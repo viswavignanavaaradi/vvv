@@ -33,16 +33,16 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
-// Email Transporter for OTP and Contact (v4.9.1)
+// Email Transporter for OTP and Contact (v4.9.3 - Port 465 SSL)
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false, // true for 465, false for 587
+    port: 465,
+    secure: true, // Port 465 requires secure: true
     auth: {
-        user: 'viswavignanavaaradi@gmail.com',
-        pass: (process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
+        user: process.env.EMAIL || 'viswavignanavaaradi@gmail.com',
+        pass: (process.env.APP_PASSWORD || process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
     },
-    family: 4, // Force IPv4
+    family: 4, // Force IPv4 to avoid ENETUNREACH
     connectionTimeout: 20000, // 20s
     greetingTimeout: 20000, // 20s
     socketTimeout: 40000, // 40s
