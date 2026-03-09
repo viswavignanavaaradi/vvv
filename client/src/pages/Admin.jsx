@@ -279,11 +279,11 @@ const Admin = () => {
                             <motion.div key="dashboard" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} className="space-y-8">
                                 {/* Hero Metrics */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
-                                    <StatCard label="Total Capital" value={`₹${donations.reduce((sum, d) => sum + d.amount, 0).toLocaleString()}`} icon="💰" trend="+12%" colorClass="bg-emerald-50 text-emerald-600" gradient="from-emerald-500 to-teal-500" />
-                                    <StatCard label="Volunteers" value={volunteers.length.toLocaleString()} icon="👥" trend="Active" colorClass="bg-blue-50 text-blue-600" gradient="from-blue-500 to-indigo-500" />
-                                    <StatCard label="Legal Cases" value={legalRequests.filter(r => r.status !== 'Done').length} icon="⚖️" trend="Critical" colorClass="bg-orange-50 text-orange-600" gradient="from-orange-500 to-rose-500" />
-                                    <StatCard label="Interns" value={interns.length.toLocaleString()} icon="🎓" trend="Pending" colorClass="bg-indigo-50 text-indigo-600" gradient="from-indigo-500 to-purple-500" />
-                                    <StatCard label="Active Patrons" value={patrons.length.toLocaleString()} icon="🌟" trend="Premium" colorClass="bg-yellow-50 text-yellow-600" gradient="from-yellow-400 to-amber-600" />
+                                    <StatCard label="Total Capital" value={`₹${(donations || []).reduce((sum, d) => sum + (d?.amount || 0), 0).toLocaleString()}`} icon="💰" trend="+12%" colorClass="bg-emerald-50 text-emerald-600" gradient="from-emerald-500 to-teal-500" />
+                                    <StatCard label="Volunteers" value={(volunteers || []).length.toLocaleString()} icon="👥" trend="Active" colorClass="bg-blue-50 text-blue-600" gradient="from-blue-500 to-indigo-500" />
+                                    <StatCard label="Legal Cases" value={(legalRequests || []).filter(r => r?.status !== 'Done').length} icon="⚖️" trend="Critical" colorClass="bg-orange-50 text-orange-600" gradient="from-orange-500 to-rose-500" />
+                                    <StatCard label="Interns" value={(interns || []).length.toLocaleString()} icon="🎓" trend="Pending" colorClass="bg-indigo-50 text-indigo-600" gradient="from-indigo-500 to-purple-500" />
+                                    <StatCard label="Active Patrons" value={(patrons || []).length.toLocaleString()} icon="🌟" trend="Premium" colorClass="bg-yellow-50 text-yellow-600" gradient="from-yellow-400 to-amber-600" />
                                 </div>
 
                                 <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
@@ -304,19 +304,23 @@ const Admin = () => {
                                         <div className="space-y-2">
                                             {/* Combined Recent Activities */}
                                             {[
-                                                ...donations.slice(0, 3).map(d => ({ type: 'donation', data: d })),
-                                                ...volunteers.slice(0, 3).map(v => ({ type: 'volunteer', data: v })),
-                                                ...legalRequests.slice(0, 3).map(r => ({ type: 'legal', data: r }))
-                                            ].sort((a, b) => new Date(b.data.date || b.data.createdAt) - new Date(a.data.date || a.data.createdAt))
+                                                ...(donations || []).slice(0, 3).map(d => ({ type: 'donation', data: d })),
+                                                ...(volunteers || []).slice(0, 3).map(v => ({ type: 'volunteer', data: v })),
+                                                ...(legalRequests || []).slice(0, 3).map(r => ({ type: 'legal', data: r }))
+                                            ].sort((a, b) => {
+                                                const dateA = new Date(a.data?.date || a.data?.createdAt || 0);
+                                                const dateB = new Date(b.data?.date || b.data?.createdAt || 0);
+                                                return dateB - dateA;
+                                            })
                                                 .slice(0, 6)
                                                 .map((item, idx) => (
                                                     <ActivityItem
                                                         key={idx}
                                                         icon={item.type === 'donation' ? '💰' : item.type === 'volunteer' ? '👥' : '⚖️'}
                                                         color={item.type === 'donation' ? 'bg-emerald-50 text-emerald-600' : item.type === 'volunteer' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}
-                                                        title={item.type === 'donation' ? `Donation from ${item.data.donor_name || 'Anonymous'}` : item.type === 'volunteer' ? `New Volunteer: ${item.data.fullName}` : `Legal Aid: ${item.data.requestId}`}
-                                                        subtitle={item.type === 'donation' ? `Amount: ₹${item.data.amount.toLocaleString()}` : item.type === 'volunteer' ? `From ${item.data.district}` : `Status: ${item.data.status}`}
-                                                        time={formatDate(item.data.date || item.data.createdAt)}
+                                                        title={item.type === 'donation' ? `Donation from ${item.data?.donor_name || 'Anonymous'}` : item.type === 'volunteer' ? `New Volunteer: ${item.data?.fullName || 'N/A'}` : `Legal Aid: ${item.data?.requestId || 'N/A'}`}
+                                                        subtitle={item.type === 'donation' ? `Amount: ₹${(item.data?.amount || 0).toLocaleString()}` : item.type === 'volunteer' ? `From ${item.data?.district || 'Unknown'}` : `Status: ${item.data?.status || 'Pending'}`}
+                                                        time={formatDate(item.data?.date || item.data?.createdAt)}
                                                     />
                                                 ))}
                                         </div>
@@ -390,10 +394,10 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
-                                                    {legalRequests.filter(req =>
-                                                        req.requestId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        req.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        req.email.toLowerCase().includes(searchTerm.toLowerCase())
+                                                    {(legalRequests || []).filter(req =>
+                                                        (req?.requestId || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (req?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (req?.email || '').toLowerCase().includes(searchTerm.toLowerCase())
                                                     ).map((req, idx) => (
                                                         <tr key={req._id}>
                                                             <td className="px-10 py-8">{(idx + 1).toString().padStart(2, '0')}</td>
@@ -528,10 +532,10 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {volunteers.filter(v =>
-                                                        v.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        v.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        (v.district || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    {(volunteers || []).filter(v =>
+                                                        (v?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (v?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (v?.district || '').toLowerCase().includes(searchTerm.toLowerCase())
                                                     ).map((v, idx) => (
                                                         <tr key={idx} className="border-b last:border-0">
                                                             <td className="px-10 py-8 font-black">{v.fullName}</td>
@@ -600,10 +604,10 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    {interns.filter(i =>
-                                                        i.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        i.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        (i.college || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    {(interns || []).filter(i =>
+                                                        (i?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (i?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (i?.collegeName || '').toLowerCase().includes(searchTerm.toLowerCase())
                                                     ).map((i, idx) => (
                                                         <tr key={idx} className="border-b last:border-0 hover:bg-slate-50 transition-all">
                                                             <td className="px-10 py-8 font-black">{i.fullName}</td>
@@ -623,8 +627,8 @@ const Admin = () => {
                                         <button onClick={() => setSelectedIntern(null)} className="text-[10px] font-black uppercase tracking-widest text-slate-400">← Return</button>
                                         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                                             <div className="lg:col-span-2 bg-white rounded-[40px] p-10 border shadow-sm">
-                                                <h2 className="text-3xl font-black mb-4">{selectedIntern.fullName}</h2>
-                                                <p className="text-blue-600 font-black uppercase text-xs mb-8">{selectedIntern.college}</p>
+                                                <h2 className="text-3xl font-black mb-4">{selectedIntern?.fullName || 'N/A'}</h2>
+                                                <p className="text-blue-600 font-black uppercase text-xs mb-8">{selectedIntern?.collegeName || selectedIntern?.college || 'Institution N/A'}</p>
                                                 <div className="grid grid-cols-2 gap-4 mb-8">
                                                     <button onClick={() => window.open(selectedIntern.resume, '_blank')} className="p-4 border rounded-xl text-left font-black uppercase text-[10px] hover:border-blue-500">Resume Artifact</button>
                                                     {selectedIntern.achievements && <button onClick={() => window.open(selectedIntern.achievements, '_blank')} className="p-4 border rounded-xl text-left font-black uppercase text-[10px] hover:border-emerald-500">Merit Record</button>}
@@ -671,10 +675,10 @@ const Admin = () => {
                                                     </tr>
                                                 </thead>
                                                 <tbody className="divide-y divide-slate-50">
-                                                    {patrons.filter(p =>
-                                                        p.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        p.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                                        (p.subscription_id || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                    {(patrons || []).filter(p =>
+                                                        (p?.fullName || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (p?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                        (p?.subscription_id || '').toLowerCase().includes(searchTerm.toLowerCase())
                                                     ).map((p, idx) => (
                                                         <tr key={idx} className="hover:bg-slate-50/50 transition-all">
                                                             <td className="px-10 py-8 font-black text-slate-800">{p.fullName}</td>

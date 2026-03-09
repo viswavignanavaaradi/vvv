@@ -831,7 +831,7 @@ app.post('/api/intern/upload-achievement', uploadDoc.single('document'), async (
 // Admin APIs
 app.get('/api/admin/volunteers', async (req, res) => {
     try {
-        const volunteers = await Volunteer.find().sort({ createdAt: -1 });
+        const volunteers = await Volunteer.find().sort({ date: -1 });
         res.json(volunteers);
     } catch (err) {
         res.status(500).json({ error: err.message });
