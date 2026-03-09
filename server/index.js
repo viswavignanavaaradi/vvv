@@ -1,3 +1,9 @@
+// MUST BE FIRST — Force IPv4 before any network module loads
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
@@ -12,12 +18,6 @@ const cloudinary = require('cloudinary').v2;
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const { createObjectCsvWriter } = require('csv-writer');
 const nodemailer = require('nodemailer');
-const dns = require('dns');
-
-// Force IPv4 preference for all network operations (v4.6.7)
-if (dns.setDefaultResultOrder) {
-    dns.setDefaultResultOrder('ipv4first');
-}
 
 // Models
 const User = require('./models/User');
@@ -33,50 +33,44 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
-// Email Transporter for OTP and Contact (v4.9.3 - Port 465 SSL)
+// ─── Email Transporter (v4.9.4 - Hardcoded IPv4 to bypass IPv6 DNS) ───────────
+// Using hardcoded Gmail SMTP IPv4 address to avoid ENETUNREACH on IPv6-blocked hosts
 const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
+    host: '74.125.133.108', // Gmail SMTP hardcoded IPv4 — completely bypasses IPv6 DNS
     port: 465,
-    secure: true, // Port 465 requires secure: true
+    secure: true,
     auth: {
         user: process.env.EMAIL || 'viswavignanavaaradi@gmail.com',
-        pass: (process.env.APP_PASSWORD || process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
+        pass: (process.env.APP_PASSWORD || process.env.EMAIL_PASS || '').trim().replace(/\s/g, '')
     },
-    family: 4, // Force IPv4 to avoid ENETUNREACH
-    connectionTimeout: 20000, // 20s
-    greetingTimeout: 20000, // 20s
-    socketTimeout: 40000, // 40s
+    connectionTimeout: 30000,
+    greetingTimeout: 30000,
+    socketTimeout: 60000,
     tls: {
-        rejectUnauthorized: false
+        rejectUnauthorized: false,
+        servername: 'smtp.gmail.com' // SNI must still match Gmail cert even with hardcoded IP
     }
 });
 
-// Verify Transporter
+// Verify Transporter on startup
 transporter.verify(function (error, success) {
     if (error) {
-        console.error('[Nodemailer] Transporter Error:', error);
+        console.error('[Nodemailer] Transporter Error:', error.message);
     } else {
-        console.log('[Nodemailer] Transporter is ready to take messages');
+        console.log('[Nodemailer] Transporter is ready to send messages');
     }
 });
 
-const VERSION = "4.9.0";
-const LAST_UPDATED = "2026-03-06 01:35 IST";
+const VERSION = "4.9.4";
+const LAST_UPDATED = "2026-03-08 IST";
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-const allowedOrigins = [
-    'https://vvv-six-tawny.vercel.app',
-    'https://vvv.vercel.app',
-    'http://localhost:5173',
-    'http://localhost:3000'
-];
-
+// ─── CORS ─────────────────────────────────────────────────────────────────────
 app.use(cors({
     origin: function (origin, callback) {
         console.log(`[CORS Request] Origin: ${origin}`);
-        // allow requests with no origin (like mobile apps or curl requests)
         if (!origin) return callback(null, true);
         const isVercel = origin.endsWith('.vercel.app');
         const isLocal = origin.includes('localhost');
@@ -92,12 +86,13 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// ─── Basic Routes ─────────────────────────────────────────────────────────────
 app.get('/', (req, res) => {
     res.json({
         message: 'VVV Nexus API is running',
         status: 'healthy',
-        version: "v4.4.2",
-        lastUpdated: '2026-02-28T23:50:00Z'
+        version: VERSION,
+        lastUpdated: LAST_UPDATED
     });
 });
 
@@ -108,24 +103,23 @@ app.get('/api/ping', (req, res) => {
 app.use(bodyParser.json());
 app.use('/api/gallery', galleryRouter);
 
-// MongoDB Connection
+// ─── MongoDB ──────────────────────────────────────────────────────────────────
 const MONGODB_URI = process.env.MONGODB_URI;
 mongoose.connect(MONGODB_URI, {
-    dbName: 'vvv_ngo' // Explicitly target the correct database
+    dbName: 'vvv_ngo'
 })
     .then(() => {
         const dbName = mongoose.connection.name;
         const host = mongoose.connection.host;
         console.log(`[MongoDB] Connected to host: ${host}`);
         console.log(`[MongoDB] Active Database: ${dbName}`);
-        ensurePlans(); // Initialize Plans on DB connection
+        ensurePlans();
     })
     .catch(err => {
         console.error('MongoDB connection error:', err.message);
-        // Do not process.exit(1) here during deployment as it prevents Render from seeing the port open
     });
 
-// Cloudinary Config Check
+// ─── Cloudinary ───────────────────────────────────────────────────────────────
 if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !process.env.CLOUDINARY_API_SECRET) {
     console.warn('[Cloudinary] WARNING: Missing configuration environment variables!');
 } else {
@@ -137,7 +131,7 @@ if (!process.env.CLOUDINARY_CLOUD_NAME || !process.env.CLOUDINARY_API_KEY || !pr
     console.log('[Cloudinary] Configured successfully');
 }
 
-// Multer Setup
+// ─── Multer ───────────────────────────────────────────────────────────────────
 const photoStorage = new CloudinaryStorage({
     cloudinary: cloudinary,
     params: {
@@ -162,33 +156,32 @@ const docStorage = new CloudinaryStorage({
 const uploadPhoto = multer({ storage: photoStorage });
 const uploadDoc = multer({ storage: docStorage });
 
-// Razorpay Instance
+// ─── Razorpay ─────────────────────────────────────────────────────────────────
 const razorpay = new Razorpay({
     key_id: process.env.RAZORPAY_KEY_ID || 'rzp_test_placeholder',
     key_secret: process.env.RAZORPAY_KEY_SECRET || 'placeholder',
 });
 
-// Plans Cache
+if (process.env.RAZORPAY_KEY_ID && !process.env.RAZORPAY_KEY_ID.includes('YourKeyID')) {
+    console.log('[Razorpay] Configured with key ID:', process.env.RAZORPAY_KEY_ID.substring(0, 10) + '...');
+} else {
+    console.warn('[Razorpay] Warning: Keys are not configured or still using placeholders.');
+}
+
+// ─── Plans Cache ──────────────────────────────────────────────────────────────
 let plans = {
-    '99': null,
-    '199': null,
-    '299': null,
-    '499': null,
-    '999': null,
-    '1499': null,
-    '1999': null,
-    '2499': null,
-    '2999': null,
-    '4999': null
+    '99': null, '199': null, '299': null, '499': null, '999': null,
+    '1499': null, '1999': null, '2499': null, '2999': null, '4999': null
 };
 
 async function ensurePlans() {
     console.log('[Razorpay] Checking/Creating Plans...');
     try {
         const existingPlans = await razorpay.plans.all();
-
         for (const amount of Object.keys(plans)) {
-            let found = existingPlans.items.find(p => p.item.amount === parseInt(amount) * 100 && p.period === 'monthly');
+            let found = existingPlans.items.find(
+                p => p.item.amount === parseInt(amount) * 100 && p.period === 'monthly'
+            );
             if (!found) {
                 console.log(`[Razorpay] Creating Plan for monthly ₹${amount}...`);
                 found = await razorpay.plans.create({
@@ -210,25 +203,16 @@ async function ensurePlans() {
     }
 }
 
-// Verify Razorpay Config on startup
-if (process.env.RAZORPAY_KEY_ID && !process.env.RAZORPAY_KEY_ID.includes('YourKeyID')) {
-    console.log('[Razorpay] Configured with key ID:', process.env.RAZORPAY_KEY_ID.substring(0, 10) + '...');
-} else {
-    console.warn('[Razorpay] Warning: Razorpay keys are not configured or still using placeholders.');
-}
-
-// User Status Check (Registration Guard)
+// ─── User Status Check ────────────────────────────────────────────────────────
 app.get('/api/user/status', async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: 'Email is required' });
-
     try {
         const [volunteer, intern, patron] = await Promise.all([
             Volunteer.findOne({ email }),
             Intern.findOne({ email }),
             Patron.findOne({ email })
         ]);
-
         res.json({
             isVolunteer: !!volunteer,
             isIntern: !!intern,
@@ -239,45 +223,36 @@ app.get('/api/user/status', async (req, res) => {
     }
 });
 
-// APIs
+// ─── Razorpay Key ─────────────────────────────────────────────────────────────
 app.get('/api/get-key', (req, res) => {
     res.json({ key: process.env.RAZORPAY_KEY_ID });
 });
 
+// ─── Subscription ─────────────────────────────────────────────────────────────
 app.post('/api/create-subscription', async (req, res) => {
     const { amount, email, name } = req.body;
-
     if (!amount || parseInt(amount) <= 0) {
         return res.status(400).json({ error: 'Please enter a valid amount greater than zero' });
     }
-
     const planId = plans[amount.toString()];
-
     if (!planId) {
         return res.status(400).json({ error: `No active plan found for amount: ${amount}` });
     }
-
     try {
         const subscription = await razorpay.subscriptions.create({
             plan_id: planId,
             customer_notify: 1,
-            total_count: 120, // 10 years or indefinite basically
-            notes: {
-                email: email,
-                name: name
-            }
+            total_count: 120,
+            notes: { email, name }
         });
-
-        // Save initial record
         await Subscription.create({
             subscription_id: subscription.id,
             plan_id: planId,
             customer_name: name,
-            email: email,
+            email,
             amount: parseInt(amount),
             status: subscription.status
         });
-
         res.json(subscription);
     } catch (err) {
         console.error('[Subscription API] Error:', err);
@@ -285,18 +260,15 @@ app.post('/api/create-subscription', async (req, res) => {
     }
 });
 
-// Webhook Endpoint for Razorpay
+// ─── Razorpay Webhook ─────────────────────────────────────────────────────────
 app.post('/api/razorpay-webhook', async (req, res) => {
     const secret = process.env.RAZORPAY_WEBHOOK_SECRET;
     const body = JSON.stringify(req.body);
     const signature = req.headers['x-razorpay-signature'];
 
-    if (!signature || !secret) {
-        return res.status(400).send('Missing signature or secret');
-    }
+    if (!signature || !secret) return res.status(400).send('Missing signature or secret');
 
     const expectedSignature = crypto.createHmac('sha256', secret).update(body).digest('hex');
-
     if (expectedSignature !== signature) {
         console.warn('[Webhook] Invalid Signature Received');
         return res.status(400).send('Invalid Signature');
@@ -316,29 +288,26 @@ app.post('/api/razorpay-webhook', async (req, res) => {
                 const sub = await Subscription.findOne({ subscription_id: subscriptionId });
                 if (sub) {
                     const certificateId = `CERT-SUB-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-                    const donation = new Donation({
+                    await new Donation({
                         payment_id: paymentId,
-                        amount: amount,
+                        amount,
                         donor_name: sub.customer_name,
                         email: sub.email,
                         certificate_id: certificateId
-                    });
-                    await donation.save();
-                    console.log(`[Webhook] Recorded recurring payment for ${sub.email}`);
-
-                    // Create/Update Patron record
+                    }).save();
                     await Patron.findOneAndUpdate(
                         { email: sub.email },
                         {
                             fullName: sub.customer_name,
                             email: sub.email,
-                            amount: amount,
+                            amount,
                             status: 'active',
                             subscription_id: subscriptionId,
                             date: new Date()
                         },
                         { upsert: true, new: true }
                     );
+                    console.log(`[Webhook] Recorded recurring payment for ${sub.email}`);
                 }
                 break;
             }
@@ -350,7 +319,6 @@ app.post('/api/razorpay-webhook', async (req, res) => {
             }
             case 'payment.failed': {
                 console.warn(`[Webhook] Payment Failed:`, req.body.payload.payment.entity.error_description);
-                // Future: Send email alert to user
                 break;
             }
         }
@@ -361,6 +329,7 @@ app.post('/api/razorpay-webhook', async (req, res) => {
     res.json({ status: 'ok' });
 });
 
+// ─── Patron Enroll ────────────────────────────────────────────────────────────
 app.post('/api/patron/enroll', async (req, res) => {
     const { fullName, email, phone, profession, experience, advisoryWing, linkedinProfile, amount, subscriptionId } = req.body;
     try {
@@ -375,23 +344,20 @@ app.post('/api/patron/enroll', async (req, res) => {
             },
             { upsert: true, new: true }
         );
-
-        // Update User info
         await User.findOneAndUpdate(
             { email },
             { name: fullName, role: 'patron' },
             { upsert: true }
         );
-
         res.json({ status: 'success', patron });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
+// ─── Subscription Success ─────────────────────────────────────────────────────
 app.post('/api/subscription-success', async (req, res) => {
     const { razorpay_payment_id, razorpay_subscription_id, razorpay_signature, amount, name, email } = req.body;
-
     const body = razorpay_payment_id + "|" + razorpay_subscription_id;
     const expectedSignature = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET).update(body).digest('hex');
 
@@ -399,34 +365,18 @@ app.post('/api/subscription-success', async (req, res) => {
         try {
             await Subscription.findOneAndUpdate(
                 { subscription_id: razorpay_subscription_id },
-                { status: 'active', razorpay_signature: razorpay_signature, updatedAt: new Date() }
+                { status: 'active', razorpay_signature, updatedAt: new Date() }
             );
-
-            // Also record it as an initial donation for the certificate
             const certificateId = `CERT-SUB-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
-            const donation = new Donation({
+            await new Donation({
                 payment_id: razorpay_payment_id,
-                amount,
-                donor_name: name,
-                email,
-                certificate_id: certificateId
-            });
-            await donation.save();
-
-            // Create/Update Patron record
+                amount, donor_name: name, email, certificate_id: certificateId
+            }).save();
             await Patron.findOneAndUpdate(
-                { email: email },
-                {
-                    fullName: name,
-                    email: email,
-                    amount: amount,
-                    status: 'active',
-                    subscription_id: razorpay_subscription_id,
-                    date: new Date()
-                },
+                { email },
+                { fullName: name, email, amount, status: 'active', subscription_id: razorpay_subscription_id, date: new Date() },
                 { upsert: true, new: true }
             );
-
             res.json({ status: 'success', certificate_id: certificateId });
         } catch (err) {
             res.status(500).json({ error: err.message });
@@ -436,37 +386,30 @@ app.post('/api/subscription-success', async (req, res) => {
     }
 });
 
+// ─── Create Order ─────────────────────────────────────────────────────────────
 app.post('/api/create-order', async (req, res) => {
     const { amount } = req.body;
-
     if (!amount || parseInt(amount) <= 0) {
         return res.status(400).json({ error: 'Please enter a valid amount greater than zero' });
     }
-
-    // Robust check for missing or placeholder keys
     const keyId = process.env.RAZORPAY_KEY_ID;
     const keySecret = process.env.RAZORPAY_KEY_SECRET;
-
     if (!keyId || !keySecret || keyId.includes('YourKeyID') || keySecret.includes('YourKeySecret')) {
-        console.error('[Razorpay API] Error: Keys missing or unconfigured.');
-        return res.status(400).json({
-            error: "Razorpay keys are not configured. Please update RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in your server/.env file."
-        });
+        return res.status(400).json({ error: "Razorpay keys are not configured." });
     }
-
-    const options = {
-        amount: amount * 100,
-        currency: "INR",
-        receipt: `receipt_${Math.random().toString(36).substr(2, 9)}`,
-    };
     try {
-        const order = await razorpay.orders.create(options);
+        const order = await razorpay.orders.create({
+            amount: amount * 100,
+            currency: "INR",
+            receipt: `receipt_${Math.random().toString(36).substr(2, 9)}`,
+        });
         res.json(order);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
+// ─── Payment Success ──────────────────────────────────────────────────────────
 app.post('/api/payment-success', async (req, res) => {
     const { razorpay_order_id, razorpay_payment_id, razorpay_signature, amount, donor_name, email, phone } = req.body;
     const body = razorpay_order_id + "|" + razorpay_payment_id;
@@ -475,13 +418,11 @@ app.post('/api/payment-success', async (req, res) => {
     if (expectedSignature === razorpay_signature) {
         const certificateId = `CERT-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
         try {
-            const donation = new Donation({
+            await new Donation({
                 order_id: razorpay_order_id,
                 payment_id: razorpay_payment_id,
-                amount, donor_name, email, phone,
-                certificate_id: certificateId
-            });
-            await donation.save();
+                amount, donor_name, email, phone, certificate_id: certificateId
+            }).save();
             res.json({ status: 'success', certificate_id: certificateId });
         } catch (err) {
             res.status(500).json({ error: err.message });
@@ -491,7 +432,7 @@ app.post('/api/payment-success', async (req, res) => {
     }
 });
 
-// Volunteer Enrollment
+// ─── Volunteer Enrollment ─────────────────────────────────────────────────────
 app.post('/api/volunteer/enroll', async (req, res) => {
     const {
         fullName, email, contactNumber, age, gender, bloodGroup,
@@ -504,40 +445,21 @@ app.post('/api/volunteer/enroll', async (req, res) => {
         const volunteer = await Volunteer.findOneAndUpdate(
             { email },
             {
-                fullName,
-                email,
-                age,
-                gender,
-                phone: contactNumber,
-                bloodGroup,
-                state,
-                district,
-                college: collegeName,
-                education,
-                profession,
-                occupation,
-                organization,
-                experience,
-                wings: preferredWings,
-                priorityWing: mainPriorityWing,
-                interests,
+                fullName, email, age, gender,
+                phone: contactNumber, bloodGroup, state, district,
+                college: collegeName, education, profession, occupation,
+                organization, experience, wings: preferredWings,
+                priorityWing: mainPriorityWing, interests,
                 documents: documents || [],
                 contributed: willingToContribute === 'no'
             },
             { upsert: true, new: true }
         );
-
-        // Update User info
         await User.findOneAndUpdate(
             { email },
-            {
-                name: fullName,
-                role: 'volunteer',
-                ...(profilePhoto && { picture: profilePhoto })
-            },
+            { name: fullName, role: 'volunteer', ...(profilePhoto && { picture: profilePhoto }) },
             { upsert: true }
         );
-
         res.json({ status: 'success', enrollmentId: volunteer._id });
     } catch (err) {
         console.error("Enrollment Error Details:", err);
@@ -548,17 +470,14 @@ app.post('/api/volunteer/enroll', async (req, res) => {
 app.post('/api/volunteer/payment-success', async (req, res) => {
     const { razorpay_payment_id, enrollmentId } = req.body;
     try {
-        await Volunteer.findByIdAndUpdate(enrollmentId, {
-            contributed: true,
-            payment_id: razorpay_payment_id
-        });
+        await Volunteer.findByIdAndUpdate(enrollmentId, { contributed: true, payment_id: razorpay_payment_id });
         res.json({ status: 'success' });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Profile Fetch
+// ─── Profile Fetch ────────────────────────────────────────────────────────────
 app.get('/api/user/profile', async (req, res) => {
     const { email } = req.query;
     try {
@@ -566,35 +485,24 @@ app.get('/api/user/profile', async (req, res) => {
         const user = await User.findOne({ email });
         const donations = await Donation.find({ email });
         const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
-
         res.json({
-            user,
-            volunteer,
-            donations: {
-                total: totalDonated,
-                count: donations.length,
-                history: donations
-            }
+            user, volunteer,
+            donations: { total: totalDonated, count: donations.length, history: donations }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// ID Card Download
+// ─── ID Card Download ─────────────────────────────────────────────────────────
 app.get('/api/user/download-id-card', async (req, res) => {
     const { email } = req.query;
     console.log('ID Card Download Request for:', email);
     try {
         const volunteer = await Volunteer.findOne({ email });
-        if (!volunteer) {
-            console.log('Volunteer not found in DB for:', email);
-            return res.status(404).json({ error: 'Volunteer not found' });
-        }
+        if (!volunteer) return res.status(404).json({ error: 'Volunteer not found' });
 
-        // Fetch user photo from User model
         const user = await User.findOne({ email });
-
         const volunteerWithPhoto = {
             ...volunteer.toObject(),
             profilePhoto: user?.picture || volunteer.profilePhoto
@@ -615,13 +523,68 @@ app.get('/api/user/download-id-card', async (req, res) => {
     }
 });
 
-// Convenience route for direct certificate download by ID
+// ─── Certificate Routes ───────────────────────────────────────────────────────
 app.get('/api/certificate/:certId', async (req, res) => {
     const { certId } = req.params;
     res.redirect(`/api/user/download-certificate?certId=${certId}`);
 });
 
-// Intern Enrollment
+app.get('/api/user/download-certificate', async (req, res) => {
+    const { email, certId } = req.query;
+    try {
+        let donation;
+        const emailRegex = email ? new RegExp(`^${email.trim()}$`, 'i') : null;
+
+        if (certId) {
+            donation = await Donation.findOne({ certificate_id: certId });
+        } else if (emailRegex) {
+            donation = await Donation.findOne({ email: emailRegex }).sort({ date: -1 });
+        }
+
+        if (!donation && emailRegex) {
+            const volunteer = await Volunteer.findOne({ email: emailRegex });
+            if (volunteer && volunteer.contributed) {
+                donation = {
+                    donor_name: volunteer.fullName,
+                    certificate_id: (volunteer._id || 'PATRON').toString().substr(-6).toUpperCase(),
+                    date: volunteer.createdAt || new Date()
+                };
+            }
+        }
+
+        if (!donation) {
+            return res.status(404).json({ error: 'Donation record not found' });
+        }
+
+        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
+        const host = req.get('host');
+        const verificationUrl = `${protocol}://${host}/api/certificate/${donation.certificate_id}`;
+
+        const filePath = await generateCertificate(donation, verificationUrl);
+        const timestamp = Date.now();
+        const downloadName = `Certificate_${(donation.donor_name || 'Patron').replace(/ /g, '_')}_${timestamp}.pdf`;
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
+
+        res.download(filePath, downloadName, (err) => {
+            if (err) {
+                console.error('[Certificate API] Send Error:', err);
+                if (!res.headersSent) res.status(500).send('Error downloading certificate');
+            }
+            try {
+                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+            } catch (cleanupErr) {
+                console.error('[Certificate API] Cleanup Error:', cleanupErr.message);
+            }
+        });
+    } catch (err) {
+        console.error('[Certificate API] Critical Catch:', err);
+        if (!res.headersSent) res.status(500).json({ error: err.message });
+    }
+});
+
+// ─── Intern Enrollment ────────────────────────────────────────────────────────
 app.post('/api/intern/enroll', async (req, res) => {
     const {
         fullName, email, contactNumber, age, gender, bloodGroup,
@@ -638,98 +601,28 @@ app.post('/api/intern/enroll', async (req, res) => {
                 bloodGroup, state, district, collegeName, education,
                 duration, wings: preferredWings, priorityWing: mainPriorityWing,
                 interests, profilePhoto, documents: achievements || [],
-                linkedinProfile, branch, yearOfStudy,
-                status: 'pending'
+                linkedinProfile, branch, yearOfStudy, status: 'pending'
             },
             { upsert: true, new: true }
         );
-        // ... existing User update logic ...
-
-        // Update User info if User exists
         await User.findOneAndUpdate(
             { email },
-            {
-                name: fullName,
-                role: 'intern',
-                ...(profilePhoto && { picture: profilePhoto })
-            },
+            { name: fullName, role: 'intern', ...(profilePhoto && { picture: profilePhoto }) },
             { upsert: true }
         );
-
         res.json({ status: 'success', enrollmentId: intern._id });
     } catch (err) {
-        console.error("Intern Enrollment Error Details:", err);
+        console.error("Intern Enrollment Error:", err);
         res.status(500).json({ error: err.message });
     }
 });
 
-// Certificate Download
-app.get('/api/user/download-certificate', async (req, res) => {
-    const { email, certId } = req.query;
-    try {
-        let donation;
-        const emailRegex = email ? new RegExp(`^${email.trim()}$`, 'i') : null;
-
-        if (certId) {
-            donation = await Donation.findOne({ certificate_id: certId });
-        } else if (emailRegex) {
-            donation = await Donation.findOne({ email: emailRegex }).sort({ date: -1 });
-        }
-
-        if (!donation && emailRegex) {
-            // Fallback to Volunteer search if no direct donation record exists
-            const volunteer = await Volunteer.findOne({ email: emailRegex });
-            if (volunteer && volunteer.contributed) {
-                donation = {
-                    donor_name: volunteer.fullName,
-                    certificate_id: (volunteer._id || 'PATRON').toString().substr(-6).toUpperCase(),
-                    date: volunteer.createdAt || new Date()
-                };
-            }
-        }
-
-        if (!donation) {
-            console.log('[Certificate API] Record not found for:', email, certId);
-            return res.status(404).json({ error: 'Donation record not found' });
-        }
-
-        const protocol = req.headers['x-forwarded-proto'] || req.protocol;
-        const host = req.get('host');
-        const verificationUrl = `${protocol}://${host}/api/certificate/${donation.certificate_id}`;
-
-        const filePath = await generateCertificate(donation, verificationUrl);
-        const timestamp = Date.now();
-        const downloadName = `Certificate_${(donation.donor_name || 'Patron').replace(/ /g, '_')}_${timestamp}.pdf`;
-
-        // Force browser to see it as a PDF
-        res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename="${downloadName}"`);
-
-        res.download(filePath, downloadName, (err) => {
-            if (err) {
-                console.error('[Certificate API] Send Error:', err);
-                if (!res.headersSent) res.status(500).send('Error downloading certificate');
-            }
-            // Cleanup temp file after download
-            try {
-                if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-            } catch (cleanupErr) {
-                console.error('[Certificate API] Cleanup Error:', cleanupErr.message);
-            }
-        });
-    } catch (err) {
-        console.error('[Certificate API] Critical Catch:', err);
-        if (!res.headersSent) {
-            res.status(500).json({ error: err.message });
-        }
-    }
-});
-
-// System Diagnostic Endpoint
+// ─── System Diagnostic ───────────────────────────────────────────────────────
 app.get('/api/debug/system', (req, res) => {
     const mem = process.memoryUsage();
     res.json({
         time: new Date().toISOString(),
+        version: VERSION,
         memory: {
             rss: `${(mem.rss / 1024 / 1024).toFixed(2)}MB`,
             heapTotal: `${(mem.heapTotal / 1024 / 1024).toFixed(2)}MB`,
@@ -741,9 +634,9 @@ app.get('/api/debug/system', (req, res) => {
     });
 });
 
-// Profile Update (CRUD)
+// ─── Profile Update ───────────────────────────────────────────────────────────
 app.post('/api/user/update-profile', async (req, res) => {
-    const { email, updates, type } = req.body; // type: 'user' or 'volunteer'
+    const { email, updates, type } = req.body;
     try {
         if (type === 'volunteer') {
             await Volunteer.findOneAndUpdate({ email }, updates);
@@ -756,26 +649,13 @@ app.post('/api/user/update-profile', async (req, res) => {
     }
 });
 
-// Image Upload
+// ─── Photo Upload ─────────────────────────────────────────────────────────────
 app.post('/api/user/upload-photo', uploadPhoto.single('photo'), async (req, res) => {
     const { email } = req.body || {};
-    if (!email || !req.file) {
-        return res.status(400).json({ error: 'Missing email or photo' });
-    }
+    if (!email || !req.file) return res.status(400).json({ error: 'Missing email or photo' });
     try {
-        // Sync to User model
-        const user = await User.findOneAndUpdate(
-            { email },
-            { picture: req.file.path },
-            { new: true, upsert: true }
-        );
-
-        // Sync to Volunteer model (if it exists)
-        await Volunteer.findOneAndUpdate(
-            { email },
-            { picture: req.file.path }
-        );
-
+        await User.findOneAndUpdate({ email }, { picture: req.file.path }, { new: true, upsert: true });
+        await Volunteer.findOneAndUpdate({ email }, { picture: req.file.path });
         console.log(`[Upload] Photo updated for ${email}: ${req.file.path}`);
         res.json({ status: 'success', url: req.file.path });
     } catch (err) {
@@ -784,51 +664,41 @@ app.post('/api/user/upload-photo', uploadPhoto.single('photo'), async (req, res)
     }
 });
 
-// Document Upload
+// ─── Document Upload ──────────────────────────────────────────────────────────
 app.post('/api/user/upload-document', uploadDoc.single('document'), async (req, res) => {
     const { email, docName } = req.body || {};
-    if (!email || !req.file) {
-        return res.status(400).json({ error: 'Missing email or document' });
-    }
+    if (!email || !req.file) return res.status(400).json({ error: 'Missing email or document' });
     try {
-        if (!req.file) throw new Error('Cloudinary upload failed - No file received');
-
         await Volunteer.findOneAndUpdate(
             { email },
             { $push: { documents: { name: docName || req.file.originalname, url: req.file.path, cloudinary_id: req.file.filename } } },
             { upsert: true }
         );
-        console.log(`[Upload] Document added for ${email}: ${docName || req.file.originalname}`);
         res.json({ status: 'success', url: req.file.path });
     } catch (err) {
         console.error('[Upload Error] Document:', err.message);
-        res.status(500).json({ error: 'Document upload failed. Please verify Cloudinary settings.' });
+        res.status(500).json({ error: 'Document upload failed.' });
     }
 });
 
-// Achievement (Intern) Upload
+// ─── Intern Achievement Upload ────────────────────────────────────────────────
 app.post('/api/intern/upload-achievement', uploadDoc.single('document'), async (req, res) => {
     const { email, docName } = req.body || {};
-    if (!email || !req.file) {
-        return res.status(400).json({ error: 'Missing email or document' });
-    }
+    if (!email || !req.file) return res.status(400).json({ error: 'Missing email or document' });
     try {
-        if (!req.file) throw new Error('Cloudinary upload failed - No file received');
-
         await Intern.findOneAndUpdate(
             { email },
             { $push: { documents: { name: docName || req.file.originalname, url: req.file.path, cloudinary_id: req.file.filename } } },
-            { upsert: true } // If they upload file before full submit, create skeleton record
+            { upsert: true }
         );
-        console.log(`[Upload] Intern Achievement added for ${email}: ${docName || req.file.originalname}`);
         res.json({ status: 'success', url: req.file.path });
     } catch (err) {
         console.error('[Upload Error] Intern Document:', err.message);
-        res.status(500).json({ error: 'Document upload failed. Please verify Cloudinary settings.' });
+        res.status(500).json({ error: 'Document upload failed.' });
     }
 });
 
-// Admin APIs
+// ─── Admin APIs ───────────────────────────────────────────────────────────────
 app.get('/api/admin/volunteers', async (req, res) => {
     try {
         const volunteers = await Volunteer.find().sort({ createdAt: -1 });
@@ -856,7 +726,6 @@ app.get('/api/admin/patrons', async (req, res) => {
     }
 });
 
-// Intern Admin APIs
 app.get('/api/admin/interns', async (req, res) => {
     try {
         const interns = await Intern.find().sort({ date: -1 });
@@ -870,23 +739,19 @@ app.put('/api/admin/interns/:id/status', async (req, res) => {
     const { status, adminMessage } = req.body;
     try {
         const intern = await Intern.findByIdAndUpdate(req.params.id, { status, adminMessage }, { new: true });
-
-        // Pseudo-code for email notification (Nodemailer could be injected here)
-        console.log(`[Notification] Auto-email triggered for ${intern.email}. Status: ${status}`);
-
+        console.log(`[Notification] Status update for ${intern.email}: ${status}`);
         res.json({ status: 'success', intern });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
-// Legal Request Management
+// ─── Legal Requests ───────────────────────────────────────────────────────────
 app.post('/api/legal/submit', uploadDoc.array('files'), async (req, res) => {
     const { fullName, email, phone, address, message } = req.body;
     try {
         const count = await LegalRequest.countDocuments();
         const requestId = `VVVLR${(count + 1).toString().padStart(4, '0')}`;
-        console.log('Generated Legal Request ID:', requestId);
 
         const documents = req.files ? req.files.map(file => ({
             name: file.originalname,
@@ -894,9 +759,7 @@ app.post('/api/legal/submit', uploadDoc.array('files'), async (req, res) => {
             cloudinary_id: file.filename
         })) : [];
 
-        const request = new LegalRequest({
-            requestId, fullName, email, phone, address, message, documents
-        });
+        const request = new LegalRequest({ requestId, fullName, email, phone, address, message, documents });
         await request.save();
         res.json({ status: 'success', requestId });
     } catch (err) {
@@ -923,23 +786,36 @@ app.put('/api/admin/legal-requests/:id/status', async (req, res) => {
     }
 });
 
-// Auth & Contact Flow (v4.9.0)
+app.get('/api/legal/status/:requestId', async (req, res) => {
+    try {
+        const { requestId } = req.params;
+        const request = await LegalRequest.findOne({
+            requestId: { $regex: new RegExp(`^${requestId.trim()}$`, 'i') }
+        });
+        if (!request) return res.status(404).json({ error: 'Request not found' });
+        res.json({
+            status: request.status,
+            adminMessage: request.adminMessage,
+            createdAt: request.createdAt,
+            fullName: request.fullName
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// ─── Auth ─────────────────────────────────────────────────────────────────────
 app.post('/api/auth/signup', async (req, res) => {
     const { fullName, username, email, password, role } = req.body;
     try {
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
-        if (existingUser) {
-            return res.status(400).json({ error: 'Email or Username already exists' });
-        }
+        if (existingUser) return res.status(400).json({ error: 'Email or Username already exists' });
 
         const user = new User({
-            name: fullName,
-            username,
-            email,
-            password, // NOTE: Simple storage as per current project pattern. Should hash in PROD.
+            name: fullName, username, email,
+            password, // NOTE: Hash in production
             role: role || 'patron'
         });
-
         await user.save();
         res.json({ status: 'success', user: { name: user.name, email: user.email, username: user.username, role: user.role } });
     } catch (err) {
@@ -948,42 +824,31 @@ app.post('/api/auth/signup', async (req, res) => {
 });
 
 app.post('/api/auth/login', async (req, res) => {
-    const { username, password } = req.body; // username can be email or username
+    const { username, password } = req.body;
     try {
         const user = await User.findOne({
-            $or: [
-                { username: username },
-                { email: username }
-            ]
+            $or: [{ username }, { email: username }]
         });
-
         if (!user || user.password !== password) {
             return res.status(401).json({ error: 'Invalid username or password' });
         }
-
         res.json({
             status: 'success',
-            user: {
-                name: user.name,
-                email: user.email,
-                username: user.username,
-                role: user.role,
-                picture: user.picture
-            }
+            user: { name: user.name, email: user.email, username: user.username, role: user.role, picture: user.picture }
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
 
+// ─── Forgot Password (OTP) ────────────────────────────────────────────────────
 app.post('/api/auth/forgot-password', async (req, res) => {
     const { email } = req.body;
     console.log(`[Auth] Forgot Password requested for: ${email}`);
     try {
         const otp = Math.floor(100000 + Math.random() * 900000).toString();
-        const otpExpires = Date.now() + 10 * 60 * 1000; // 10 mins
+        const otpExpires = Date.now() + 10 * 60 * 1000; // 10 minutes
 
-        // Use findOneAndUpdate to bypass unnecessary schema validation on other fields
         const user = await User.findOneAndUpdate(
             { email: { $regex: new RegExp(`^${email.trim()}$`, 'i') } },
             { resetOTP: otp, resetOTPExpires: otpExpires },
@@ -995,20 +860,29 @@ app.post('/api/auth/forgot-password', async (req, res) => {
             return res.status(404).json({ error: 'User not found' });
         }
 
-        console.log(`[Auth] OTP generated for ${email}. Attempting to send...`);
+        console.log(`[Auth] OTP generated for ${email}. Attempting to send via hardcoded IPv4 SMTP...`);
 
         await transporter.sendMail({
-            from: 'viswavignanavaaradi@gmail.com',
+            from: `"Viswa Vignana Vaaradhi" <${process.env.EMAIL || 'viswavignanavaaradi@gmail.com'}>`,
             to: email,
             subject: 'Your VVV Password Reset OTP',
-            html: `<h3>Forgot your password?</h3><p>It happens to the best of us. Your OTP is: <b>${otp}</b></p><p>Expires in 10 minutes.</p>`
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 480px; margin: auto; padding: 24px; border: 1px solid #e0e0e0; border-radius: 8px;">
+                    <h2 style="color: #2e7d32;">Viswa Vignana Vaaradhi</h2>
+                    <h3>Password Reset OTP</h3>
+                    <p>You requested a password reset. Use the OTP below to proceed:</p>
+                    <div style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #e65100; padding: 16px 0;">${otp}</div>
+                    <p>This OTP expires in <strong>10 minutes</strong>.</p>
+                    <p style="color: #888; font-size: 12px;">If you did not request this, please ignore this email.</p>
+                </div>
+            `
         });
 
         console.log(`[Auth] OTP sent successfully to: ${email}`);
         res.json({ status: 'success', message: 'OTP sent to email' });
     } catch (err) {
-        console.error(`[Auth Error] Failed to process forgot-password for ${email}:`, err.message);
-        res.status(500).json({ error: err.message });
+        console.error(`[Auth Error] Failed to send OTP to ${email}:`, err.message);
+        res.status(500).json({ error: `Failed to send OTP: ${err.message}` });
     }
 });
 
@@ -1037,7 +911,7 @@ app.post('/api/auth/reset-password', async (req, res) => {
         });
         if (!user) return res.status(400).json({ error: 'Session expired. Please try again.' });
 
-        user.password = password; // Should hash in production
+        user.password = password; // Hash in production
         user.resetOTP = undefined;
         user.resetOTPExpires = undefined;
         await user.save();
@@ -1048,16 +922,17 @@ app.post('/api/auth/reset-password', async (req, res) => {
     }
 });
 
+// ─── Contact Form ─────────────────────────────────────────────────────────────
 app.post('/api/contact/submit', async (req, res) => {
     const { firstName, lastName, email, message } = req.body;
     try {
         console.log(`[Contact] Sending email from ${email}...`);
         await transporter.sendMail({
-            from: 'viswavignanavaaradi@gmail.com',
-            to: 'viswavignanavaaradi@gmail.com',
+            from: `"VVV Contact Form" <${process.env.EMAIL || 'viswavignanavaaradi@gmail.com'}>`,
+            to: process.env.EMAIL || 'viswavignanavaaradi@gmail.com',
             subject: `New Contact Message from ${firstName} ${lastName}`,
             html: `
-                <h3>New message received</h3>
+                <h3>New message received via VVV Contact Form</h3>
                 <p><b>From:</b> ${firstName} ${lastName} (${email})</p>
                 <p><b>Message:</b></p>
                 <p>${message}</p>
@@ -1066,32 +941,12 @@ app.post('/api/contact/submit', async (req, res) => {
         console.log(`[Contact] Message sent successfully from ${email}`);
         res.json({ status: 'success' });
     } catch (err) {
-        console.error('[Contact] Error submitting form:', err);
+        console.error('[Contact] Error:', err.message);
         res.status(500).json({ error: err.message });
     }
 });
 
-app.get('/api/legal/status/:requestId', async (req, res) => {
-    try {
-        const { requestId } = req.params;
-        console.log('Backend searching for:', requestId);
-        const request = await LegalRequest.findOne({
-            requestId: { $regex: new RegExp(`^${requestId.trim()}$`, 'i') }
-        });
-        if (!request) {
-            return res.status(404).json({ error: 'Request not found' });
-        }
-        res.json({
-            status: request.status,
-            adminMessage: request.adminMessage,
-            createdAt: request.createdAt,
-            fullName: request.fullName
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-});
-
+// ─── Start Server ─────────────────────────────────────────────────────────────
 app.listen(PORT, '0.0.0.0', () => {
-    console.log(`[TRACE_VER_4] Server running on 0.0.0.0:${PORT}`);
+    console.log(`[VVV API v${VERSION}] Server running on 0.0.0.0:${PORT}`);
 });
