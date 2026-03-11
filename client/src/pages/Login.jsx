@@ -79,7 +79,7 @@ const Login = () => {
     };
 
     return (
-        <div className="relative overflow-hidden h-[calc(100vh-100px)] bg-[#FDFCF6] flex items-center">
+        <div className="relative min-h-[calc(100vh-100px)] py-12 md:py-0 bg-[#FDFCF6] flex items-center">
             {/* Ambient Background Elements */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#059669]/5 rounded-full blur-[120px]"></div>

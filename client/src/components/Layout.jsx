@@ -22,8 +22,8 @@ const Layout = ({ children }) => {
             */}
             <div className="h-[80px] w-full shrink-0" />
 
-            {/* Main Content Area */}
-            <main className="flex-grow relative">
+            {/* Main Content Area - Added bottom padding for mobile to prevent FloatingDock overlap */}
+            <main className="flex-grow relative pb-[112px] sm:pb-0">
                 {children}
             </main>
 

@@ -68,7 +68,7 @@ const ForgotPassword = () => {
     };
 
     return (
-        <div className="relative overflow-hidden h-[calc(100vh-100px)] bg-[#FDFCF6] flex items-center">
+        <div className="relative min-h-[calc(100vh-100px)] py-12 md:py-0 bg-[#FDFCF6] flex items-center">
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none">
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#059669]/5 rounded-full blur-[120px]"></div>
                 <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-[#F59E0B]/5 rounded-full blur-[150px]"></div>
