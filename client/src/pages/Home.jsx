@@ -181,7 +181,7 @@ const Contact = () => {
                                 <div style={{ width: '48px', height: '48px', background: '#ecfdf5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--accent-emerald)', fontSize: '1.2rem' }}>✉️</div>
                                 <div>
                                     <h4 style={{ marginBottom: '0.4rem', fontFamily: 'Inter, sans-serif' }}>Email Support</h4>
-                                    <p style={{ color: 'var(--text-body)' }}>viswavignanavaaradi@gmail.com</p>
+                                    <p style={{ color: 'var(--text-body)' }}>contact@viswavignanavaaradhi.org</p>
                                 </div>
                             </div>
                         </div>

@@ -39,7 +39,7 @@ const transporter = nodemailer.createTransport({
     port: 465,
     secure: true, // Port 465 requires secure: true
     auth: {
-        user: process.env.EMAIL || 'viswavignanavaaradi@gmail.com',
+        user: process.env.EMAIL || 'contact@viswavignanavaaradhi.org',
         pass: (process.env.APP_PASSWORD || process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
     },
     family: 4, // Force IPv4 to avoid ENETUNREACH
@@ -998,7 +998,7 @@ app.post('/api/auth/forgot-password', async (req, res) => {
         console.log(`[Auth] OTP generated for ${email}. Attempting to send...`);
 
         await transporter.sendMail({
-            from: 'viswavignanavaaradi@gmail.com',
+            from: 'contact@viswavignanavaaradhi.org',
             to: email,
             subject: 'Your VVV Password Reset OTP',
             html: `<h3>Forgot your password?</h3><p>It happens to the best of us. Your OTP is: <b>${otp}</b></p><p>Expires in 10 minutes.</p>`
@@ -1053,8 +1053,8 @@ app.post('/api/contact/submit', async (req, res) => {
     try {
         console.log(`[Contact] Sending email from ${email}...`);
         await transporter.sendMail({
-            from: 'viswavignanavaaradi@gmail.com',
-            to: 'viswavignanavaaradi@gmail.com',
+            from: 'contact@viswavignanavaaradhi.org',
+            to: 'contact@viswavignanavaaradhi.org',
             subject: `New Contact Message from ${firstName} ${lastName}`,
             html: `
                 <h3>New message received</h3>
