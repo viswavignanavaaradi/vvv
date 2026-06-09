@@ -6,7 +6,7 @@ const committeeData = {
     andhra_university: {
         title: "Andhra University",
         subtitle: "VVV Student Chapter Committee",
-        desc: "Established in 2023, the Andhra University VVV Student Chapter is our flagship youth-led unit, driving local community service, literacy cells, and legal awareness campaigns.",
+        desc: "Established in 2026, the Andhra University VVV Student Chapter is our flagship youth-led unit, driving local community service, literacy cells, and legal awareness campaigns.",
         members: [
             { name: "Amara Naga Venkata Harshith", role: "President", image: null },
             { name: "Annepu Aditya Sai", role: "Vice President", image: null },
@@ -106,9 +106,9 @@ const CollegeCommittees = () => {
                         className="space-y-12"
                     >
                         {/* College Intro Banner */}
-                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-8 relative overflow-hidden">
+                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50 mix-blend-multiply" />
-                            <div className="max-w-3xl relative z-10 text-left">
+                            <div className="max-w-4xl relative z-10 text-left">
                                 <span className="text-emerald-600 text-[10px] md:text-xs font-black uppercase tracking-widest mb-2 block">
                                     {currentCollege.subtitle}
                                 </span>
@@ -118,15 +118,6 @@ const CollegeCommittees = () => {
                                 <p className="text-slate-600 leading-relaxed font-medium text-base">
                                     {currentCollege.desc}
                                 </p>
-                            </div>
-                            <div className="flex-shrink-0 bg-emerald-50 border border-emerald-100/50 p-6 rounded-2xl text-center min-w-[160px] relative z-10">
-                                <span className="text-4xl block mb-2">🏛️</span>
-                                <span className="text-2xl font-black text-slate-800 leading-none">
-                                    {currentCollege.members.length}
-                                </span>
-                                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest block mt-1">
-                                    Active Officers
-                                </span>
                             </div>
                         </div>
 
@@ -177,9 +168,6 @@ const CollegeCommittees = () => {
                                                             {initials || "👤"}
                                                         </div>
                                                     )}
-                                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#111827] text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full shadow-md">
-                                                        {member.role === 'President' ? '👑 Leader' : 'Officer'}
-                                                    </div>
                                                 </div>
 
                                                 <h3 className="text-lg md:text-xl font-black text-slate-800 mb-2 leading-snug group-hover:text-emerald-700 transition-colors">
