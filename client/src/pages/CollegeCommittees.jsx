@@ -76,7 +76,7 @@ const CollegeCommittees = () => {
                     <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest inline-block mb-4">
                         Student Chapters
                     </span>
-                    <h1 className="text-4xl md:text-6xl font-black font-merriweather tracking-tight mb-4 leading-tight">
+                    <h1 className="text-4xl md:text-6xl font-black font-merriweather tracking-tight mb-4 leading-tight text-white">
                         College Committees
                     </h1>
                     <p className="text-slate-300 max-w-2xl mx-auto text-base md:text-lg font-medium">
