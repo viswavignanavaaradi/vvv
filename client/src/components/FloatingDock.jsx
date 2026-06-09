@@ -21,7 +21,7 @@ const FloatingDock = ({ hide }) => {
                 </svg>
             ),
             gradient: 'from-[#25d366] to-[#128c7e]',
-            link: '#'
+            link: 'https://chat.whatsapp.com/C6IBi1XfI0LAI0RZ4V8gWL?mode=gi_t'
         },
         {
             name: 'Instagram',
