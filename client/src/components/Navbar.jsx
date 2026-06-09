@@ -12,6 +12,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
     const [mobileAboutOpen, setMobileAboutOpen] = useState(false);
     const [mobileInvolvedOpen, setMobileInvolvedOpen] = useState(false);
     const [mobileMissionsOpen, setMobileMissionsOpen] = useState(false);
+    const [collegesHovered, setCollegesHovered] = useState(false);
     const [user, setUser] = useState(null);
     const location = useLocation();
     const navigate = useNavigate();
@@ -218,7 +219,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                     boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
                                                     marginTop: '0px',
                                                     border: '1px solid #f1f5f9',
-                                                    overflow: 'hidden',
+                                                    overflow: item.label === 'About Us' ? 'visible' : 'hidden',
                                                     padding: '1rem'
                                                 }}
                                             >
@@ -233,6 +234,16 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                     ).map((subItemLabel) => (
                                                         <div
                                                             key={subItemLabel}
+                                                            onMouseEnter={() => {
+                                                                if (subItemLabel === 'Partnered Colleges') {
+                                                                    setCollegesHovered(true);
+                                                                }
+                                                            }}
+                                                            onMouseLeave={() => {
+                                                                if (subItemLabel === 'Partnered Colleges') {
+                                                                    setCollegesHovered(false);
+                                                                }
+                                                            }}
                                                             onClick={(e) => {
                                                                 e.stopPropagation();
                                                                 if (item.label === 'About Us') {
@@ -247,6 +258,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                             }}
                                                             className="dropdown-item"
                                                             style={{
+                                                                position: 'relative',
                                                                 padding: '0.6rem 1rem',
                                                                 color: 'var(--text-body)',
                                                                 fontSize: '0.85rem',
@@ -258,7 +270,68 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                                 transition: 'all 0.2s'
                                                             }}
                                                         >
-                                                            {subItemLabel}
+                                                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                                <span>{subItemLabel}</span>
+                                                                {subItemLabel === 'Partnered Colleges' && <span style={{ fontSize: '0.65rem', opacity: 0.5 }}>◀</span>}
+                                                            </div>
+
+                                                            {subItemLabel === 'Partnered Colleges' && (
+                                                                <AnimatePresence>
+                                                                    {collegesHovered && (
+                                                                        <motion.div
+                                                                            initial={{ opacity: 0, x: 10 }}
+                                                                            animate={{ opacity: 1, x: 0 }}
+                                                                            exit={{ opacity: 0, x: 10 }}
+                                                                            transition={{ duration: 0.15 }}
+                                                                            style={{
+                                                                                position: 'absolute',
+                                                                                right: '100%',
+                                                                                paddingRight: '12px', // hover bridge to prevent premature closure
+                                                                                top: '-12px',
+                                                                                zIndex: 1100
+                                                                            }}
+                                                                        >
+                                                                            <div style={{
+                                                                                background: 'white',
+                                                                                minWidth: '240px',
+                                                                                borderRadius: '12px',
+                                                                                boxShadow: '0 20px 40px rgba(0,0,0,0.12)',
+                                                                                border: '1px solid #f1f5f9',
+                                                                                padding: '0.75rem',
+                                                                                display: 'flex',
+                                                                                flexDirection: 'column',
+                                                                                gap: '4px'
+                                                                            }}>
+                                                                                {[
+                                                                                    "Andhra University",
+                                                                                    "Dr. B.R. Ambedkar Law College",
+                                                                                    "NSRIT Engineering College"
+                                                                                ].map((college) => (
+                                                                                    <div
+                                                                                        key={college}
+                                                                                        onClick={(e) => {
+                                                                                            e.stopPropagation();
+                                                                                            handleAboutClick('partnered_colleges');
+                                                                                        }}
+                                                                                        className="dropdown-item"
+                                                                                        style={{
+                                                                                            padding: '0.5rem 0.75rem',
+                                                                                            color: 'var(--text-body)',
+                                                                                            fontSize: '0.8rem',
+                                                                                            fontWeight: '500',
+                                                                                            borderRadius: '4px',
+                                                                                            transition: 'all 0.2s',
+                                                                                            whiteSpace: 'nowrap'
+                                                                                        }}
+                                                                                    >
+                                                                                        {college}
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        </motion.div>
+                                                                    )}
+                                                                </AnimatePresence>
+                                                            )}
                                                         </div>
                                                     ))}
                                                 </div>
