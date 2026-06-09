@@ -21,6 +21,7 @@ import LegalStatus from './pages/LegalStatus';
 import PatronKnowMore from './pages/PatronKnowMore';
 import VolunteerKnowMore from './pages/VolunteerKnowMore';
 import DonatePage from './pages/DonatePage';
+import CollegeCommittees from './pages/CollegeCommittees';
 
 function App() {
     console.log('VVV Nexus Frontend v1.5.0 - Glass Dock Active');
@@ -33,6 +34,7 @@ function App() {
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/about" element={<About />} />
+                        <Route path="/committees" element={<CollegeCommittees />} />
                         <Route path="/missions" element={<Missions />} />
                         <Route path="/get-involved" element={<GetInvolved />} />
                         <Route path="/donate" element={<DonatePage />} />

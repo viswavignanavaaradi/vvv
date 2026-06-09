@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const aboutContent = {
@@ -197,8 +197,8 @@ const aboutContent = {
 
 const About = () => {
     const location = useLocation();
+    const navigate = useNavigate();
     const [activeTab, setActiveTab] = useState('what_is_vvv');
-    const [selectedCollege, setSelectedCollege] = useState(null);
 
     useEffect(() => {
         if (location.state?.tab) {
@@ -647,9 +647,14 @@ const About = () => {
                                     <h3 className="font-black text-primary-royal mb-2">{item.title}</h3>
                                     <p className="text-sm text-slate-500 font-medium">{item.content}</p>
                                 </div>
-                                {activeTab === 'partnered_colleges' && item.title === 'Andhra University' && (
+                                {activeTab === 'partnered_colleges' && (
                                     <button 
-                                        onClick={() => setSelectedCollege(item)}
+                                        onClick={() => {
+                                            const param = item.title === 'Andhra University' ? 'andhra_university' :
+                                                          item.title === 'Dr. B.R. Ambedkar Law College' ? 'dr_br_ambedkar_law_college' :
+                                                          item.title === 'NSRIT Engineering College' ? 'nsrit_engineering_college' : '';
+                                            navigate(`/committees?college=${param}`);
+                                        }}
                                         className="mt-6 text-xs font-black text-emerald-600 hover:text-emerald-800 transition-colors flex items-center gap-1.5 border border-emerald-100 bg-emerald-50/20 px-4 py-2 rounded-xl hover:bg-emerald-50 hover:border-emerald-200"
                                     >
                                         View Executive Council <span>→</span>
@@ -734,101 +739,6 @@ const About = () => {
                     </motion.div>
                 </div>
             </section>
-
-            {/* Executive Council Modal */}
-            <AnimatePresence>
-                {selectedCollege && selectedCollege.title === "Andhra University" && (
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setSelectedCollege(null)}
-                        className="fixed inset-0 z-[2000] bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4"
-                    >
-                        <motion.div
-                            initial={{ scale: 0.95, y: 20 }}
-                            animate={{ scale: 1, y: 0 }}
-                            exit={{ scale: 0.95, y: 20 }}
-                            onClick={(e) => e.stopPropagation()}
-                            className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[85vh]"
-                        >
-                            {/* Header */}
-                            <div className="p-6 md:p-8 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-                                <div className="text-left">
-                                    <h3 className="text-xl md:text-2xl font-black text-slate-900 font-merriweather">
-                                        Andhra University Executive Council
-                                    </h3>
-                                    <p className="text-xs md:text-sm text-slate-500 font-bold mt-1 uppercase tracking-wider">
-                                        VVV Student Chapter Leadership
-                                    </p>
-                                </div>
-                                <button 
-                                    onClick={() => setSelectedCollege(null)}
-                                    className="w-10 h-10 rounded-full bg-white shadow-sm border border-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors text-xl font-bold"
-                                >
-                                    ×
-                                </button>
-                            </div>
-                            
-                            {/* Scrollable Content */}
-                            <div className="p-6 md:p-8 overflow-y-auto space-y-6">
-                                <div className="grid sm:grid-cols-2 gap-4">
-                                    {[
-                                        { name: "Amara Naga Venkata Harshith", role: "President" },
-                                        { name: "Annepu Aditya Sai", role: "Vice President" },
-                                        { name: "M.Vaarshika Vaahini Naidu", role: "General Secretary" },
-                                        { name: "Marampudi Joseph Roy", role: "Joint Secretary" },
-                                        { name: "Kanti Yelamanchili", role: "Treasurer" },
-                                        { name: "R. SIRI HASINI", role: "Executive Member" },
-                                        { name: "DSSLV. Sahasra Varma", role: "Executive Member" },
-                                        { name: "T.P. Ashraf Ali", role: "Executive Member" },
-                                        { name: "Usha Kaushali", role: "Executive Member" },
-                                        { name: "Tammana Sai Surya Raghava Sahil", role: "Executive Member" }
-                                    ].map((member, index) => {
-                                        const isOfficeBearer = ["President", "Vice President", "General Secretary", "Joint Secretary", "Treasurer"].includes(member.role);
-                                        return (
-                                            <div 
-                                                key={index}
-                                                className={`p-4 rounded-xl border flex items-center gap-4 transition-all hover:shadow-md ${
-                                                    isOfficeBearer 
-                                                        ? 'bg-emerald-50/30 border-emerald-100 hover:border-emerald-300' 
-                                                        : 'bg-white border-slate-100 hover:border-slate-300'
-                                                }`}
-                                            >
-                                                <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shadow-sm flex-shrink-0 ${
-                                                    isOfficeBearer ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-100 text-slate-600'
-                                                }`}>
-                                                    {member.role === 'President' ? '👑' : 
-                                                     member.role === 'Vice President' ? '🥈' : 
-                                                     member.role === 'General Secretary' ? '📜' : 
-                                                     member.role === 'Joint Secretary' ? '🤝' : 
-                                                     member.role === 'Treasurer' ? '💰' : '👤'}
-                                                </div>
-                                                <div className="text-left">
-                                                    <h4 className="font-bold text-slate-800 text-sm md:text-base leading-snug">{member.name}</h4>
-                                                    <p className={`text-[10px] font-black uppercase tracking-wider mt-0.5 ${
-                                                        isOfficeBearer ? 'text-emerald-600' : 'text-slate-400'
-                                                    }`}>{member.role}</p>
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-                                </div>
-                            </div>
-                            
-                            {/* Footer */}
-                            <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
-                                <button
-                                    onClick={() => setSelectedCollege(null)}
-                                    className="bg-primary-royal text-white font-black px-6 py-2.5 rounded-xl text-sm shadow-md hover:bg-black transition-all"
-                                >
-                                    Close
-                                </button>
-                            </div>
-                        </motion.div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
         </div>
     );
 };

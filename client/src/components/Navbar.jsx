@@ -318,7 +318,15 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                                                         key={college}
                                                                                         onClick={(e) => {
                                                                                             e.stopPropagation();
-                                                                                            handleAboutClick('partnered_colleges');
+                                                                                            const collegeParamMap = {
+                                                                                                "Andhra University": "andhra_university",
+                                                                                                "Dr. B.R. Ambedkar Law College": "dr_br_ambedkar_law_college",
+                                                                                                "NSRIT Engineering College": "nsrit_engineering_college"
+                                                                                            };
+                                                                                            const param = collegeParamMap[college] || 'andhra_university';
+                                                                                            navigate(`/committees?college=${param}`);
+                                                                                            setAboutDropdownOpen(false);
+                                                                                            setMobileMenuOpen(false);
                                                                                         }}
                                                                                         className="dropdown-item"
                                                                                         style={{
@@ -569,7 +577,14 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                 {['What is VVV', 'People behind VVV', 'Partnered Colleges', 'Corporate Partnership'].map((subItem) => (
                                                     <div
                                                         key={subItem}
-                                                        onClick={() => { handleAboutClick(subItem.toLowerCase().replace(/ /g, '_')); setMobileMenuOpen(false); }}
+                                                        onClick={() => {
+                                                            if (subItem === 'Partnered Colleges') {
+                                                                navigate('/committees');
+                                                            } else {
+                                                                handleAboutClick(subItem.toLowerCase().replace(/ /g, '_'));
+                                                            }
+                                                            setMobileMenuOpen(false);
+                                                        }}
                                                         style={{ fontSize: '1rem', color: '#64748b', fontWeight: '500' }}
                                                     >
                                                         {subItem}
