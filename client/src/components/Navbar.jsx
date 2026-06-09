@@ -39,6 +39,13 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
         setMobileMenuOpen(false);
     }, [location]);
 
+    // Reset nested sub-dropdown when main dropdown closes
+    useEffect(() => {
+        if (!aboutDropdownOpen) {
+            setCollegesHovered(false);
+        }
+    }, [aboutDropdownOpen]);
+
     const handleLogout = () => {
         localStorage.removeItem('vvv_user');
         setUser(null);
