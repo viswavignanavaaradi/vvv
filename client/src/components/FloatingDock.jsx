@@ -42,16 +42,6 @@ const FloatingDock = ({ hide }) => {
             ),
             gradient: 'from-[#1877f2] to-[#0d65d9]',
             link: '#'
-        },
-        {
-            name: 'Gmail',
-            icon: (
-                <svg viewBox="0 0 24 24" fill="white" className="w-6 h-6">
-                    <path d="M24 4.5v15c0 .85-.65 1.5-1.5 1.5H21V7.38l-9 6.75-9-6.75V21H1.5C.65 21 0 20.35 0 19.5v-15c0-.426.176-.818.462-1.103a1.49 1.49 0 011.038-.397h.5L12 11.25l10-7.5h.5c.386 0 .736.147 1.001.387.284.286.499.684.499 1.113z" />
-                </svg>
-            ),
-            gradient: 'from-[#ea4335] to-[#c5221f]',
-            link: '#'
         }
     ];
 

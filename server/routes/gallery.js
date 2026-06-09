@@ -8,7 +8,7 @@ let cache = {
 };
 
 const CACHE_TTL = 15 * 60 * 1000; // 15 minutes
-const ALBUM_URL = "https://photos.google.com/share/AF1QipPxjMKZ5PJIc9G2sIfqlIzcdNXj_3107jg2arKy56YpzC5csr6jz9MFiwOzQaBOiw?pli=1&key=TTNpd1lIRUZ1QnVHZ3Z1SUEzZ3FCbnpPY3hBSFpR";
+const ALBUM_URL = "https://photos.app.goo.gl/TSYfXpw1zqxi59BV9";
 
 router.get('/', async (req, res) => {
     const now = Date.now();
