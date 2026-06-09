@@ -2,22 +2,34 @@ import { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// Import AU Committee Member Images
+import presidentImg from '../assets/AUCommittee/president.png';
+import vicePresidentImg from '../assets/AUCommittee/vice-president.png';
+import generalSecretaryImg from '../assets/AUCommittee/General-Secretary.png';
+import jointSecretaryImg from '../assets/AUCommittee/Joint-Secretary.png';
+import treasurerImg from '../assets/AUCommittee/treasurer.png';
+import exec1Img from '../assets/AUCommittee/Executive-member-1.png';
+import exec2Img from '../assets/AUCommittee/Executive-member-2.png';
+import exec3Img from '../assets/AUCommittee/Executive-member-3.png';
+import exec4Img from '../assets/AUCommittee/Executive-member-4.png';
+import exec5Img from '../assets/AUCommittee/Executive-member-5.png';
+
 const committeeData = {
     andhra_university: {
         title: "Andhra University",
         subtitle: "VVV Student Chapter Committee",
         desc: "Established in 2026, the Andhra University VVV Student Chapter is our flagship youth-led unit, driving local community service, literacy cells, and legal awareness campaigns.",
         members: [
-            { name: "Amara Naga Venkata Harshith", role: "President", image: null },
-            { name: "Annepu Aditya Sai", role: "Vice President", image: null },
-            { name: "M.Vaarshika Vaahini Naidu", role: "General Secretary", image: null },
-            { name: "Marampudi Joseph Roy", role: "Joint Secretary", image: null },
-            { name: "Kanti Yelamanchili", role: "Treasurer", image: null },
-            { name: "R. Siri Hasini", role: "Executive Member", image: null },
-            { name: "DSSLV. Sahasra Varma", role: "Executive Member", image: null },
-            { name: "T.P. Ashraf Ali", role: "Executive Member", image: null },
-            { name: "Usha Kaushali", role: "Executive Member", image: null },
-            { name: "Tammana Sai Surya Raghava Sahil", role: "Executive Member", image: null }
+            { name: "Amara Naga Venkata Harshith", role: "President", image: presidentImg },
+            { name: "Annepu Aditya Sai", role: "Vice President", image: vicePresidentImg },
+            { name: "M.Vaarshika Vaahini Naidu", role: "General Secretary", image: generalSecretaryImg },
+            { name: "Marampudi Joseph Roy", role: "Joint Secretary", image: jointSecretaryImg },
+            { name: "Kanti Yelamanchili", role: "Treasurer", image: treasurerImg },
+            { name: "R. Siri Hasini", role: "Executive Member", image: exec1Img },
+            { name: "DSSLV. Sahasra Varma", role: "Executive Member", image: exec2Img },
+            { name: "T.P. Ashraf Ali", role: "Executive Member", image: exec3Img },
+            { name: "Usha Kaushali", role: "Executive Member", image: exec4Img },
+            { name: "Tammana Sai Surya Raghava Sahil", role: "Executive Member", image: exec5Img }
         ]
     },
     dr_br_ambedkar_law_college: {
