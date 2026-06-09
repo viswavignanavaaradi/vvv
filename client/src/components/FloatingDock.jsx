@@ -11,7 +11,7 @@ const FloatingDock = ({ hide }) => {
                 </svg>
             ),
             gradient: 'from-[#0077b5] to-[#00a0dc]',
-            link: '#'
+            link: 'https://www.linkedin.com/in/viswavignanavaardhi001/'
         },
         {
             name: 'WhatsApp',
