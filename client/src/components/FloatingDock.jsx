@@ -1,7 +1,65 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const FloatingDock = ({ hide }) => {
+    const [isVisible, setIsVisible] = useState(true);
+    const [isHovered, setIsHovered] = useState(false);
+
+    const lastScrollY = useRef(0);
+    const hideTimerRef = useRef(null);
+
+    const resetHideTimer = () => {
+        if (hideTimerRef.current) {
+            clearTimeout(hideTimerRef.current);
+        }
+        hideTimerRef.current = setTimeout(() => {
+            setIsVisible(false);
+        }, 12000); // 12 seconds auto-hide
+    };
+
+    useEffect(() => {
+        lastScrollY.current = window.scrollY;
+        resetHideTimer();
+
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Hide when scrolling down (moving webpage upwards)
+            if (currentScrollY > lastScrollY.current && currentScrollY > 50) {
+                setIsVisible(false);
+            } 
+            // Show when scrolling up
+            else if (currentScrollY < lastScrollY.current) {
+                setIsVisible(true);
+                resetHideTimer();
+            }
+
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
+
+        return () => {
+            window.removeEventListener('scroll', handleScroll);
+            if (hideTimerRef.current) {
+                clearTimeout(hideTimerRef.current);
+            }
+        };
+    }, []);
+
+    const handleMouseEnter = () => {
+        setIsHovered(true);
+        setIsVisible(true);
+        if (hideTimerRef.current) {
+            clearTimeout(hideTimerRef.current);
+        }
+    };
+
+    const handleMouseLeave = () => {
+        setIsHovered(false);
+        resetHideTimer();
+    };
+
     const socialLinks = [
         {
             name: 'LinkedIn',
@@ -47,8 +105,12 @@ const FloatingDock = ({ hide }) => {
 
     return (
         <AnimatePresence>
-            {!hide && (
-                <div className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[40] w-max px-4">
+            {!hide && isVisible && (
+                <div 
+                    className="fixed bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 z-[40] w-max px-4"
+                    onMouseEnter={handleMouseEnter}
+                    onMouseLeave={handleMouseLeave}
+                >
                     <motion.div
                         initial={{ y: 70, opacity: 0, scale: 0.9 }}
                         animate={{ y: 0, opacity: 1, scale: 1 }}
