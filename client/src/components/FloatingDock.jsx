@@ -31,7 +31,7 @@ const FloatingDock = ({ hide }) => {
                 </svg>
             ),
             gradient: 'from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]',
-            link: '#'
+            link: 'https://www.instagram.com/viswa_vignana_vaaradhi?igsh=ZnhyZmkzeTdsMzNr'
         },
         {
             name: 'Facebook',
@@ -72,6 +72,8 @@ const FloatingDock = ({ hide }) => {
                                 <motion.a
                                     key={index}
                                     href={item.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
                                     whileHover={{
                                         scale: 1.1,
                                         translateY: -5,
