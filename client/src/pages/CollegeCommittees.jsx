@@ -71,7 +71,7 @@ const CollegeCommittees = () => {
             {/* Hero Header */}
             <div className="relative bg-[#111827] text-white py-20 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-r from-emerald-900/30 to-royal-blue-900/30 opacity-60" />
-                <div className="absolute inset-0 bg-radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15), transparent 50%)" />
+                <div className="absolute inset-0 opacity-60" style={{ backgroundImage: 'radial-gradient(circle at 80% 20%, rgba(16, 185, 129, 0.15), transparent 50%)' }} />
                 <div className="container mx-auto px-6 max-w-7xl relative z-10 text-center">
                     <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest inline-block mb-4">
                         Student Chapters
@@ -86,9 +86,9 @@ const CollegeCommittees = () => {
             </div>
 
             {/* Premium Sticky College Tab Selector */}
-            <div className="bg-white border-b border-slate-200/80 sticky top-[80px] z-30 shadow-sm">
-                <div className="container mx-auto px-6 max-w-7xl">
-                    <div className="flex justify-center gap-2 md:gap-8 overflow-x-auto py-4 no-scrollbar">
+            <div className="bg-white border-b border-slate-200/80 sticky-tabs shadow-sm">
+                <div className="container mx-auto max-w-7xl">
+                    <div className="flex justify-start md:justify-center gap-2 md:gap-6 overflow-x-auto py-4 no-scrollbar px-4">
                         {Object.keys(committeeData).map((key) => (
                             <button
                                 key={key}
@@ -107,7 +107,7 @@ const CollegeCommittees = () => {
             </div>
 
             {/* Content Area */}
-            <div className="container mx-auto px-6 max-w-7xl mt-12 md:mt-16">
+            <div className="container mx-auto px-4 md:px-6 max-w-7xl mt-12 md:mt-16">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={selectedCollege}
@@ -118,7 +118,7 @@ const CollegeCommittees = () => {
                         className="space-y-12"
                     >
                         {/* College Intro Banner */}
-                        <div className="bg-white rounded-[2rem] border border-slate-100 p-8 md:p-12 shadow-sm relative overflow-hidden">
+                        <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 p-6 md:p-12 shadow-sm relative overflow-hidden">
                             <div className="absolute top-0 right-0 w-64 h-64 bg-slate-50 rounded-full -mr-32 -mt-32 opacity-50 mix-blend-multiply" />
                             <div className="max-w-4xl relative z-10 text-left">
                                 <span className="text-emerald-600 text-[10px] md:text-xs font-black uppercase tracking-widest mb-2 block">
@@ -155,7 +155,7 @@ const CollegeCommittees = () => {
                                             whileInView={{ opacity: 1, scale: 1 }}
                                             viewport={{ once: true }}
                                             transition={{ delay: i * 0.05 }}
-                                            className={`group bg-white rounded-3xl border transition-all duration-300 p-8 text-center flex flex-col items-center justify-between ${
+                                            className={`group bg-white rounded-3xl border transition-all duration-300 p-6 sm:p-8 text-center flex flex-col items-center justify-between ${
                                                 isOfficeBearer
                                                     ? 'border-emerald-100 hover:border-emerald-300 hover:shadow-xl hover:shadow-emerald-100/30'
                                                     : 'border-slate-100 hover:border-slate-300 hover:shadow-xl hover:shadow-slate-100/50'
@@ -203,7 +203,7 @@ const CollegeCommittees = () => {
                                 })}
                             </div>
                         ) : (
-                            <div className="bg-white rounded-[2rem] border border-slate-100 p-12 md:p-20 text-center max-w-xl mx-auto shadow-sm">
+                            <div className="bg-white rounded-2xl md:rounded-[2rem] border border-slate-100 p-6 sm:p-12 md:p-20 text-center max-w-xl mx-auto shadow-sm">
                                 <span className="text-6xl block mb-6">📢</span>
                                 <h3 className="text-xl md:text-2xl font-black text-slate-900 font-merriweather mb-3">
                                     Committee Forming
@@ -230,6 +230,21 @@ const CollegeCommittees = () => {
                 .no-scrollbar {
                     -ms-overflow-style: none;
                     scrollbar-width: none;
+                }
+                .sticky-tabs {
+                    position: sticky;
+                    top: 80px;
+                    z-index: 30;
+                }
+                @media (max-width: 1100px) {
+                    .sticky-tabs {
+                        top: 70px;
+                    }
+                }
+                @media (max-width: 600px) {
+                    .sticky-tabs {
+                        top: 65px;
+                    }
                 }
             `}</style>
         </div>

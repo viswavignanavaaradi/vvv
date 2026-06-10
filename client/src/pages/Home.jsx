@@ -108,7 +108,7 @@ const JoinMission = () => {
                     <h2 className="fluid-h2" style={{ marginTop: '0.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Choose Your Path to Impact</h2>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem' }}>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[
                         { title: 'Volunteer', desc: 'Work on the ground and serve rural communities directly.', path: '/volunteer-enrollment', icon: '🤝' },
                         { title: 'Internship', desc: 'Gain field experience and academic research opportunities.', path: '/internship-enrollment', icon: '🎓' },
@@ -161,7 +161,7 @@ const Contact = () => {
     return (
         <section id="contact" className="section" style={{ background: 'white' }}>
             <div className="container">
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '5rem' }}>
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
                     <div>
                         <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Reach Out</span>
                         <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', marginBottom: '1.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Contact Us</h2>
@@ -220,7 +220,7 @@ const Contact = () => {
 const Footer = () => (
     <footer style={{ background: '#111827', color: '#9ca3af', padding: '6rem 0 3rem', fontSize: '0.95rem' }}>
         <div className="container">
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '4rem', marginBottom: '4rem' }}>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-16 mb-16">
                 <div>
                     <h3 style={{ color: '#fff', marginBottom: '1.5rem', fontFamily: 'Merriweather, serif' }}>Viswa Vignana Vaaradi</h3>
                     <p style={{ lineHeight: '1.8' }}>
