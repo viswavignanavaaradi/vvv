@@ -159,7 +159,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                     },
                     {
                         label: 'Get Involved', type: 'dropdown', subItems: [
-                            { label: '⭐ Be a Patron ⭐', path: '/donate?type=patron' },
+                            { label: 'Become a MEMBER', path: '/donate?type=patron' },
                             { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                             { label: 'Internship Enrollment', path: '/internship-enrollment' },
                             { label: 'Learn More', path: '/get-involved' }
@@ -663,7 +663,7 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                 style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
                                             >
                                                 {[
-                                                    { label: '⭐ Be a Patron ⭐', path: '/donate?type=patron' },
+                                                    { label: 'Become a MEMBER', path: '/donate?type=patron' },
                                                     { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
                                                     { label: 'Internship Enrollment', path: '/internship-enrollment' },
                                                     { label: 'Overview', path: '/get-involved' }

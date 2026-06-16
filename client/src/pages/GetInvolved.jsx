@@ -16,7 +16,7 @@ const GetInvolved = () => {
                 "Impact reporting & strategy",
                 "Council recognition"
             ],
-            cta: "⭐ Be a Patron ⭐",
+            cta: "Become a MEMBER",
             path: "/donate",
             color: "bg-emerald-600",
             icon: "🏛️"
