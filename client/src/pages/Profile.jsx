@@ -554,7 +554,7 @@ const Profile = () => {
                                                 <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Profession</p>
                                                 <p className="font-bold text-slate-800">{isVolunteer ? profileData.volunteer.profession : '--'}</p>
                                             </div>
-                                            {isVolunteer && profileData.volunteer.profession === 'Working Professional' ? (
+                                            {isVolunteer && (profileData.volunteer.profession === 'Working Professional' || profileData.volunteer.profession === 'Corporate') ? (
                                                 <>
                                                     <div>
                                                         <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest mb-1">Occupation</p>

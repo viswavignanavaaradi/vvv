@@ -251,6 +251,8 @@ const razorpay = new Razorpay({
 
 // Plans Cache
 let plans = {
+    '49': 'sub_plan_mock_49',
+    '89': 'sub_plan_mock_89',
     '50': 'sub_plan_mock_50',
     '200': 'sub_plan_mock_200',
     '99': 'sub_plan_mock_99',

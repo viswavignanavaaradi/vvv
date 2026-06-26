@@ -11,7 +11,7 @@ const volunteerSchema = new mongoose.Schema({
     district: { type: String },
     college: { type: String },
     education: { type: String },
-    profession: { type: String, enum: ['Student', 'Working Professional'], default: 'Student' },
+    profession: { type: String, enum: ['Student', 'Working Professional', 'Corporate'], default: 'Student' },
     occupation: String,
     organization: String,
     experience: String,

@@ -147,7 +147,7 @@ const VolunteerEnrollment = () => {
                 alert("Please provide your College/Institution name.");
                 return false;
             }
-            if (formData.profession === 'Working Professional' && (!formData.occupation || !formData.organization)) {
+            if ((formData.profession === 'Working Professional' || formData.profession === 'Corporate') && (!formData.occupation || !formData.organization)) {
                 alert("Please provide your current occupation and organization.");
                 return false;
             }
@@ -173,7 +173,7 @@ const VolunteerEnrollment = () => {
             const res = await axios.post('/api/volunteer/enroll', payload);
             const { enrollmentId } = res.data;
 
-            const monthlyAmount = formData.profession === 'Student' ? 50 : 200;
+            const monthlyAmount = formData.profession === 'Student' ? 49 : formData.profession === 'Corporate' ? 999 : 89;
             const subResponse = await axios.post('/api/create-subscription', {
                 amount: monthlyAmount,
                 email: formData.email,
@@ -379,8 +379,8 @@ const VolunteerEnrollment = () => {
                                             </div>
                                             <div className="sm:col-span-2 space-y-2">
                                                 <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Profession *</label>
-                                                <div className="flex gap-4">
-                                                    {['Student', 'Working Professional'].map(p => (
+                                                <div className="flex flex-wrap sm:flex-nowrap gap-4">
+                                                    {['Student', 'Working Professional', 'Corporate'].map(p => (
                                                         <button key={p} type="button" onClick={() => setFormData(prev => ({ ...prev, profession: p }))} className={`flex-1 py-4 rounded-xl border-2 font-black uppercase text-[10px] tracking-widest transition-all ${formData.profession === p ? 'bg-blue-50 border-[#1e3a8a] text-[#1e3a8a]' : 'bg-slate-50 border-slate-50 text-slate-400'}`}>
                                                             {p}
                                                         </button>
@@ -478,7 +478,7 @@ const VolunteerEnrollment = () => {
                                             <p className="text-[10px] font-black uppercase text-amber-400 mb-2 tracking-[0.2em]">Council Pledge (Secure Autopay)</p>
                                             <h4 className="text-2xl font-merriweather font-black mb-3">Monthly Membership Autopay</h4>
                                             <p className="text-blue-100 text-sm font-medium mb-8 opacity-90 leading-relaxed">
-                                                As a <span className="font-black text-white">{formData.profession}</span> member, you commit to a recurring support of <span className="font-black text-white">₹{formData.profession === 'Student' ? 50 : 200}/mo</span> to keep the foundation's missions active.
+                                                As a <span className="font-black text-white">{formData.profession}</span> member, you commit to a recurring support of <span className="font-black text-white">₹{formData.profession === 'Student' ? 49 : formData.profession === 'Corporate' ? 999 : 89}/mo</span> to keep the foundation's missions active.
                                             </p>
                                         </div>
                                         <div className="flex gap-4">
@@ -535,7 +535,10 @@ const VolunteerEnrollment = () => {
                                 <div className="text-center bg-slate-50 p-6 rounded-2xl border border-slate-100">
                                     <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Subscription Cost</p>
                                     <p className="text-3xl font-black text-slate-800">
-                                        {mockPaymentOptions.description.includes('₹50') ? '₹50.00' : '₹200.00'}
+                                        {(() => {
+                                            const amtMatch = mockPaymentOptions.description.match(/₹(\d+)/);
+                                            return amtMatch ? `₹${amtMatch[1]}.00` : '₹89.00';
+                                        })()}
                                         <span className="text-xs text-slate-400 font-medium">/month</span>
                                     </p>
                                     <p className="text-[11px] text-[#1e3a8a] font-bold mt-2">{mockPaymentOptions.description}</p>
