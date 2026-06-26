@@ -8,13 +8,74 @@ mongoose.set('bufferCommands', false);
 
 // Mock Database for local development/testing when MongoDB is not connected
 const mockDb = {
-    users: [],
-    volunteers: [],
+    users: [
+        {
+            _id: 'usr_mock_1',
+            name: 'System Admin',
+            email: 'admin@viswavignanavaaradhi.org'
+        }
+    ],
+    volunteers: [
+        {
+            _id: 'vol_mock_1',
+            fullName: 'Aarav Sharma',
+            email: 'aarav.sharma@example.com',
+            phone: '9876543210',
+            district: 'Hyderabad',
+            state: 'Telangana',
+            interests: 'Education, Healthcare',
+            createdAt: '2026-06-25T10:00:00.000Z',
+            address: 'Madhapur, Hyderabad',
+            documents: [{ name: 'ID Proof.pdf', url: 'https://res.cloudinary.com/demo/image/upload/v1582218820/sample.pdf' }]
+        },
+        {
+            _id: 'vol_mock_2',
+            fullName: 'Ananya Rao',
+            email: 'ananya.rao@example.com',
+            phone: '9876543211',
+            district: 'Vizag',
+            state: 'Andhra Pradesh',
+            interests: 'Legal Aid, Environment',
+            createdAt: '2026-06-26T12:00:00.000Z',
+            address: 'Dwarka Nagar, Vizag',
+            documents: [{ name: 'Aadhar Card.pdf', url: 'https://res.cloudinary.com/demo/image/upload/v1582218820/sample.pdf' }]
+        }
+    ],
     subscriptions: [],
     patrons: [],
-    interns: [],
-    legalRequests: [],
-    donations: []
+    interns: [
+        {
+            _id: 'int_mock_1',
+            fullName: 'Kabir Verma',
+            email: 'kabir.verma@example.com',
+            phone: '9876543212',
+            college: 'IIT Madras',
+            status: 'Pending',
+            createdAt: '2026-06-25T08:00:00.000Z'
+        }
+    ],
+    legalRequests: [
+        {
+            _id: 'lr_mock_1',
+            requestId: 'VVVLR0003',
+            fullName: 'Srinivas Reddy',
+            email: 'srinivas.reddy@example.com',
+            phone: '9876543213',
+            status: 'Pending',
+            createdAt: '2026-06-24T14:00:00.000Z',
+            message: 'Need legal consultation for land dispute'
+        }
+    ],
+    donations: [
+        {
+            _id: 'don_mock_1',
+            donor_name: 'Vikram Malhotra',
+            email: 'vikram.m@example.com',
+            amount: 5000,
+            date: '2026-06-25T18:30:00.000Z',
+            payment_status: 'captured'
+        }
+    ]
 };
 
 const path = require('path');

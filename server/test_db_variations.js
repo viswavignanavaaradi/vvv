@@ -1,4 +1,14 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
+
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+    console.warn('[DNS] Failed to set public DNS servers:', e.message);
+}
 
 const variations = [
     'mongodb+srv://viswavignanavaaradi_db_user:lvncmYPYwZdFv3Aw@cluster0.e7my8yd.mongodb.net/vvv_ngo?appName=Cluster0',
