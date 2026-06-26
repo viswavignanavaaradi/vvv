@@ -155,6 +155,31 @@ const Admin = () => {
         }
     };
 
+    const handleDeleteMember = async (email) => {
+        const confirmPurge = window.confirm(`⚠️ WARNING: Are you absolutely sure you want to permanently purge member "${email}"?\n\nThis will completely delete their member profile, login user account, subscription data, and any other related records. This action is irreversible.`);
+        if (!confirmPurge) return;
+
+        const promptInput = window.prompt(`Type DELETE to finalize purging ${email}:`);
+        if (promptInput !== 'DELETE') {
+            alert('Purge cancelled. Confirmation text did not match.');
+            return;
+        }
+
+        try {
+            setLoading(true);
+            await axios.delete(`/api/admin/volunteers/${email}`);
+            alert(`Member ${email} has been permanently deleted from the database.`);
+            setSelectedVolunteer(null);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            const errorMsg = err.response?.data?.error || err.message;
+            alert(`Purge failed: ${errorMsg}`);
+        } finally {
+            setLoading(false);
+        }
+    };
+
     const handleDownload = (url, name) => {
         const downloadUrl = url.replace('/upload/', '/upload/fl_attachment/');
         const link = document.createElement('a');
@@ -578,7 +603,15 @@ const Admin = () => {
                                                 <p className="text-sm opacity-60 mb-6">{selectedVolunteer.email}</p>
                                                 <div className="h-px bg-slate-800 mb-6" />
                                                 <p className="text-[9px] font-black uppercase text-slate-500 mb-2">Location Node</p>
-                                                <p className="text-xs opacity-60">{selectedVolunteer.address || 'N/A'}</p>
+                                                <p className="text-xs opacity-60 mb-6">{selectedVolunteer.address || 'N/A'}</p>
+                                                <div className="h-px bg-slate-800 mb-6" />
+                                                <p className="text-[9px] font-black uppercase text-rose-400 mb-3">Destructive Actions</p>
+                                                <button
+                                                    onClick={() => handleDeleteMember(selectedVolunteer.email)}
+                                                    className="w-full py-4 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-lg active:scale-95"
+                                                >
+                                                    Purge Member Permanently ⚠️
+                                                </button>
                                             </div>
                                         </div>
                                     </div>

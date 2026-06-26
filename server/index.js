@@ -1014,6 +1014,38 @@ app.get('/api/admin/volunteers', async (req, res) => {
     }
 });
 
+app.delete('/api/admin/volunteers/:email', async (req, res) => {
+    const { email } = req.params;
+    try {
+        console.log(`[Admin] Purging member records for: ${email}`);
+
+        if (mongoose.connection.readyState !== 1) {
+            // Delete from Mock Database arrays
+            mockDb.volunteers = mockDb.volunteers.filter(v => v.email !== email);
+            mockDb.users = mockDb.users.filter(u => u.email !== email);
+            mockDb.subscriptions = mockDb.subscriptions.filter(s => s.email !== email);
+            mockDb.patrons = mockDb.patrons.filter(p => p.email !== email);
+            mockDb.interns = mockDb.interns.filter(i => i.email !== email);
+
+            return res.json({ status: 'success', message: 'Member purged from mock database successfully.' });
+        }
+
+        // Perform parallel deletions across collections for absolute purge
+        await Promise.all([
+            Volunteer.deleteMany({ email }),
+            User.deleteMany({ email }),
+            Subscription.deleteMany({ email }),
+            Patron.deleteMany({ email }),
+            Intern.deleteMany({ email })
+        ]);
+
+        res.json({ status: 'success', message: 'Member record and all related data purged permanently.' });
+    } catch (err) {
+        console.error('[Admin Purge Error]:', err.message);
+        res.status(500).json({ error: err.message });
+    }
+});
+
 app.get('/api/admin/donations', async (req, res) => {
     try {
         const donations = await Donation.find().sort({ date: -1 });
