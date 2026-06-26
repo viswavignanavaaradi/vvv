@@ -13,7 +13,8 @@ const mockDb = {
     subscriptions: [],
     patrons: [],
     interns: [],
-    legalRequests: []
+    legalRequests: [],
+    donations: []
 };
 
 const path = require('path');
@@ -1006,6 +1007,9 @@ app.post('/api/intern/upload-achievement', uploadDoc.single('document'), async (
 
 // Admin APIs
 app.get('/api/admin/volunteers', async (req, res) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.json(mockDb.volunteers);
+    }
     try {
         const volunteers = await Volunteer.find().sort({ date: -1 });
         res.json(volunteers);
@@ -1047,6 +1051,9 @@ app.delete('/api/admin/volunteers/:email', async (req, res) => {
 });
 
 app.get('/api/admin/donations', async (req, res) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.json(mockDb.donations || []);
+    }
     try {
         const donations = await Donation.find().sort({ date: -1 });
         res.json(donations);
@@ -1056,6 +1063,9 @@ app.get('/api/admin/donations', async (req, res) => {
 });
 
 app.get('/api/admin/patrons', async (req, res) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.json(mockDb.patrons);
+    }
     try {
         const patrons = await Patron.find().sort({ date: -1 });
         res.json(patrons);
@@ -1066,6 +1076,9 @@ app.get('/api/admin/patrons', async (req, res) => {
 
 // Intern Admin APIs
 app.get('/api/admin/interns', async (req, res) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.json(mockDb.interns);
+    }
     try {
         const interns = await Intern.find().sort({ date: -1 });
         res.json(interns);
@@ -1076,6 +1089,15 @@ app.get('/api/admin/interns', async (req, res) => {
 
 app.put('/api/admin/interns/:id/status', async (req, res) => {
     const { status, adminMessage } = req.body;
+    if (mongoose.connection.readyState !== 1) {
+        const intern = mockDb.interns.find(i => i._id === req.params.id);
+        if (intern) {
+            intern.status = status;
+            intern.adminMessage = adminMessage;
+        }
+        console.log(`[Notification] [Mock] Auto-email triggered for ${intern?.email}. Status: ${status}`);
+        return res.json({ status: 'success', intern });
+    }
     try {
         const intern = await Intern.findByIdAndUpdate(req.params.id, { status, adminMessage }, { new: true });
 
@@ -1092,6 +1114,23 @@ app.put('/api/admin/interns/:id/status', async (req, res) => {
 app.post('/api/legal/submit', uploadDoc.array('files'), async (req, res) => {
     const { fullName, email, phone, address, message } = req.body;
     try {
+        if (mongoose.connection.readyState !== 1) {
+            const count = mockDb.legalRequests.length;
+            const requestId = `VVVLR${(count + 1).toString().padStart(4, '0')}`;
+            const documents = req.files ? req.files.map(file => ({
+                name: file.originalname,
+                url: file.path,
+                cloudinary_id: file.filename
+            })) : [];
+            const request = {
+                requestId, fullName, email, phone, address, message, documents,
+                status: 'Pending',
+                createdAt: new Date().toISOString()
+            };
+            mockDb.legalRequests.push(request);
+            return res.json({ status: 'success', requestId });
+        }
+
         const count = await LegalRequest.countDocuments();
         const requestId = `VVVLR${(count + 1).toString().padStart(4, '0')}`;
         console.log('Generated Legal Request ID:', requestId);
@@ -1113,6 +1152,9 @@ app.post('/api/legal/submit', uploadDoc.array('files'), async (req, res) => {
 });
 
 app.get('/api/admin/legal-requests', async (req, res) => {
+    if (mongoose.connection.readyState !== 1) {
+        return res.json(mockDb.legalRequests);
+    }
     try {
         const requests = await LegalRequest.find().sort({ createdAt: -1 });
         res.json(requests);
@@ -1123,6 +1165,14 @@ app.get('/api/admin/legal-requests', async (req, res) => {
 
 app.put('/api/admin/legal-requests/:id/status', async (req, res) => {
     const { status, adminMessage } = req.body;
+    if (mongoose.connection.readyState !== 1) {
+        const request = mockDb.legalRequests.find(r => r._id === req.params.id || r.requestId === req.params.id);
+        if (request) {
+            request.status = status;
+            request.adminMessage = adminMessage;
+        }
+        return res.json({ status: 'success' });
+    }
     try {
         await LegalRequest.findByIdAndUpdate(req.params.id, { status, adminMessage });
         res.json({ status: 'success' });
