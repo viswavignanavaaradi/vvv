@@ -1,51 +1,150 @@
 import { useState } from 'react';
 import axios from '../api/axios';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import heroVideo from '../assets/video.mp4';
 
-const Hero = ({ onDonate }) => (
-    <section id="home" className="hero" style={{
-        position: 'relative',
-        width: '100%',
-        height: 'min(600px, 80vh)', // Responsive height
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        overflow: 'hidden'
-    }}>
-        <video
-            autoPlay
-            loop
-            muted
-            playsInline
-            style={{
+const Hero = ({ onDonate }) => {
+    const navigate = useNavigate();
+    const { scrollY } = useScroll();
+
+    // Map scroll position to scale, blur, parallax translation, border radius, and dark overlay opacity
+    const scale = useTransform(scrollY, [0, 600], [1, 0.92]);
+    const blur = useTransform(scrollY, [0, 600], ["blur(0px)", "blur(16px)"]);
+    const opacity = useTransform(scrollY, [0, 600], [0.5, 0.85]);
+    const borderRadius = useTransform(scrollY, [0, 600], ["0px", "48px"]);
+    const y = useTransform(scrollY, [0, 600], [0, 120]);
+
+    // Map scroll to fade out/shrink the Call-To-Action buttons
+    const buttonsOpacity = useTransform(scrollY, [0, 300], [1, 0]);
+    const buttonsScale = useTransform(scrollY, [0, 300], [1, 0.8]);
+
+    return (
+        <section id="home" className="hero" style={{
+            position: 'relative',
+            width: '100%',
+            height: '100vh', // Fills the exact screen viewport height on desktop/laptop
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            overflow: 'hidden',
+            background: '#090d16' // Rich deep dark backdrop for a premium contrast
+        }}>
+            {/* Background Video with scroll scaling, parallax and blur */}
+            <motion.div
+                style={{
+                    width: '100%',
+                    height: '100%',
+                    scale: scale,
+                    filter: blur,
+                    y: y,
+                    borderRadius: borderRadius,
+                    overflow: 'hidden'
+                }}
+            >
+                <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    style={{
+                        width: '100%',
+                        height: '100%',
+                        display: 'block',
+                        objectFit: 'cover'
+                    }}
+                >
+                    <source src={heroVideo} type="video/mp4" />
+                </video>
+            </motion.div>
+
+            {/* Dark tint overlay with radial vignette for better text contrast */}
+            <motion.div style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
                 width: '100%',
                 height: '100%',
-                display: 'block',
-                objectFit: 'cover' // Changed from contain for better mobile fill
-            }}
-        >
-            <source src={heroVideo} type="video/mp4" />
-        </video>
+                background: 'radial-gradient(circle, rgba(0,0,0,0.45) 0%, rgba(0,0,0,0.75) 100%)',
+                opacity: opacity,
+                zIndex: 1,
+                pointerEvents: 'none'
+            }} />
 
-        <div style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            background: 'rgba(0,0,0,0.5)',
-            zIndex: 1
-        }}></div>
+            {/* Call To Action Buttons Centered Over Video */}
+            <motion.div
+                style={{
+                    position: 'absolute',
+                    zIndex: 2,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '1.25rem',
+                    opacity: buttonsOpacity,
+                    scale: buttonsScale,
+                    pointerEvents: 'auto'
+                }}
+            >
+                {/* Visual Accent */}
+                <motion.span 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6 }}
+                    className="text-emerald-400 font-black uppercase tracking-[0.3em] text-[10px] sm:text-xs"
+                    style={{ textShadow: '0 2px 8px rgba(0,0,0,0.5)' }}
+                >
+                    Viswa Vignana Vaaradhi
+                </motion.span>
+                
+                {/* Headline */}
+                <motion.h1 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.15 }}
+                    className="text-white font-merriweather font-black text-2xl sm:text-4xl md:text-5xl text-center max-w-2xl px-4 leading-tight italic"
+                    style={{ textShadow: '0 4px 16px rgba(0,0,0,0.8)' }}
+                >
+                    Empowering Rural Communities
+                </motion.h1>
 
-        <style>{`
-            @media (max-width: 600px) {
-                .hero { height: 50vh !important; }
-            }
-        `}</style>
-    </section>
-);
+                {/* Call To Actions */}
+                <motion.div 
+                    initial={{ opacity: 0, y: 15 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.6, delay: 0.3 }}
+                    className="flex flex-col sm:flex-row gap-4 mt-2 px-4 w-full sm:w-auto"
+                >
+                    <motion.button
+                        onClick={() => navigate('/become-a-member')}
+                        whileHover={{ scale: 1.06, boxShadow: "0 12px 30px -5px rgba(16,185,129,0.5)" }}
+                        whileTap={{ scale: 0.96 }}
+                        className="px-8 py-4 bg-emerald-600 text-white font-black rounded-2xl text-[10px] sm:text-xs uppercase tracking-widest transition-colors hover:bg-emerald-500 shadow-xl border border-emerald-500/20 w-full sm:w-auto"
+                    >
+                        Become a Member 🤝
+                    </motion.button>
+                    <motion.button
+                        onClick={() => navigate('/patron-enrollment')}
+                        whileHover={{ scale: 1.06, backgroundColor: "rgba(255,255,255,0.9)", boxShadow: "0 12px 30px -5px rgba(255,255,255,0.25)" }}
+                        whileTap={{ scale: 0.96 }}
+                        className="px-8 py-4 bg-white text-slate-900 font-black rounded-2xl text-[10px] sm:text-xs uppercase tracking-widest border border-white shadow-xl w-full sm:w-auto"
+                    >
+                        Become a Patron 🏛️
+                    </motion.button>
+                </motion.div>
+            </motion.div>
+
+            <style>{`
+                @media (max-width: 600px) {
+                    .hero { 
+                        height: 50vh !important; 
+                        aspect-ratio: auto !important; 
+                    }
+                }
+            `}</style>
+        </section>
+    );
+};
 
 const Missions = () => (
     <section id="missions" className="section bg-subtle py-16 md:py-28">
@@ -110,7 +209,7 @@ const JoinMission = () => {
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                     {[
-                        { title: 'Volunteer', desc: 'Work on the ground and serve rural communities directly.', path: '/volunteer-enrollment', icon: '🤝' },
+                        { title: 'Become a Member', desc: 'Work on the ground and serve rural communities directly.', path: '/become-a-member', icon: '🤝' },
                         { title: 'Internship', desc: 'Gain field experience and academic research opportunities.', path: '/internship-enrollment', icon: '🎓' },
                         { title: 'Patron', desc: 'Join our Advisory Council and provide strategic leadership.', path: '/patron-enrollment', icon: '🏛️' }
                     ].map((item, idx) => (
@@ -166,7 +265,7 @@ const Contact = () => {
                         <span style={{ color: 'var(--accent-emerald)', fontWeight: '700', letterSpacing: '2px', textTransform: 'uppercase', fontSize: '0.9rem' }}>Reach Out</span>
                         <h2 style={{ fontSize: '2.5rem', marginTop: '1rem', marginBottom: '1.5rem', color: 'var(--primary-royal)', fontFamily: 'Merriweather, serif' }}>Contact Us</h2>
                         <p style={{ marginBottom: '2.5rem', color: 'var(--text-body)', fontSize: '1.1rem' }}>
-                            Whether you want to volunteer your time, partner with us, or have a question, we are here to listen.
+                            Whether you want to become a member, partner with us, or have a question, we are here to listen.
                         </p>
 
                         <div style={{ display: 'grid', gap: '2rem' }}>

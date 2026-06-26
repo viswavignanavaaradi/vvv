@@ -12,7 +12,7 @@ const aboutContent = {
         overview: {
             history: "Born from the collective vision of Advocate Vantaku Vinod, Malayala Pardhasaardhi, Dr. Rama Chandra Naidu, and fellow students of Andhra University Law College and Engineering College, VVV emerged from a deep moral awakening. The tragic incident of three children starving to death in the national capital became a turning point — a painful reminder that despite decades of independence, hunger, malnutrition, inequality, and socio-economic injustice still haunt millions of lives in India. That moment transformed concern into commitment.",
             conviction: "Viswa Vignana Vaaradhi stands on a simple yet powerful conviction: No human being deserves to sleep hungry. No child deserves to be denied quality education. No citizen deserves to remain unaware of their rights. The organization works to dismantle barriers created by poverty, ignorance, systemic inequality, and lack of accountability.",
-            reach: "Currently in its initial implementation stage, the organization has mobilized more than 1,500 committed volunteers, with an ambitious goal of building a 1,00,000-strong volunteer movement by 2026. It primarily serves orphan children, government school students, rural youth, below-poverty-line families, and tribal communities."
+            reach: "Currently in its initial implementation stage, the organization has mobilized more than 1,500 committed members, with an ambitious goal of building a 1,00,000-strong member movement by 2026. It primarily serves orphan children, government school students, rural youth, below-poverty-line families, and tribal communities."
         },
         motto: "“No nation is perfect; it needs to be made perfect. Let us contribute towards the perfection of our country.”",
         vision: {
@@ -134,7 +134,7 @@ const aboutContent = {
         subtitle: "A journey of change across the grassroots.",
         bg: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
         tag: "Our Journey",
-        desc: "From Mission Medha to Project Sakeathpuram, our timeline reflects the relentless energy of 1,500+ volunteers committed to nation-building.",
+        desc: "From Mission Medha to Project Sakeathpuram, our timeline reflects the relentless energy of 1,500+ members committed to nation-building.",
         timeline: [
             { date: "July 4, 2023", title: "Mission Medha (First Phase)", detail: "The foundational launch of our educational initiative.", cat: "Education" },
             { date: "Sept 9, 2025", title: "Nyaya Sadan (The Launch)", detail: "Inauguration of our legal empowerment center.", cat: "Legal" },
@@ -164,9 +164,9 @@ const aboutContent = {
         subtitle: "Empowering the next generation of changemakers.",
         bg: "https://images.unsplash.com/photo-1523050854058-8df90110c9f1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
         tag: "Institutions",
-        desc: "We collaborate with leading institutions like Andhra University to provide internships and volunteering opportunities for dedicated students.",
+        desc: "We collaborate with leading institutions like Andhra University to provide internships and membership opportunities for dedicated students.",
         details: [
-            { title: "Andhra University", content: "Primary student volunteer base." },
+            { title: "Andhra University", content: "Primary student member base." },
             { title: "Dr. B.R. Ambedkar Law College", content: "Legal aid clinic partners." },
             { title: "NSRIT Engineering College", content: "Technical resource support." }
         ]
@@ -187,10 +187,10 @@ const aboutContent = {
         subtitle: "Voices amplifying our cause.",
         bg: "https://images.unsplash.com/photo-1557804506-669a67965ba0?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80",
         tag: "Influencers",
-        desc: "We are grateful to the volunteers and public figures who use their platform to raise awareness for Viswa Vignana Vaaradi.",
+        desc: "We are grateful to the members and public figures who use their platform to raise awareness for Viswa Vignana Vaaradi.",
         details: [
             { title: "Social Voice 1", content: "Advocating for rural education." },
-            { title: "Youth Icon 2", content: "Promoting volunteerism among students." }
+            { title: "Youth Icon 2", content: "Promoting membership among students." }
         ]
     }
 };

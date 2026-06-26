@@ -1,19 +1,19 @@
 import { motion } from 'framer-motion';
 
-const VolunteerKnowMore = () => {
+const MemberKnowMore = () => {
     return (
         <div className="min-h-screen bg-emerald-700/95 py-24 px-4">
             <div className="max-w-4xl mx-auto space-y-16">
                 <div>
-                    <h1 className="text-4xl font-merriweather font-black text-white mb-8">Who is a Volunteer?</h1>
-                    <p className="text-white/90 leading-relaxed font-bold">A Volunteer is an individual who supports the organization through direct action and participation in various initiatives. Volunteers are the backbone of our groundwork, helping execute programs, organize events, and reach out to communities in need.</p>
+                    <h1 className="text-4xl font-merriweather font-black text-white mb-8">Who is a Member?</h1>
+                    <p className="text-white/90 leading-relaxed font-bold">A Member is an individual who supports the organization through direct action and participation in various initiatives. Members are the backbone of our groundwork, helping execute programs, organize events, and reach out to communities in need.</p>
                 </div>
 
                 <div className="h-px bg-white/20" />
 
                 <div>
-                    <h2 className="text-4xl font-merriweather font-black text-white mb-8">What does a Volunteer do?</h2>
-                    <p className="text-white/80 mb-6 text-sm">As a Volunteer, you may:</p>
+                    <h2 className="text-4xl font-merriweather font-black text-white mb-8">What does a Member do?</h2>
+                    <p className="text-white/80 mb-6 text-sm">As a Member, you may:</p>
                     <ul className="text-white/90 space-y-3 font-medium text-xs leading-relaxed">
                         <li>Participate in on-ground activities and community outreach programs.</li>
                         <li>Assist in organizing and managing social awareness events.</li>
@@ -26,9 +26,9 @@ const VolunteerKnowMore = () => {
                 <div className="h-px bg-white/20" />
 
                 <div>
-                    <h2 className="text-4xl font-merriweather font-black text-white mb-8">What recognition does a Volunteer receive?</h2>
+                    <h2 className="text-4xl font-merriweather font-black text-white mb-8">What recognition does a Member receive?</h2>
                     <ul className="text-white/90 space-y-3 font-medium text-xs leading-relaxed">
-                        <li>Official Volunteer Recognition Certificate.</li>
+                        <li>Official Member Recognition Certificate.</li>
                         <li>Practical experience in social work and community leadership.</li>
                         <li>Networking opportunities with professionals and social activists.</li>
                         <li>A platform to make a tangible difference in society.</li>
@@ -40,8 +40,8 @@ const VolunteerKnowMore = () => {
                 <div>
                     <h2 className="text-4xl font-merriweather font-black text-white mb-8">Important to Know</h2>
                     <ul className="text-white/90 space-y-3 font-medium text-xs leading-relaxed">
-                        <li>Volunteering is a commitment to service and social impact.</li>
-                        <li>Volunteers must adhere to the organization's ethical guidelines and code of conduct.</li>
+                        <li>Membership is a commitment to service and social impact.</li>
+                        <li>Members must adhere to the organization's ethical guidelines and code of conduct.</li>
                         <li>Active participation and regular updates are expected for assigned tasks.</li>
                     </ul>
                 </div>
@@ -73,4 +73,4 @@ const VolunteerKnowMore = () => {
     );
 };
 
-export default VolunteerKnowMore;
+export default MemberKnowMore;

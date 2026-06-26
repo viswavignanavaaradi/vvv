@@ -212,10 +212,10 @@ const CollegeCommittees = () => {
                                     We are currently structuring the student chapter committee for this institution. Nominations and enrollments for executive roles are opening soon.
                                 </p>
                                 <button 
-                                    onClick={() => navigate('/volunteer-enrollment')}
+                                    onClick={() => navigate('/become-a-member')}
                                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-8 py-3 rounded-xl text-sm transition-all shadow-md"
                                 >
-                                    Join As Volunteer
+                                    Become a Member
                                 </button>
                             </div>
                         )}

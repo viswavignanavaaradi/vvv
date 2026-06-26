@@ -17,8 +17,8 @@ const PatronKnowMore = () => {
                     <ul className="text-white/90 space-y-3 font-medium text-xs leading-relaxed">
                         <li>Provide strategic guidance and suggestions for programs and initiatives.</li>
                         <li>Share professional expertise, experience, or insights when required.</li>
-                        <li>Lead or mentor volunteers for specific assigned initiatives.</li>
-                        <li>Coordinate with volunteers and core team members to ensure smooth execution.</li>
+                        <li>Lead or mentor members for specific assigned initiatives.</li>
+                        <li>Coordinate with members and core team members to ensure smooth execution.</li>
                         <li>Review progress and provide timely feedback or reports.</li>
                         <li>Patrons contribute through thought leadership, not operational control.</li>
                     </ul>

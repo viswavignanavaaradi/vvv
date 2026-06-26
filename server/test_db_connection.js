@@ -1,8 +1,19 @@
 const mongoose = require('mongoose');
+const dns = require('dns');
 require('dotenv').config();
+
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+    console.warn('Failed to set DNS servers', e.message);
+}
 
 const uri = process.env.MONGODB_URI;
 console.log('Testing connection to:', uri ? uri.split('@')[1] : 'MISSING URI');
+
 
 mongoose.connect(uri, { dbName: 'vvv_ngo' })
     .then(() => {

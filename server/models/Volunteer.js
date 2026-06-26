@@ -21,6 +21,7 @@ const volunteerSchema = new mongoose.Schema({
     picture: { type: String },
     contributed: { type: Boolean, default: false },
     payment_id: { type: String },
+    subscription_id: { type: String },
     documents: [{
         name: String,
         url: String,

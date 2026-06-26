@@ -159,8 +159,8 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                     },
                     {
                         label: 'Get Involved', type: 'dropdown', subItems: [
-                            { label: 'Become a MEMBER', path: '/donate?type=patron' },
-                            { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
+                            { label: 'Become a Patron', path: '/donate?type=patron' },
+                            { label: 'Become a Member', path: '/become-a-member' },
                             { label: 'Internship Enrollment', path: '/internship-enrollment' },
                             { label: 'Learn More', path: '/get-involved' }
                         ]
@@ -663,8 +663,8 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                                                 style={{ overflow: 'hidden', display: 'flex', flexDirection: 'column', gap: '0.8rem', paddingBottom: '1rem', paddingLeft: '1rem' }}
                                             >
                                                 {[
-                                                    { label: 'Become a MEMBER', path: '/donate?type=patron' },
-                                                    { label: 'Volunteer Enrollment', path: '/volunteer-enrollment' },
+                                                    { label: 'Become a Patron', path: '/donate?type=patron' },
+                                                    { label: 'Become a Member', path: '/become-a-member' },
                                                     { label: 'Internship Enrollment', path: '/internship-enrollment' },
                                                     { label: 'Overview', path: '/get-involved' }
                                                 ].map((subItem) => (

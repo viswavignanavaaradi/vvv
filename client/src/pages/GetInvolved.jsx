@@ -16,22 +16,22 @@ const GetInvolved = () => {
                 "Impact reporting & strategy",
                 "Council recognition"
             ],
-            cta: "Become a MEMBER",
+            cta: "Become a Patron",
             path: "/donate",
             color: "bg-emerald-600",
             icon: "🏛️"
         },
         volunteer: {
-            title: "Join as a Volunteer",
+            title: "Become a Member",
             subtitle: "Impact Rural Communities",
-            description: "Become the heartbeat of our foundation. As a volunteer, you'll work directly on the ground, participating in medical camps, literacy drives, and rural empowerment projects. This is more than service; it's a journey of empathy and growth.",
+            description: "Become the heartbeat of our foundation. As a member, you'll work directly on the ground, participating in medical camps, literacy drives, and rural empowerment projects. This is more than service; it's a journey of empathy and growth.",
             features: [
                 "Field presence in rural campaigns",
                 "Community leadership training",
                 "Work on diverse core missions"
             ],
-            cta: "Enroll as Volunteer",
-            path: "/volunteer-enrollment",
+            cta: "Become a Member",
+            path: "/become-a-member",
             color: "bg-blue-600",
             icon: "🤝"
         },
@@ -76,7 +76,7 @@ const GetInvolved = () => {
                                 onClick={() => setActiveTab(key)}
                                 className={`px-6 md:px-10 py-3 md:py-4 rounded-xl md:rounded-2xl font-black text-[10px] md:text-xs uppercase tracking-widest transition-all duration-300 ${activeTab === key ? 'bg-slate-900 text-white shadow-2xl scale-105' : 'bg-white text-slate-400 hover:text-slate-600 border border-slate-100'}`}
                             >
-                                {key}
+                                {key === 'volunteer' ? 'become a member' : key}
                             </button>
                         ))}
                     </div>

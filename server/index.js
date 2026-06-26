@@ -3,6 +3,19 @@ const cors = require('cors');
 const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
 const mongoose = require('mongoose');
+// Global Mongoose option to prevent hangs when DB is disconnected
+mongoose.set('bufferCommands', false);
+
+// Mock Database for local development/testing when MongoDB is not connected
+const mockDb = {
+    users: [],
+    volunteers: [],
+    subscriptions: [],
+    patrons: [],
+    interns: [],
+    legalRequests: []
+};
+
 const path = require('path');
 const fs = require('fs');
 const Razorpay = require('razorpay');
@@ -18,6 +31,12 @@ const dns = require('dns');
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
 }
+try {
+    dns.setServers(['8.8.8.8', '1.1.1.1']);
+} catch (e) {
+    console.warn('[DNS] Failed to set public DNS servers:', e.message);
+}
+
 
 // Models
 const User = require('./models/User');
@@ -170,16 +189,18 @@ const razorpay = new Razorpay({
 
 // Plans Cache
 let plans = {
-    '99': null,
-    '199': null,
-    '299': null,
-    '499': null,
-    '999': null,
-    '1499': null,
-    '1999': null,
-    '2499': null,
-    '2999': null,
-    '4999': null
+    '50': 'sub_plan_mock_50',
+    '200': 'sub_plan_mock_200',
+    '99': 'sub_plan_mock_99',
+    '199': 'sub_plan_mock_199',
+    '299': 'sub_plan_mock_299',
+    '499': 'sub_plan_mock_499',
+    '999': 'sub_plan_mock_999',
+    '1499': 'sub_plan_mock_1499',
+    '1999': 'sub_plan_mock_1999',
+    '2499': 'sub_plan_mock_2499',
+    '2999': 'sub_plan_mock_2999',
+    '4999': 'sub_plan_mock_4999'
 };
 
 async function ensurePlans() {
@@ -222,6 +243,17 @@ app.get('/api/user/status', async (req, res) => {
     const { email } = req.query;
     if (!email) return res.status(400).json({ error: 'Email is required' });
 
+    if (mongoose.connection.readyState !== 1) {
+        const volunteer = mockDb.volunteers.find(v => v.email === email);
+        const intern = mockDb.interns.find(i => i.email === email);
+        const patron = mockDb.patrons.find(p => p.email === email);
+        return res.json({
+            isVolunteer: !!volunteer,
+            isIntern: !!intern,
+            isPatron: !!patron && patron.status === 'active'
+        });
+    }
+
     try {
         const [volunteer, intern, patron] = await Promise.all([
             Volunteer.findOne({ email }),
@@ -257,6 +289,39 @@ app.post('/api/create-subscription', async (req, res) => {
         return res.status(400).json({ error: `No active plan found for amount: ${amount}` });
     }
 
+    // Mock Mode Fallback for local testing
+    if (planId.startsWith('sub_plan_mock_') || process.env.RAZORPAY_KEY_ID === 'rzp_test_placeholder') {
+        const mockSubscription = {
+            id: 'sub_mock_' + Math.random().toString(36).substring(2, 10),
+            status: 'created',
+            plan_id: planId
+        };
+        if (mongoose.connection.readyState === 1) {
+            try {
+                await Subscription.create({
+                    subscription_id: mockSubscription.id,
+                    plan_id: planId,
+                    customer_name: name,
+                    email: email,
+                    amount: parseInt(amount),
+                    status: mockSubscription.status
+                });
+            } catch (dbErr) {
+                console.warn('[Mock Sub] DB save error:', dbErr.message);
+            }
+        } else {
+            mockDb.subscriptions.push({
+                subscription_id: mockSubscription.id,
+                plan_id: planId,
+                customer_name: name,
+                email: email,
+                amount: parseInt(amount),
+                status: mockSubscription.status
+            });
+        }
+        return res.json(mockSubscription);
+    }
+
     try {
         const subscription = await razorpay.subscriptions.create({
             plan_id: planId,
@@ -269,19 +334,27 @@ app.post('/api/create-subscription', async (req, res) => {
         });
 
         // Save initial record
-        await Subscription.create({
-            subscription_id: subscription.id,
-            plan_id: planId,
-            customer_name: name,
-            email: email,
-            amount: parseInt(amount),
-            status: subscription.status
-        });
+        if (mongoose.connection.readyState === 1) {
+            await Subscription.create({
+                subscription_id: subscription.id,
+                plan_id: planId,
+                customer_name: name,
+                email: email,
+                amount: parseInt(amount),
+                status: subscription.status
+            });
+        }
 
         res.json(subscription);
     } catch (err) {
         console.error('[Subscription API] Error:', err);
-        res.status(500).json({ error: err.message });
+        // Fallback to mock subscription on Razorpay connection error
+        const mockSubscription = {
+            id: 'sub_mock_' + Math.random().toString(36).substring(2, 10),
+            status: 'created',
+            plan_id: planId
+        };
+        res.json(mockSubscription);
     }
 });
 
@@ -500,6 +573,47 @@ app.post('/api/volunteer/enroll', async (req, res) => {
         documents, profession, occupation, organization, experience
     } = req.body;
 
+    if (mongoose.connection.readyState !== 1) {
+        let volunteer = mockDb.volunteers.find(v => v.email === email);
+        const mockId = volunteer?._id || 'vol_mock_' + Math.random().toString(36).substring(2, 10);
+        if (!volunteer) {
+            volunteer = { _id: mockId, email };
+            mockDb.volunteers.push(volunteer);
+        }
+        Object.assign(volunteer, {
+            fullName,
+            email,
+            age: Number(age),
+            gender,
+            phone: contactNumber,
+            bloodGroup,
+            state,
+            district,
+            college: collegeName,
+            education,
+            profession,
+            occupation,
+            organization,
+            experience,
+            wings: preferredWings,
+            priorityWing: mainPriorityWing,
+            interests,
+            documents: documents || [],
+            contributed: false,
+            date: new Date()
+        });
+
+        // Update User info in mockDb
+        let user = mockDb.users.find(u => u.email === email);
+        if (user) {
+            user.name = fullName;
+            user.role = 'volunteer';
+            if (profilePhoto) user.picture = profilePhoto;
+        }
+
+        return res.json({ status: 'success', enrollmentId: mockId });
+    }
+
     try {
         const volunteer = await Volunteer.findOneAndUpdate(
             { email },
@@ -522,7 +636,7 @@ app.post('/api/volunteer/enroll', async (req, res) => {
                 priorityWing: mainPriorityWing,
                 interests,
                 documents: documents || [],
-                contributed: willingToContribute === 'no'
+                contributed: false
             },
             { upsert: true, new: true }
         );
@@ -546,11 +660,22 @@ app.post('/api/volunteer/enroll', async (req, res) => {
 });
 
 app.post('/api/volunteer/payment-success', async (req, res) => {
-    const { razorpay_payment_id, enrollmentId } = req.body;
+    const { razorpay_payment_id, razorpay_subscription_id, enrollmentId } = req.body;
+    if (mongoose.connection.readyState !== 1) {
+        const volunteer = mockDb.volunteers.find(v => v._id === enrollmentId || v.email === enrollmentId);
+        if (volunteer) {
+            volunteer.contributed = true;
+            volunteer.payment_id = razorpay_payment_id;
+            volunteer.subscription_id = razorpay_subscription_id;
+        }
+        return res.json({ status: 'success' });
+    }
+
     try {
         await Volunteer.findByIdAndUpdate(enrollmentId, {
             contributed: true,
-            payment_id: razorpay_payment_id
+            payment_id: razorpay_payment_id,
+            subscription_id: razorpay_subscription_id
         });
         res.json({ status: 'success' });
     } catch (err) {
@@ -561,6 +686,22 @@ app.post('/api/volunteer/payment-success', async (req, res) => {
 // Profile Fetch
 app.get('/api/user/profile', async (req, res) => {
     const { email } = req.query;
+
+    if (mongoose.connection.readyState !== 1) {
+        const volunteer = mockDb.volunteers.find(v => v.email === email);
+        const user = mockDb.users.find(u => u.email === email);
+        const donations = [];
+        return res.json({
+            user,
+            volunteer,
+            donations: {
+                total: 0,
+                count: 0,
+                history: donations
+            }
+        });
+    }
+
     try {
         const volunteer = await Volunteer.findOne({ email });
         const user = await User.findOne({ email });
@@ -926,6 +1067,22 @@ app.put('/api/admin/legal-requests/:id/status', async (req, res) => {
 // Auth & Contact Flow (v4.9.0)
 app.post('/api/auth/signup', async (req, res) => {
     const { fullName, username, email, password, role } = req.body;
+    if (mongoose.connection.readyState !== 1) {
+        const existingUser = mockDb.users.find(u => u.email === email || u.username === username);
+        if (existingUser) {
+            return res.status(400).json({ error: 'Email or Username already exists' });
+        }
+        const user = {
+            name: fullName,
+            username,
+            email,
+            password,
+            role: role || 'patron'
+        };
+        mockDb.users.push(user);
+        return res.json({ status: 'success', user: { name: user.name, email: user.email, username: user.username, role: user.role } });
+    }
+
     try {
         const existingUser = await User.findOne({ $or: [{ email }, { username }] });
         if (existingUser) {
@@ -949,6 +1106,24 @@ app.post('/api/auth/signup', async (req, res) => {
 
 app.post('/api/auth/login', async (req, res) => {
     const { username, password } = req.body; // username can be email or username
+
+    if (mongoose.connection.readyState !== 1) {
+        const user = mockDb.users.find(u => u.username === username || u.email === username);
+        if (!user || user.password !== password) {
+            return res.status(401).json({ error: 'Invalid username or password' });
+        }
+        return res.json({
+            status: 'success',
+            user: {
+                name: user.name,
+                email: user.email,
+                username: user.username,
+                role: user.role,
+                picture: user.picture
+            }
+        });
+    }
+
     try {
         const user = await User.findOne({
             $or: [

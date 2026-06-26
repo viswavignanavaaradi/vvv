@@ -226,13 +226,13 @@ const Profile = () => {
                                             <div className="bg-orange-50 w-16 lg:w-20 h-16 lg:h-20 rounded-2xl lg:rounded-3xl flex items-center justify-center text-2xl lg:text-3xl shadow-inner shrink-0">🎯</div>
                                             <div className="flex-grow text-center md:text-left">
                                                 <h2 className="text-xl lg:text-2xl font-merriweather font-black text-slate-800">Your Mission Awaits!</h2>
-                                                <p className="text-slate-500 font-medium text-xs lg:text-sm mt-1">Join as a volunteer to make an impact.</p>
+                                                <p className="text-slate-500 font-medium text-xs lg:text-sm mt-1">Become a member to make an impact.</p>
                                             </div>
                                             <button
-                                                onClick={() => navigate('/volunteer-enrollment')}
+                                                onClick={() => navigate('/become-a-member')}
                                                 className="w-full md:w-auto bg-[#1e3a8a] text-white px-6 lg:px-8 py-3 lg:py-4 rounded-xl lg:rounded-2xl font-black uppercase tracking-widest text-[9px] lg:text-[10px] hover:bg-[#1e40af] transition-all shadow-lg shadow-blue-900/10"
                                             >
-                                                Complete Enrollment
+                                                Become a Member
                                             </button>
                                         </div>
                                     </div>
@@ -300,7 +300,7 @@ const Profile = () => {
                                                         </h1>
                                                     )}
                                                     <p className="text-blue-600 font-black tracking-[0.3em] text-[8px] md:text-[10px] uppercase mt-1 text-center md:text-left">
-                                                        {isVolunteer ? `VVV-V-${String(profileData.volunteer._id).slice(-4).toUpperCase()}` : isIntern ? `VVV-I-${String(profileData.intern._id).slice(-4).toUpperCase()}` : 'PATRON'}
+                                                        {isVolunteer ? `VVV-M-${String(profileData.volunteer._id).slice(-4).toUpperCase()}` : isIntern ? `VVV-I-${String(profileData.intern._id).slice(-4).toUpperCase()}` : 'PATRON'}
                                                     </p>
                                                     {isVolunteer && (
                                                         <button
@@ -338,7 +338,7 @@ const Profile = () => {
                                                 <div>
                                                     <p className="uppercase tracking-widest text-[10px] text-gray-300 font-black mb-1">Joined</p>
                                                     <p className="font-bold text-slate-600">
-                                                        {isVolunteer ? new Date(profileData.volunteer.date).toLocaleDateString() : isIntern ? new Date(profileData.intern.date).toLocaleDateString() : 'Active Member'}
+                                                        {isVolunteer ? new Date(profileData.volunteer.date).toLocaleDateString() : isIntern ? new Date(profileData.intern.date).toLocaleDateString() : 'Active Patron'}
                                                     </p>
                                                 </div>
                                                 {(isVolunteer || isIntern) && (
@@ -408,7 +408,7 @@ const Profile = () => {
                                                         <span className="bg-orange-50/50 px-4 py-2 rounded-full border border-orange-50 text-[9px] font-black text-orange-600 uppercase tracking-widest">INTERNSHIP APPLICANT</span>
                                                         <span className="bg-blue-50/50 px-4 py-2 rounded-full border border-blue-50 text-[9px] font-black text-blue-600 uppercase tracking-widest">{profileData.intern.duration}</span>
                                                     </>
-                                                ) : <p className="text-slate-300 text-[10px] italic">Join as a volunteer to showcase your skills.</p>
+                                                ) : <p className="text-slate-300 text-[10px] italic">Join as a member to showcase your skills.</p>
                                             )}
                                         </div>
                                         <div className="p-6 rounded-3xl bg-slate-50/50 border border-slate-50 relative">
@@ -442,7 +442,7 @@ const Profile = () => {
                                         </div>
                                         <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100">
                                             <p className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Member Type</p>
-                                            <p className="font-bold text-[#1e3a8a]">{isVolunteer ? 'Official Volunteer Member' : isIntern ? 'Internship Applicant' : 'Patron Member'}</p>
+                                            <p className="font-bold text-[#1e3a8a]">{isVolunteer ? 'Official VVV Member' : isIntern ? 'Internship Applicant' : 'Foundation Patron'}</p>
                                         </div>
                                     </div>
                                     <div className="space-y-6">

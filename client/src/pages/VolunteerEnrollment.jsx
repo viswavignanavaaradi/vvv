@@ -39,6 +39,8 @@ const VolunteerEnrollment = () => {
     });
 
     const [loading, setLoading] = useState(false);
+    const [showMockPayment, setShowMockPayment] = useState(false);
+    const [mockPaymentOptions, setMockPaymentOptions] = useState(null);
     const [alreadyRegistered, setAlreadyRegistered] = useState(false);
     const [uploading, setUploading] = useState(false);
     const [collegeSearch, setCollegeSearch] = useState('');
@@ -165,43 +167,52 @@ const VolunteerEnrollment = () => {
             const payload = {
                 ...formData,
                 preferredWings: formData.preferredWings.join(', '),
-                interests: formData.areaOfInterest.join(', ')
+                interests: formData.interests.join(', '),
+                willingToContribute: 'yes'
             };
             const res = await axios.post('/api/volunteer/enroll', payload);
             const { enrollmentId } = res.data;
 
-            if (formData.willingToContribute === 'yes') {
-                const { data: { key } } = await axios.get("/api/get-key");
-                const { data: order } = await axios.post("/api/create-order", { amount: 50 });
+            const monthlyAmount = formData.profession === 'Student' ? 50 : 200;
+            const subResponse = await axios.post('/api/create-subscription', {
+                amount: monthlyAmount,
+                email: formData.email,
+                name: formData.fullName
+            });
 
-                const options = {
-                    key: key,
-                    amount: order.amount,
-                    currency: "INR",
-                    name: "VVV Foundation",
-                    description: "Volunteer Contribution",
-                    image: "https://res.cloudinary.com/dp9qhgckr/image/upload/v1740685000/vv_foundation/logo_circle.png",
-                    order_id: order.id,
-                    handler: async function (response) {
-                        await axios.post("/api/volunteer/payment-success", { ...response, enrollmentId });
-                        alert("Enrollment & Contribution Successful!");
-                        navigate('/profile');
-                    },
-                    prefill: { name: formData.fullName, email: formData.email, contact: formData.contactNumber },
-                    theme: { color: "#1e3a8a" },
-                };
+            const { data: { key } } = await axios.get("/api/get-key");
 
+            const options = {
+                key: key,
+                subscription_id: subResponse.data.id,
+                name: "VVV Foundation",
+                description: `Monthly Membership (${formData.profession}) - ₹${monthlyAmount}`,
+                image: "https://res.cloudinary.com/dp9qhgckr/image/upload/v1740685000/vv_foundation/logo_circle.png",
+                handler: async function (response) {
+                    await axios.post("/api/volunteer/payment-success", {
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_subscription_id: response.razorpay_subscription_id,
+                        enrollmentId
+                    });
+                    alert("Enrollment & Membership Subscription Successful!");
+                    navigate('/profile');
+                },
+                prefill: { name: formData.fullName, email: formData.email, contact: formData.contactNumber },
+                theme: { color: "#1e3a8a" },
+            };
+
+            if (subResponse.data.id && subResponse.data.id.startsWith('sub_mock_')) {
+                setMockPaymentOptions(options);
+                setShowMockPayment(true);
+            } else {
                 const rzp = new window.Razorpay(options);
                 rzp.open();
-                setLoading(false);
-            } else {
-                alert("Enrollment Successful!");
-                navigate('/profile');
             }
         } catch (err) {
             console.error("Enrollment Error:", err);
             const errorMsg = err.response?.data?.error || err.message;
             alert(`Submission failed: ${errorMsg}`);
+        } finally {
             setLoading(false);
         }
     };
@@ -217,7 +228,7 @@ const VolunteerEnrollment = () => {
                 <div className="max-w-md bg-white p-10 rounded-[40px] shadow-xl">
                     <div className="text-5xl mb-6 text-[#1e3a8a]">🛡️</div>
                     <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Commander, You're Active!</h2>
-                    <p className="text-slate-500 mb-8">You are already registered as an active volunteer. Your dedication to the mission is highly valued.</p>
+                    <p className="text-slate-500 mb-8">You are already registered as an active member. Your dedication to the mission is highly valued.</p>
                     <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Go to My Hub</button>
                 </div>
             </div>
@@ -233,7 +244,7 @@ const VolunteerEnrollment = () => {
                     <div className="mb-4 md:mb-6 inline-block px-4 py-1 bg-white/10 text-[10px] font-black uppercase tracking-widest rounded-lg backdrop-blur-md">Mission 2047</div>
                     <h2 className="text-3xl sm:text-4xl md:text-5xl font-merriweather font-black mb-6 md:mb-8 leading-tight italic">Be the bridge to transformation.</h2>
                     <p className="text-blue-100 text-base md:text-lg leading-relaxed mb-8 md:mb-10 opacity-80 font-medium">
-                        Join Viswa Vignana Vaaradhi to contribute towards legal awareness, rural empowerment, and educational growth. Every volunteer is a cornerstone of our foundation.
+                        Join Viswa Vignana Vaaradhi to contribute towards legal awareness, rural empowerment, and educational growth. Every member is a cornerstone of our foundation.
                     </p>
 
                     <div className="space-y-6">
@@ -271,7 +282,7 @@ const VolunteerEnrollment = () => {
                             <div className="text-5xl md:text-6xl mb-6 md:mb-8">🔐</div>
                             <h2 className="text-2xl md:text-3xl font-merriweather font-black text-slate-800 mb-4">Start Your Journey</h2>
                             <p className="text-slate-500 mb-8 md:mb-10 text-base md:text-lg font-medium leading-relaxed">
-                                To enroll as a volunteer, please first create an account or sign in to your dashboard. This helps us maintain secure and accurate records.
+                                To become a member, please first create an account or sign in to your dashboard. This helps us maintain secure and accurate records.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
                                 <Link to="/login" className="px-10 py-5 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs">Login to Continue</Link>
@@ -282,7 +293,7 @@ const VolunteerEnrollment = () => {
                     ) : (
                         <div className="space-y-12">
                             <div className="text-center">
-                                <p className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Volunteer Step {step} of 6</p>
+                                <p className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Member Step {step} of 6</p>
                                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-merriweather font-black text-slate-900 leading-tight">
                                     {step === 1 && "The Mission Awaits"}
                                     {step === 2 && "Identification Details"}
@@ -462,22 +473,18 @@ const VolunteerEnrollment = () => {
 
                                 {step === 6 && (
                                     <div className="space-y-10 text-center">
-                                        <div className="bg-[#1e3a8a] p-10 rounded-[40px] text-white shadow-2xl">
-                                            <div className="text-4xl mb-4">🛡️</div>
-                                            <h4 className="text-2xl font-merriweather font-black mb-3">Sustainable Contribution</h4>
-                                            <p className="text-blue-100 text-sm font-medium mb-8 opacity-80 leading-relaxed">A one-time pledge of <span className="font-black text-white">₹50</span> to fuel our grassroot operations. You can choose to skip if unable.</p>
-                                            <div className="flex gap-3 justify-center">
-                                                {['yes', 'no'].map(choice => (
-                                                    <button key={choice} onClick={() => setFormData(p => ({ ...p, willingToContribute: choice }))} className={`px-10 py-4 rounded-xl font-black uppercase tracking-widest text-[10px] transition-all ${formData.willingToContribute === choice ? 'bg-white text-[#1e3a8a]' : 'bg-white/10 text-white/50 border border-white/10'}`}>
-                                                        {choice === 'yes' ? 'Pledge ₹50' : 'Skip Now'}
-                                                    </button>
-                                                ))}
-                                            </div>
+                                        <div className="bg-[#1e3a8a] p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
+                                            <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">🔄</div>
+                                            <p className="text-[10px] font-black uppercase text-amber-400 mb-2 tracking-[0.2em]">Council Pledge (Secure Autopay)</p>
+                                            <h4 className="text-2xl font-merriweather font-black mb-3">Monthly Membership Autopay</h4>
+                                            <p className="text-blue-100 text-sm font-medium mb-8 opacity-90 leading-relaxed">
+                                                As a <span className="font-black text-white">{formData.profession}</span> member, you commit to a recurring support of <span className="font-black text-white">₹{formData.profession === 'Student' ? 50 : 200}/mo</span> to keep the foundation's missions active.
+                                            </p>
                                         </div>
                                         <div className="flex gap-4">
                                             <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
                                             <button onClick={handleSubmit} disabled={loading} className="flex-[2] bg-emerald-500 hover:bg-emerald-600 text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">
-                                                {loading ? 'Processing Protocol...' : 'Finalize Enrollment 🚀'}
+                                                {loading ? 'Processing Protocol...' : 'Finalize Autopay & Enroll 🚀'}
                                             </button>
                                         </div>
                                     </div>
@@ -487,6 +494,111 @@ const VolunteerEnrollment = () => {
                     )}
                 </div>
             </div>
+
+            {/* Mock Razorpay Subscription Simulator Modal */}
+            <AnimatePresence>
+                {showMockPayment && mockPaymentOptions && (
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm"
+                    >
+                        <motion.div
+                            initial={{ scale: 0.9, y: 20 }}
+                            animate={{ scale: 1, y: 0 }}
+                            exit={{ scale: 0.9, y: 20 }}
+                            className="bg-white rounded-[32px] shadow-2xl max-w-md w-full overflow-hidden border border-slate-100"
+                        >
+                            {/* Modal Header */}
+                            <div className="bg-[#1e3a8a] text-white p-6 relative">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">💳</div>
+                                    <div>
+                                        <h3 className="font-bold text-sm tracking-wide">Razorpay Simulator</h3>
+                                        <p className="text-[10px] text-blue-200 uppercase font-black tracking-wider">Local Sandbox Mode</p>
+                                    </div>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setShowMockPayment(false);
+                                        alert("Payment Simulation Cancelled");
+                                    }}
+                                    className="absolute top-6 right-6 text-white/60 hover:text-white transition-colors"
+                                >
+                                    ✕
+                                </button>
+                            </div>
+
+                            {/* Modal Body */}
+                            <div className="p-8 space-y-6">
+                                <div className="text-center bg-slate-50 p-6 rounded-2xl border border-slate-100">
+                                    <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest mb-1">Total Subscription Cost</p>
+                                    <p className="text-3xl font-black text-slate-800">
+                                        {mockPaymentOptions.description.includes('₹50') ? '₹50.00' : '₹200.00'}
+                                        <span className="text-xs text-slate-400 font-medium">/month</span>
+                                    </p>
+                                    <p className="text-[11px] text-[#1e3a8a] font-bold mt-2">{mockPaymentOptions.description}</p>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <div className="flex justify-between text-xs font-bold border-b border-slate-50 pb-2">
+                                        <span className="text-slate-400">Subscriber</span>
+                                        <span className="text-slate-700">{mockPaymentOptions.prefill.name}</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs font-bold border-b border-slate-50 pb-2">
+                                        <span className="text-slate-400">Email</span>
+                                        <span className="text-slate-700">{mockPaymentOptions.prefill.email}</span>
+                                    </div>
+                                    <div className="flex justify-between text-xs font-bold">
+                                        <span className="text-slate-400">Subscription ID</span>
+                                        <span className="text-slate-700 font-mono tracking-tighter text-[11px]">{mockPaymentOptions.subscription_id}</span>
+                                    </div>
+                                </div>
+
+                                <div className="bg-amber-50 border border-amber-200/50 p-4 rounded-xl flex gap-3 text-amber-800">
+                                    <span className="text-lg">🛡️</span>
+                                    <p className="text-[10px] font-medium leading-relaxed">
+                                        Autopay mandate will be simulated. This simulates a successful verification callback from Razorpay API.
+                                    </p>
+                                </div>
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                                <button
+                                    onClick={() => {
+                                        setShowMockPayment(false);
+                                        alert("Payment Simulation Cancelled");
+                                    }}
+                                    className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={async () => {
+                                        setLoading(true);
+                                        setShowMockPayment(false);
+                                        try {
+                                            await mockPaymentOptions.handler({
+                                                razorpay_payment_id: 'pay_mock_' + Math.random().toString(36).substring(2, 10),
+                                                razorpay_subscription_id: mockPaymentOptions.subscription_id
+                                            });
+                                        } catch (err) {
+                                            alert("Success Handler failed: " + err.message);
+                                        } finally {
+                                            setLoading(false);
+                                        }
+                                    }}
+                                    className="flex-[2] py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-emerald-100"
+                                >
+                                    Simulate Success ✓
+                                </button>
+                            </div>
+                        </motion.div>
+                    </motion.div>
+                )}
+            </AnimatePresence>
 
         </div>
     );

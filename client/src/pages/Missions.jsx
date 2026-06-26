@@ -204,7 +204,7 @@ const Missions = () => {
                 "Enable free residential excellence"
             ],
             programs: [
-                { name: "CLC Model", desc: "Community Learning Centers in slums and villages for school syllabus support and personalized mentoring.", points: ["30 Students/Center", "Volunteer Supervision"] },
+                { name: "CLC Model", desc: "Community Learning Centers in slums and villages for school syllabus support and personalized mentoring.", points: ["30 Students/Center", "Member Supervision"] },
                 { name: "Career Counseling", desc: "Helping rural students understand global opportunities and navigate competitive exam pathways.", points: ["Competitive Awareness"] },
                 { name: "District Model Schools", desc: "Institutional residential schools with international standards and advanced infrastructure.", points: ["5000 Student Capacity", "50% ST Reservation"] },
                 { name: "STEM Excellence", desc: "Fostering research-oriented learning through digital classrooms and modern labs.", points: ["International Standards"] }
@@ -431,16 +431,16 @@ const Missions = () => {
                             Build the Future <br />With Us
                         </h2>
                         <p className="text-base md:text-lg lg:text-xl text-slate-500 font-medium max-w-2xl mx-auto mb-10 md:mb-16 leading-relaxed">
-                            Every professional skill is a tool for liberation. Join our volunteer network to power these missions with your expertise.
+                            Every professional skill is a tool for liberation. Join our member network to power these missions with your expertise.
                         </p>
 
                         <div className="flex flex-col sm:flex-row justify-center items-center gap-4 md:gap-6">
                             <motion.button
                                 whileTap={{ scale: 0.95 }}
-                                onClick={() => window.location.href = '/volunteer-enrollment'}
+                                onClick={() => window.location.href = '/become-a-member'}
                                 className="w-full sm:w-auto bg-[#1e3a8a] text-white px-8 md:px-12 py-4 md:py-6 rounded-[16px] md:rounded-[24px] font-black uppercase tracking-widest text-[10px] md:text-[11px] shadow-2xl shadow-blue-900/20 hover:bg-blue-800 transition-all"
                             >
-                                Become a Volunteer
+                                Become a Member
                             </motion.button>
                             <motion.button
                                 whileTap={{ scale: 0.95 }}

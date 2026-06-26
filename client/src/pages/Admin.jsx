@@ -197,7 +197,7 @@ const Admin = () => {
         { id: 'requests', label: 'Legal Aid Requests', icon: '⚖️' },
         { id: 'donations', label: 'Donations Ledger', icon: '🤝' },
         { id: 'patrons', label: 'Patronage', icon: '🌟' },
-        { id: 'volunteers', label: 'Volunteers Hub', icon: '👥' },
+        { id: 'volunteers', label: 'Members Hub', icon: '👥' },
         { id: 'interns', label: 'Intern Applications', icon: '🎓' },
         { id: 'account', label: 'Admin Settings', icon: '⚙️' },
     ];
@@ -280,7 +280,7 @@ const Admin = () => {
                                 {/* Hero Metrics */}
                                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
                                     <StatCard label="Total Capital" value={`₹${(donations || []).reduce((sum, d) => sum + (d?.amount || 0), 0).toLocaleString()}`} icon="💰" trend="+12%" colorClass="bg-emerald-50 text-emerald-600" gradient="from-emerald-500 to-teal-500" />
-                                    <StatCard label="Volunteers" value={(volunteers || []).length.toLocaleString()} icon="👥" trend="Active" colorClass="bg-blue-50 text-blue-600" gradient="from-blue-500 to-indigo-500" />
+                                    <StatCard label="Members" value={(volunteers || []).length.toLocaleString()} icon="👥" trend="Active" colorClass="bg-blue-50 text-blue-600" gradient="from-blue-500 to-indigo-500" />
                                     <StatCard label="Legal Cases" value={(legalRequests || []).filter(r => r?.status !== 'Done').length} icon="⚖️" trend="Critical" colorClass="bg-orange-50 text-orange-600" gradient="from-orange-500 to-rose-500" />
                                     <StatCard label="Interns" value={(interns || []).length.toLocaleString()} icon="🎓" trend="Pending" colorClass="bg-indigo-50 text-indigo-600" gradient="from-indigo-500 to-purple-500" />
                                     <StatCard label="Active Patrons" value={(patrons || []).length.toLocaleString()} icon="🌟" trend="Premium" colorClass="bg-yellow-50 text-yellow-600" gradient="from-yellow-400 to-amber-600" />
@@ -318,7 +318,7 @@ const Admin = () => {
                                                         key={idx}
                                                         icon={item.type === 'donation' ? '💰' : item.type === 'volunteer' ? '👥' : '⚖️'}
                                                         color={item.type === 'donation' ? 'bg-emerald-50 text-emerald-600' : item.type === 'volunteer' ? 'bg-blue-50 text-blue-600' : 'bg-orange-50 text-orange-600'}
-                                                        title={item.type === 'donation' ? `Donation from ${item.data?.donor_name || 'Anonymous'}` : item.type === 'volunteer' ? `New Volunteer: ${item.data?.fullName || 'N/A'}` : `Legal Aid: ${item.data?.requestId || 'N/A'}`}
+                                                        title={item.type === 'donation' ? `Donation from ${item.data?.donor_name || 'Anonymous'}` : item.type === 'volunteer' ? `New Member: ${item.data?.fullName || 'N/A'}` : `Legal Aid: ${item.data?.requestId || 'N/A'}`}
                                                         subtitle={item.type === 'donation' ? `Amount: ₹${(item.data?.amount || 0).toLocaleString()}` : item.type === 'volunteer' ? `From ${item.data?.district || 'Unknown'}` : `Status: ${item.data?.status || 'Pending'}`}
                                                         time={formatDate(item.data?.date || item.data?.createdAt)}
                                                     />
@@ -519,7 +519,7 @@ const Admin = () => {
                                 {!selectedVolunteer ? (
                                     <div className="bg-white rounded-[32px] overflow-hidden border">
                                         <div className="p-8 border-b">
-                                            <h2 className="text-xl font-black">Volunteers Hub</h2>
+                                            <h2 className="text-xl font-black">Members Hub</h2>
                                         </div>
                                         <div className="overflow-x-auto">
                                             <table className="w-full text-left text-xs">

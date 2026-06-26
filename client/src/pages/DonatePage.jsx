@@ -244,7 +244,7 @@ const DonatePage = () => {
                             </div>
                         ) : (
                             <div className="bg-emerald-50 p-4 rounded-2xl border border-emerald-100 text-center">
-                                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em]">BECOME A MEMBER</span>
+                                <span className="text-[10px] font-black text-emerald-700 uppercase tracking-[0.2em]">BECOME A PATRON</span>
                                 <h4 className="text-lg font-black text-slate-900 mt-1">🔄 Secure Autopay Only</h4>
                                 <p className="text-[8px] text-emerald-600 font-bold uppercase tracking-widest mt-1">Automatic recurring contributions</p>
                             </div>

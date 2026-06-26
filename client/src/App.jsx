@@ -19,7 +19,7 @@ import PatronEnrollment from './pages/PatronEnrollment';
 import LegalAid from './pages/LegalAid';
 import LegalStatus from './pages/LegalStatus';
 import PatronKnowMore from './pages/PatronKnowMore';
-import VolunteerKnowMore from './pages/VolunteerKnowMore';
+import MemberKnowMore from './pages/MemberKnowMore';
 import DonatePage from './pages/DonatePage';
 import CollegeCommittees from './pages/CollegeCommittees';
 
@@ -43,13 +43,15 @@ function App() {
                         <Route path="/signup" element={<Signup />} />
                         <Route path="/forgot-password" element={<ForgotPassword />} />
                         <Route path="/profile" element={<Profile />} />
+                        <Route path="/become-a-member" element={<VolunteerEnrollment />} />
                         <Route path="/volunteer-enrollment" element={<VolunteerEnrollment />} />
                         <Route path="/internship-enrollment" element={<InternshipEnrollment />} />
                         <Route path="/patron-enrollment" element={<PatronEnrollment />} />
                         <Route path="/legal-aid" element={<LegalAid />} />
                         <Route path="/legal-status" element={<LegalStatus />} />
                         <Route path="/patron-know-more" element={<PatronKnowMore />} />
-                        <Route path="/volunteer-know-more" element={<VolunteerKnowMore />} />
+                        <Route path="/member-know-more" element={<MemberKnowMore />} />
+                        <Route path="/volunteer-know-more" element={<MemberKnowMore />} />
                         <Route path="/admin" element={<Admin />} />
                         <Route path="/success" element={<Success />} />
                         <Route path="/failure" element={<Failure />} />

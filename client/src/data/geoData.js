@@ -50,7 +50,7 @@ export const interests = [
     "Script writing",
     "Administration & program implementation",
     "Legal & compliance",
-    "Volunteer & Human resource Management",
+    "Member & Human resource Management",
     "Fund raising & Donor Management",
     "Partnerships & networking",
     "Others"

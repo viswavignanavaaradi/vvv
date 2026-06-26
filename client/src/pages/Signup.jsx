@@ -40,7 +40,7 @@ const Signup = () => {
         }));
 
         if (userType === 'volunteer') {
-            navigate('/volunteer-enrollment');
+            navigate('/become-a-member');
         } else if (userType === 'intern') {
             navigate('/internship-enrollment');
         } else {
@@ -62,7 +62,7 @@ const Signup = () => {
             });
             localStorage.setItem('vvv_user', JSON.stringify(res.data.user));
             if (userType === 'volunteer') {
-                navigate('/volunteer-enrollment');
+                navigate('/become-a-member');
             } else if (userType === 'intern') {
                 navigate('/internship-enrollment');
             } else {
@@ -132,7 +132,7 @@ const Signup = () => {
                                 <div className={`absolute top-4 right-4 w-6 h-6 rounded-full border-2 flex items-center justify-center text-[10px] transition-colors ${userType === 'volunteer' ? 'bg-[#059669] border-[#059669] text-white' : 'border-slate-200'}`}>
                                     {userType === 'volunteer' && "✓"}
                                 </div>
-                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'volunteer' ? 'text-[#059669]' : 'text-slate-400'}`}>Register as a Volunteer</h2>
+                                <h2 className={`text-xl font-merriweather font-black mb-1 ${userType === 'volunteer' ? 'text-[#059669]' : 'text-slate-400'}`}>Register as a Member</h2>
                                 <p className="text-xs text-slate-500 font-medium leading-relaxed">
                                     Get on the ground and see impact firsthand.
                                 </p>
@@ -166,7 +166,7 @@ const Signup = () => {
                         >
                             <div className="text-center mb-8">
                                 <h2 className="text-3xl font-merriweather font-black text-slate-900 mb-1">Sign Up!</h2>
-                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">I am joining as a <span className="text-[#F59E0B] italic">{userType}</span></p>
+                                <p className="text-[10px] text-slate-400 font-black uppercase tracking-[0.3em]">I am joining as a <span className="text-[#F59E0B] italic">{userType === 'volunteer' ? 'member' : userType}</span></p>
                             </div>
 
                             <form onSubmit={handleSubmit} className="h-[380px] overflow-y-auto pr-2 custom-scrollbar space-y-4">
