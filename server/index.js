@@ -209,21 +209,29 @@ async function ensurePlans() {
         const existingPlans = await razorpay.plans.all();
 
         for (const amount of Object.keys(plans)) {
-            let found = existingPlans.items.find(p => p.item.amount === parseInt(amount) * 100 && p.period === 'monthly');
+            let found = existingPlans && existingPlans.items ? existingPlans.items.find(p => p.item && p.item.amount === parseInt(amount) * 100 && p.period === 'monthly') : null;
             if (!found) {
                 console.log(`[Razorpay] Creating Plan for monthly ₹${amount}...`);
-                found = await razorpay.plans.create({
-                    period: 'monthly',
-                    interval: 1,
-                    item: {
-                        name: `Monthly Patronage - ₹${amount}`,
-                        amount: parseInt(amount) * 100,
-                        currency: 'INR',
-                        description: `Monthly contribution of ₹${amount} to VVV Foundation`
-                    }
-                });
+                try {
+                    found = await razorpay.plans.create({
+                        period: 'monthly',
+                        interval: 1,
+                        item: {
+                            name: `Monthly Patronage - ₹${amount}`,
+                            amount: parseInt(amount) * 100,
+                            currency: 'INR',
+                            description: `Monthly contribution of ₹${amount} to VVV Foundation`
+                        }
+                    });
+                } catch (createErr) {
+                    console.error(`[Razorpay] Failed to create plan for ₹${amount}:`, createErr.message);
+                }
             }
-            plans[amount] = found.id;
+            if (found && found.id) {
+                plans[amount] = found.id;
+            } else {
+                console.warn(`[Razorpay] Keeping mock plan fallback for ₹${amount} due to creation/finding failure.`);
+            }
         }
         console.log('[Razorpay] Plans Ready:', plans);
     } catch (err) {
@@ -265,6 +273,33 @@ app.get('/api/user/status', async (req, res) => {
             isVolunteer: !!volunteer,
             isIntern: !!intern,
             isPatron: !!patron && patron.status === 'active'
+        });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Debug Plans & Razorpay Config
+app.get('/api/debug-plans', async (req, res) => {
+    try {
+        let razorpayErr = null;
+        let razorpayPlans = null;
+        try {
+            razorpayPlans = await razorpay.plans.all({ count: 50 });
+        } catch (e) {
+            razorpayErr = e.message;
+        }
+        res.json({
+            plans,
+            razorpayKeyId: process.env.RAZORPAY_KEY_ID ? (process.env.RAZORPAY_KEY_ID.substring(0, 10) + '...') : null,
+            mongooseState: mongoose.connection.readyState,
+            razorpayErr,
+            razorpayPlansList: razorpayPlans && razorpayPlans.items ? razorpayPlans.items.map(p => ({
+                id: p.id,
+                period: p.period,
+                amount: p.item ? p.item.amount : null,
+                name: p.item ? p.item.name : null
+            })) : null
         });
     } catch (err) {
         res.status(500).json({ error: err.message });
