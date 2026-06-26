@@ -71,6 +71,8 @@ const Admin = () => {
     const [selectedDonation, setSelectedDonation] = useState(null);
     const [patrons, setPatrons] = useState([]);
     const [selectedPatron, setSelectedPatron] = useState(null);
+    const [showPurgeModal, setShowPurgeModal] = useState(false);
+    const [purgeConfirmEmail, setPurgeConfirmEmail] = useState('');
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -155,29 +157,9 @@ const Admin = () => {
         }
     };
 
-    const handleDeleteMember = async (email) => {
-        const confirmPurge = window.confirm(`⚠️ WARNING: Are you absolutely sure you want to permanently purge member "${email}"?\n\nThis will completely delete their member profile, login user account, subscription data, and any other related records. This action is irreversible.`);
-        if (!confirmPurge) return;
-
-        const promptInput = window.prompt(`Type DELETE to finalize purging ${email}:`);
-        if (promptInput !== 'DELETE') {
-            alert('Purge cancelled. Confirmation text did not match.');
-            return;
-        }
-
-        try {
-            setLoading(true);
-            await axios.delete(`/api/admin/volunteers/${email}`);
-            alert(`Member ${email} has been permanently deleted from the database.`);
-            setSelectedVolunteer(null);
-            fetchData();
-        } catch (err) {
-            console.error(err);
-            const errorMsg = err.response?.data?.error || err.message;
-            alert(`Purge failed: ${errorMsg}`);
-        } finally {
-            setLoading(false);
-        }
+    const handleDeleteMember = (email) => {
+        setPurgeConfirmEmail('');
+        setShowPurgeModal(true);
     };
 
     const handleDownload = (url, name) => {
@@ -228,7 +210,8 @@ const Admin = () => {
     ];
 
     return (
-        <div className="flex h-screen bg-[#F8FAFC] font-inter overflow-hidden">
+        <>
+            <div className="flex h-screen bg-[#F8FAFC] font-inter overflow-hidden">
             {/* Professional Sidebar */}
             <div className="w-72 bg-[#0F172A] flex flex-col relative z-20 shadow-2xl">
                 <div className="p-8 mb-4">
@@ -817,6 +800,110 @@ const Admin = () => {
                 </main>
             </div>
         </div>
+
+        {/* Custom Premium Purge Confirmation Modal */}
+        <AnimatePresence>
+            {showPurgeModal && selectedVolunteer && (
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-md"
+                >
+                    <motion.div
+                        initial={{ scale: 0.95, y: 20 }}
+                        animate={{ scale: 1, y: 0 }}
+                        exit={{ scale: 0.95, y: 20 }}
+                        className="bg-white rounded-[32px] shadow-2xl max-w-md w-full overflow-hidden border border-slate-100"
+                    >
+                        {/* Modal Header */}
+                        <div className="bg-rose-600 text-white p-6 relative">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-xl">⚠️</div>
+                                <div>
+                                    <h3 className="font-bold text-sm tracking-wide">Danger Zone: Permanent Purge</h3>
+                                    <p className="text-[10px] text-rose-200 uppercase font-black tracking-wider">Irreversible Action</p>
+                                </div>
+                            </div>
+                            <button
+                                onClick={() => {
+                                    setShowPurgeModal(false);
+                                    setPurgeConfirmEmail('');
+                                }}
+                                className="absolute top-6 right-6 text-white/60 hover:text-white transition-colors"
+                            >
+                                ✕
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="p-8 space-y-6">
+                            <p className="text-xs text-slate-500 leading-relaxed font-medium">
+                                Are you absolutely sure you want to permanently delete <span className="font-black text-slate-800">{selectedVolunteer.fullName}</span> (<span className="font-mono text-rose-600 font-bold">{selectedVolunteer.email}</span>) from the platform?
+                                <br /><br />
+                                This will permanently delete their member profile, login credentials, and all subscription data. <strong>This action is irreversible.</strong>
+                            </p>
+
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">
+                                    Type the member email to confirm:
+                                </label>
+                                <input
+                                    type="text"
+                                    id="purge-confirm-email-input"
+                                    value={purgeConfirmEmail}
+                                    onChange={(e) => setPurgeConfirmEmail(e.target.value)}
+                                    placeholder={selectedVolunteer.email}
+                                    className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white focus:border-rose-500 font-medium text-xs font-mono transition-all text-slate-700"
+                                />
+                            </div>
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                            <button
+                                onClick={() => {
+                                    setShowPurgeModal(false);
+                                    setPurgeConfirmEmail('');
+                                }}
+                                className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={async () => {
+                                    if (purgeConfirmEmail !== selectedVolunteer.email) {
+                                        alert("Confirmation email does not match.");
+                                        return;
+                                    }
+                                    setShowPurgeModal(false);
+                                    setPurgeConfirmEmail('');
+                                    try {
+                                        setLoading(true);
+                                        await axios.delete(`/api/admin/volunteers/${selectedVolunteer.email}`);
+                                        alert(`Member ${selectedVolunteer.email} has been permanently deleted.`);
+                                        setSelectedVolunteer(null);
+                                        fetchData();
+                                    } catch (err) {
+                                        console.error(err);
+                                        const errorMsg = err.response?.data?.error || err.message;
+                                        alert(`Purge failed: ${errorMsg}`);
+                                    } finally {
+                                        setLoading(false);
+                                    }
+                                }}
+                                id="purge-confirm-btn"
+                                disabled={purgeConfirmEmail !== selectedVolunteer.email}
+                                className="flex-[2] py-4 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:hover:bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100 transition-all active:scale-95"
+                            >
+                                Purge Record ✓
+                            </button>
+                        </div>
+                    </motion.div>
+                </motion.div>
+            )}
+        </AnimatePresence>
+        </>
     );
 };
 
