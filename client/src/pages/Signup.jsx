@@ -43,6 +43,8 @@ const Signup = () => {
             navigate('/become-a-member');
         } else if (userType === 'intern') {
             navigate('/internship-enrollment');
+        } else if (userType === 'patron') {
+            navigate('/patron-enrollment');
         } else {
             navigate('/profile');
         }
@@ -65,6 +67,8 @@ const Signup = () => {
                 navigate('/become-a-member');
             } else if (userType === 'intern') {
                 navigate('/internship-enrollment');
+            } else if (userType === 'patron') {
+                navigate('/patron-enrollment');
             } else {
                 navigate('/profile');
             }
