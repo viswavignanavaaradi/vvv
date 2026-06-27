@@ -73,6 +73,8 @@ const Admin = () => {
     const [selectedPatron, setSelectedPatron] = useState(null);
     const [showPurgeModal, setShowPurgeModal] = useState(false);
     const [purgeConfirmEmail, setPurgeConfirmEmail] = useState('');
+    const [users, setUsers] = useState([]);
+    const [purgeTarget, setPurgeTarget] = useState(null);
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -120,6 +122,10 @@ const Admin = () => {
                 const res = await axios.get('/api/admin/patrons');
                 setPatrons(res.data);
             }
+            if (activeTab === 'users' || activeTab === 'dashboard') {
+                const res = await axios.get('/api/admin/users');
+                setUsers(res.data);
+            }
         } catch (err) {
             console.error(err);
         } finally {
@@ -157,8 +163,9 @@ const Admin = () => {
         }
     };
 
-    const handleDeleteMember = (email) => {
+    const handleDeleteMember = (email, name) => {
         setPurgeConfirmEmail('');
+        setPurgeTarget({ email, name });
         setShowPurgeModal(true);
     };
 
@@ -206,6 +213,7 @@ const Admin = () => {
         { id: 'patrons', label: 'Patronage', icon: '🌟' },
         { id: 'volunteers', label: 'Members Hub', icon: '👥' },
         { id: 'interns', label: 'Intern Applications', icon: '🎓' },
+        { id: 'users', label: 'User Accounts', icon: '👤' },
         { id: 'account', label: 'Admin Settings', icon: '⚙️' },
     ];
 
@@ -590,7 +598,7 @@ const Admin = () => {
                                                 <div className="h-px bg-slate-800 mb-6" />
                                                 <p className="text-[9px] font-black uppercase text-rose-400 mb-3">Destructive Actions</p>
                                                 <button
-                                                    onClick={() => handleDeleteMember(selectedVolunteer.email)}
+                                                    onClick={() => handleDeleteMember(selectedVolunteer.email, selectedVolunteer.fullName)}
                                                     className="w-full py-4 bg-rose-600/20 text-rose-400 border border-rose-500/30 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-rose-600 hover:text-white transition-all shadow-lg active:scale-95"
                                                 >
                                                     Purge Member Permanently ⚠️
@@ -772,6 +780,71 @@ const Admin = () => {
                             </motion.div>
                         )}
 
+                        {activeTab === 'users' && (
+                            <motion.div key="users" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
+                                <div className="bg-white rounded-[32px] overflow-hidden border">
+                                    <div className="p-8 border-b flex justify-between items-center bg-slate-50/50">
+                                        <div>
+                                            <h2 className="text-xl font-black text-slate-800">User Accounts Hub</h2>
+                                            <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Global Registrations</p>
+                                        </div>
+                                        <div className="px-6 py-3 bg-[#0F172A] text-emerald-400 rounded-2xl border border-slate-800 font-black text-xs">
+                                            Total Accounts: {(users || []).length}
+                                        </div>
+                                    </div>
+                                    <div className="overflow-x-auto">
+                                        <table className="w-full text-left text-xs">
+                                            <thead className="bg-slate-50 border-b">
+                                                <tr>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Name</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Username</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Email</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Role</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest text-right">Action</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {(users || []).filter(u =>
+                                                    (u?.name || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    (u?.email || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    (u?.username || '').toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                                    (u?.role || '').toLowerCase().includes(searchTerm.toLowerCase())
+                                                ).map((u, idx) => (
+                                                    <tr key={idx} className="border-b last:border-0 hover:bg-slate-50/50 transition-colors">
+                                                        <td className="px-10 py-6 font-black text-slate-800">{u.name || 'N/A'}</td>
+                                                        <td className="px-10 py-6 font-bold text-slate-500">{u.username || 'N/A'}</td>
+                                                        <td className="px-10 py-6 font-mono font-medium text-slate-500">{u.email}</td>
+                                                        <td className="px-10 py-6 font-bold">
+                                                            <span className={`px-3 py-1 rounded-full text-[9px] uppercase tracking-wider font-black ${
+                                                                u.role === 'admin' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
+                                                                u.role === 'volunteer' ? 'bg-blue-50 text-blue-600 border border-blue-100' :
+                                                                u.role === 'intern' ? 'bg-purple-50 text-purple-600 border border-purple-100' :
+                                                                'bg-slate-50 text-slate-500 border border-slate-100'
+                                                            }`}>
+                                                                {u.role || 'patron'}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-10 py-6 text-right">
+                                                            {u.role === 'admin' ? (
+                                                                <span className="text-[10px] text-slate-300 font-bold uppercase tracking-widest cursor-not-allowed">Root Protection</span>
+                                                            ) : (
+                                                                <button
+                                                                    onClick={() => handleDeleteMember(u.email, u.name || u.username || 'User')}
+                                                                    className="text-rose-600 hover:text-rose-800 font-black uppercase text-[10px] tracking-widest underline transition-colors"
+                                                                >
+                                                                    Purge Account
+                                                                </button>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
                         {activeTab === 'account' && (
                             <motion.div key="account" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-4xl">
                                 <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-12">
@@ -803,7 +876,7 @@ const Admin = () => {
 
         {/* Custom Premium Purge Confirmation Modal */}
         <AnimatePresence>
-            {showPurgeModal && selectedVolunteer && (
+            {showPurgeModal && purgeTarget && (
                 <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -829,6 +902,7 @@ const Admin = () => {
                                 onClick={() => {
                                     setShowPurgeModal(false);
                                     setPurgeConfirmEmail('');
+                                    setPurgeTarget(null);
                                 }}
                                 className="absolute top-6 right-6 text-white/60 hover:text-white transition-colors"
                             >
@@ -839,21 +913,21 @@ const Admin = () => {
                         {/* Modal Body */}
                         <div className="p-8 space-y-6">
                             <p className="text-xs text-slate-500 leading-relaxed font-medium">
-                                Are you absolutely sure you want to permanently delete <span className="font-black text-slate-800">{selectedVolunteer.fullName}</span> (<span className="font-mono text-rose-600 font-bold">{selectedVolunteer.email}</span>) from the platform?
+                                Are you absolutely sure you want to permanently delete <span className="font-black text-slate-800">{purgeTarget.name}</span> (<span className="font-mono text-rose-600 font-bold">{purgeTarget.email}</span>) from the platform?
                                 <br /><br />
-                                This will permanently delete their member profile, login credentials, and all subscription data. <strong>This action is irreversible.</strong>
+                                This will permanently delete their user account, login credentials, and all related registration history (volunteer, intern, or patron records). <strong>This action is irreversible.</strong>
                             </p>
 
                             <div className="space-y-2">
                                 <label className="text-[9px] font-black text-slate-400 uppercase tracking-widest block ml-1">
-                                    Type the member email to confirm:
+                                    Type the email to confirm:
                                 </label>
                                 <input
                                     type="text"
                                     id="purge-confirm-email-input"
                                     value={purgeConfirmEmail}
                                     onChange={(e) => setPurgeConfirmEmail(e.target.value)}
-                                    placeholder={selectedVolunteer.email}
+                                    placeholder={purgeTarget.email}
                                     className="w-full px-5 py-4 rounded-xl bg-slate-50 border border-slate-100 outline-none focus:bg-white focus:border-rose-500 font-medium text-xs font-mono transition-all text-slate-700"
                                 />
                             </div>
@@ -865,6 +939,7 @@ const Admin = () => {
                                 onClick={() => {
                                     setShowPurgeModal(false);
                                     setPurgeConfirmEmail('');
+                                    setPurgeTarget(null);
                                 }}
                                 className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-slate-50 transition-all"
                             >
@@ -872,17 +947,21 @@ const Admin = () => {
                             </button>
                             <button
                                 onClick={async () => {
-                                    if (purgeConfirmEmail !== selectedVolunteer.email) {
+                                    if (purgeConfirmEmail !== purgeTarget.email) {
                                         alert("Confirmation email does not match.");
                                         return;
                                     }
                                     setShowPurgeModal(false);
                                     setPurgeConfirmEmail('');
+                                    const emailToPurge = purgeTarget.email;
+                                    setPurgeTarget(null);
                                     try {
                                         setLoading(true);
-                                        await axios.delete(`/api/admin/volunteers/${selectedVolunteer.email}`);
-                                        alert(`Member ${selectedVolunteer.email} has been permanently deleted.`);
+                                        await axios.delete(`/api/admin/users/${emailToPurge}`);
+                                        alert(`Account ${emailToPurge} has been permanently deleted.`);
                                         setSelectedVolunteer(null);
+                                        setSelectedIntern(null);
+                                        setSelectedPatron(null);
                                         fetchData();
                                     } catch (err) {
                                         console.error(err);
@@ -893,7 +972,7 @@ const Admin = () => {
                                     }
                                 }}
                                 id="purge-confirm-btn"
-                                disabled={purgeConfirmEmail !== selectedVolunteer.email}
+                                disabled={purgeConfirmEmail !== purgeTarget.email}
                                 className="flex-[2] py-4 bg-rose-600 hover:bg-rose-700 disabled:opacity-40 disabled:hover:bg-rose-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-rose-100 transition-all active:scale-95"
                             >
                                 Purge Record ✓
