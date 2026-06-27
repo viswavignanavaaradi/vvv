@@ -246,35 +246,17 @@ const InternshipEnrollment = () => {
                     ) : (
                         <div className="space-y-12">
                             <div className="text-center">
-                                <p className="text-indigo-600 font-black uppercase tracking-[0.3em] text-[10px] mb-2">Internship Step {step} of 5</p>
+                                <p className="text-indigo-600 font-black uppercase tracking-[0.3em] text-[10px] mb-2">Internship Step {step} of 4</p>
                                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-merriweather font-black text-slate-900 leading-tight">
-                                    {step === 1 && "The Mission Awaits"}
-                                    {step === 2 && "Identity Details"}
-                                    {step === 3 && "Academic Profile"}
-                                    {step === 4 && "Choose Your Core"}
-                                    {step === 5 && "Showcase & Submit"}
+                                    {step === 1 && "Identity Details"}
+                                    {step === 2 && "Academic Profile"}
+                                    {step === 3 && "Choose Your Core"}
+                                    {step === 4 && "Showcase & Submit"}
                                 </h3>
                             </div>
 
                             <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 {step === 1 && (
-                                    <div className="space-y-8">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {Object.entries(wingDetails).map(([key, details]) => (
-                                                <div key={key} className="p-6 rounded-[30px] bg-slate-50 border border-slate-100 transition-all group">
-                                                    <div className="flex items-center gap-4 mb-3">
-                                                        <span className="text-2xl">{details.icon}</span>
-                                                        <h4 className="text-sm font-black text-slate-800 leading-tight">{details.title}</h4>
-                                                    </div>
-                                                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{details.objective}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button onClick={nextStep} className="w-full bg-[#4f46e5] text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">Begin Application</button>
-                                    </div>
-                                )}
-
-                                {step === 2 && (
                                     <div className="space-y-8">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             <div className="sm:col-span-2 space-y-2 text-center">
@@ -314,13 +296,12 @@ const InternshipEnrollment = () => {
                                             </div>
                                         </div>
                                         <div className="flex gap-4">
-                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
-                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#4f46e5] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Academics</button>
+                                            <button onClick={nextStep} className="w-full py-5 bg-[#4f46e5] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Academics</button>
                                         </div>
                                     </div>
                                 )}
 
-                                {step === 3 && (
+                                {step === 2 && (
                                     <div className="space-y-8">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             <div className="space-y-2">
@@ -369,7 +350,7 @@ const InternshipEnrollment = () => {
                                     </div>
                                 )}
 
-                                {step === 4 && (
+                                {step === 3 && (
                                     <div className="space-y-10">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                             {wings.map(wing => (
@@ -394,7 +375,7 @@ const InternshipEnrollment = () => {
                                     </div>
                                 )}
 
-                                {step === 5 && (
+                                {step === 4 && (
                                     <div className="space-y-8">
                                         <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 text-center">
                                             <h4 className="font-merriweather font-black text-slate-800 text-xl mb-4">Achievements & CV</h4>

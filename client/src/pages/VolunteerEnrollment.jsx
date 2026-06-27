@@ -296,37 +296,19 @@ const VolunteerEnrollment = () => {
                     ) : (
                         <div className="space-y-12">
                             <div className="text-center">
-                                <p className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Member Step {step} of 6</p>
+                                <p className="text-[#F59E0B] font-black uppercase tracking-[0.3em] text-[10px] mb-2">Member Step {step} of 5</p>
                                 <h3 className="text-2xl sm:text-3xl md:text-4xl font-merriweather font-black text-slate-900 leading-tight">
-                                    {step === 1 && "The Mission Awaits"}
-                                    {step === 2 && "Identification Details"}
-                                    {step === 3 && "Locality & Institution"}
-                                    {step === 4 && "Choose Your Wing"}
-                                    {step === 5 && "Documentation"}
-                                    {step === 6 && "Pledge of Impact"}
+                                    {step === 1 && "Identification Details"}
+                                    {step === 2 && "Locality & Institution"}
+                                    {step === 3 && "Choose Your Wing"}
+                                    {step === 4 && "Documentation"}
+                                    {step === 5 && "Pledge of Impact"}
                                 </h3>
                             </div>
 
                             <motion.div key={step} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}>
                                 {/* Form Content based on step - reusing previous logic but with stricter validation */}
                                 {step === 1 && (
-                                    <div className="space-y-8">
-                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                            {Object.entries(wingDetails).map(([key, details]) => (
-                                                <div key={key} className="p-6 rounded-[30px] bg-slate-50 border border-slate-100 hover:border-blue-200 transition-all group">
-                                                    <div className="flex items-center gap-4 mb-3">
-                                                        <span className="text-2xl">{details.icon}</span>
-                                                        <h4 className="text-sm font-black text-slate-800 leading-tight">{details.title}</h4>
-                                                    </div>
-                                                    <p className="text-[11px] text-slate-500 font-medium leading-relaxed">{details.objective}</p>
-                                                </div>
-                                            ))}
-                                        </div>
-                                        <button onClick={nextStep} className="w-full bg-[#1e3a8a] text-white py-5 rounded-2xl font-black uppercase tracking-widest text-xs shadow-xl active:scale-95 transition-all">Begin Identity Protocol</button>
-                                    </div>
-                                )}
-
-                                {step === 2 && (
                                     <div className="space-y-8">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             <div className="sm:col-span-2 space-y-2">
@@ -357,13 +339,12 @@ const VolunteerEnrollment = () => {
                                             </div>
                                         </div>
                                         <div className="flex gap-4">
-                                            <button onClick={prevStep} className="flex-1 py-5 bg-slate-50 text-slate-400 rounded-2xl font-black uppercase text-[10px] tracking-widest">Back</button>
-                                            <button onClick={nextStep} className="flex-[2] py-5 bg-[#1e3a8a] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Location Access</button>
+                                            <button onClick={nextStep} className="w-full py-5 bg-[#1e3a8a] text-white rounded-2xl font-black uppercase text-xs tracking-widest shadow-xl">Location Access</button>
                                         </div>
                                     </div>
                                 )}
 
-                                {step === 3 && (
+                                {step === 2 && (
                                     <div className="space-y-8">
                                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                             <div className="space-y-2">
@@ -431,7 +412,7 @@ const VolunteerEnrollment = () => {
                                     </div>
                                 )}
 
-                                {step === 4 && (
+                                {step === 3 && (
                                     <div className="space-y-10">
                                         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                                             {wings.map(wing => (
@@ -456,7 +437,7 @@ const VolunteerEnrollment = () => {
                                     </div>
                                 )}
 
-                                {step === 5 && (
+                                {step === 4 && (
                                     <div className="space-y-8">
                                         <div className="bg-slate-50 p-10 rounded-[40px] border border-slate-100 text-center">
                                             <h4 className="font-merriweather font-black text-slate-800 text-xl mb-4 text-center">Upload Proof</h4>
@@ -474,7 +455,7 @@ const VolunteerEnrollment = () => {
                                     </div>
                                 )}
 
-                                {step === 6 && (
+                                {step === 5 && (
                                     <div className="space-y-10 text-center">
                                         <div className="bg-[#1e3a8a] p-10 rounded-[40px] text-white shadow-2xl relative overflow-hidden">
                                             <div className="absolute top-0 right-0 p-4 opacity-10 text-6xl">🔄</div>
