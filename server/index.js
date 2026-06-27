@@ -1144,8 +1144,50 @@ app.get('/api/admin/users', async (req, res) => {
         return res.json(mockDb.users);
     }
     try {
-        const users = await User.find().sort({ name: 1 });
-        res.json(users);
+        const users = await User.find().sort({ name: 1 }).lean();
+        
+        const enrichedUsers = await Promise.all(users.map(async (u) => {
+            let membershipType = null;
+            let amountPaid = null;
+            let paymentDate = null;
+            
+            const vol = await Volunteer.findOne({ email: u.email }).lean();
+            if (vol) {
+                membershipType = vol.profession; // "Student", "Working Professional", "Corporate"
+            }
+            
+            if (!membershipType) {
+                const patron = await Patron.findOne({ email: u.email }).lean();
+                if (patron) {
+                    membershipType = 'Patron';
+                    amountPaid = patron.amount;
+                    paymentDate = patron.date || patron.createdAt;
+                }
+            }
+            
+            if (vol) {
+                const sub = await Subscription.findOne({ email: u.email, status: { $in: ['active', 'completed', 'authenticated'] } }).sort({ createdAt: -1 }).lean();
+                if (sub) {
+                    amountPaid = sub.amount;
+                    paymentDate = sub.updatedAt || sub.createdAt;
+                } else if (vol.payment_id) {
+                    const don = await Donation.findOne({ payment_id: vol.payment_id }).lean();
+                    if (don) {
+                        amountPaid = don.amount;
+                        paymentDate = don.date;
+                    }
+                }
+            }
+            
+            return {
+                ...u,
+                membershipType: membershipType || null,
+                amountPaid: amountPaid || null,
+                paymentDate: paymentDate || null
+            };
+        }));
+        
+        res.json(enrichedUsers);
     } catch (err) {
         res.status(500).json({ error: err.message });
     }

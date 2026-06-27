@@ -796,10 +796,10 @@ const Admin = () => {
                                         <table className="w-full text-left text-xs">
                                             <thead className="bg-slate-50 border-b">
                                                 <tr>
-                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Name</th>
-                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Username</th>
-                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Email</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">User Info</th>
                                                     <th className="px-10 py-6 uppercase font-black tracking-widest">Role</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Membership</th>
+                                                    <th className="px-10 py-6 uppercase font-black tracking-widest">Payment Info</th>
                                                     <th className="px-10 py-6 uppercase font-black tracking-widest text-right">Action</th>
                                                 </tr>
                                             </thead>
@@ -811,9 +811,10 @@ const Admin = () => {
                                                     (u?.role || '').toLowerCase().includes(searchTerm.toLowerCase())
                                                 ).map((u, idx) => (
                                                     <tr key={idx} className="border-b last:border-0 hover:bg-slate-50/50 transition-colors">
-                                                        <td className="px-10 py-6 font-black text-slate-800">{u.name || 'N/A'}</td>
-                                                        <td className="px-10 py-6 font-bold text-slate-500">{u.username || 'N/A'}</td>
-                                                        <td className="px-10 py-6 font-mono font-medium text-slate-500">{u.email}</td>
+                                                        <td className="px-10 py-6">
+                                                            <div className="font-black text-slate-800">{u.name || u.username || 'N/A'}</div>
+                                                            <div className="text-[10px] font-mono font-medium text-slate-500 mt-0.5">{u.email}</div>
+                                                        </td>
                                                         <td className="px-10 py-6 font-bold">
                                                             <span className={`px-3 py-1 rounded-full text-[9px] uppercase tracking-wider font-black ${
                                                                 u.role === 'admin' ? 'bg-rose-50 text-rose-600 border border-rose-100' :
@@ -823,6 +824,25 @@ const Admin = () => {
                                                             }`}>
                                                                 {u.role || 'patron'}
                                                             </span>
+                                                        </td>
+                                                        <td className="px-10 py-6">
+                                                            {u.membershipType ? (
+                                                                <span className="text-[9px] uppercase tracking-wider font-black text-emerald-700 bg-emerald-50 px-2 py-1 rounded-md border border-emerald-100">
+                                                                    {u.membershipType}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-slate-300 font-bold">-</span>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-10 py-6">
+                                                            {u.amountPaid ? (
+                                                                <div>
+                                                                    <div className="font-black text-emerald-600">₹{u.amountPaid.toLocaleString()}</div>
+                                                                    <div className="text-[9px] font-bold text-slate-400 mt-0.5">{formatDate(u.paymentDate)}</div>
+                                                                </div>
+                                                            ) : (
+                                                                <span className="text-slate-300 font-bold">-</span>
+                                                            )}
                                                         </td>
                                                         <td className="px-10 py-6 text-right">
                                                             {u.role === 'admin' ? (
