@@ -1152,20 +1152,21 @@ app.get('/api/admin/users', async (req, res) => {
             let paymentDate = null;
             
             const vol = await Volunteer.findOne({ email: u.email }).lean();
-            if (vol) {
+            if (vol && vol.contributed) {
                 membershipType = vol.profession; // "Student", "Working Professional", "Corporate"
             }
             
             if (!membershipType) {
                 const patron = await Patron.findOne({ email: u.email }).lean();
-                if (patron) {
+                // Patrons are only created after payment success, but we check status anyway
+                if (patron && patron.status === 'active') {
                     membershipType = 'Patron';
                     amountPaid = patron.amount;
                     paymentDate = patron.date || patron.createdAt;
                 }
             }
             
-            if (vol) {
+            if (vol && vol.contributed) {
                 const sub = await Subscription.findOne({ email: u.email, status: { $in: ['active', 'completed', 'authenticated'] } }).sort({ createdAt: -1 }).lean();
                 if (sub) {
                     amountPaid = sub.amount;
