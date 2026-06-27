@@ -51,7 +51,8 @@ const Hero = ({ onDonate }) => {
                         width: '100%',
                         height: '100%',
                         display: 'block',
-                        objectFit: 'cover'
+                        objectFit: 'cover',
+                        transform: 'scale(1.35)' // Scale up to crop out baked-in black bars on top and bottom
                     }}
                 >
                     <source src={heroVideo} type="video/mp4" />

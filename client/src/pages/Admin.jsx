@@ -653,10 +653,20 @@ const Admin = () => {
                                             <div className="lg:col-span-2 bg-white rounded-[40px] p-10 border shadow-sm">
                                                 <h2 className="text-3xl font-black mb-4">{selectedIntern?.fullName || 'N/A'}</h2>
                                                 <p className="text-blue-600 font-black uppercase text-xs mb-8">{selectedIntern?.collegeName || selectedIntern?.college || 'Institution N/A'}</p>
-                                                <div className="grid grid-cols-2 gap-4 mb-8">
-                                                    <button onClick={() => window.open(selectedIntern.resume, '_blank')} className="p-4 border rounded-xl text-left font-black uppercase text-[10px] hover:border-blue-500">Resume Artifact</button>
-                                                    {selectedIntern.achievements && <button onClick={() => window.open(selectedIntern.achievements, '_blank')} className="p-4 border rounded-xl text-left font-black uppercase text-[10px] hover:border-emerald-500">Merit Record</button>}
-                                                </div>
+                                                {selectedIntern.documents && selectedIntern.documents.length > 0 ? (
+                                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                                        {selectedIntern.documents.map((doc, i) => (
+                                                            <button key={i} onClick={() => window.open(doc.url || doc, '_blank')} className="p-4 border rounded-xl flex items-center justify-between text-left font-black uppercase text-[10px] hover:border-blue-500 group transition-all">
+                                                                <span className="truncate pr-4 group-hover:text-blue-600 transition-colors">{doc.name || `Document ${i + 1}`}</span>
+                                                                <span className="text-slate-400 group-hover:text-blue-500">↗</span>
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="mb-8 p-4 border border-dashed rounded-xl text-center">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">No Documents Uploaded</span>
+                                                    </div>
+                                                )}
                                                 <textarea value={adminMsg} onChange={(e) => setAdminMsg(e.target.value)} rows={4} className="w-full bg-slate-50 p-6 rounded-2xl border mb-6" placeholder="Final decision message..." />
                                                 <div className="flex gap-4">
                                                     <button onClick={() => { setStatusUpdate('Accepted'); handleUpdateInternStatus(selectedIntern._id); }} className="bg-emerald-500 text-white px-8 py-3 rounded-xl font-black text-[10px] uppercase">Accept Intern</button>
