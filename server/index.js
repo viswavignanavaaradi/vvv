@@ -114,7 +114,7 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
-const dns = require('dns');
+
 if (dns.setDefaultResultOrder) {
     dns.setDefaultResultOrder('ipv4first');
 }
