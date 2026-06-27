@@ -1145,6 +1145,7 @@ app.post('/api/admin/login', async (req, res) => {
 
         res.json({ requires2FA: true });
     } catch (err) {
+        console.error('[Admin Login Error]:', err);
         res.status(500).json({ error: 'Internal server error' });
     }
 });
