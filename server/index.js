@@ -114,11 +114,11 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
-// Email Transporter for OTP and Contact (v4.9.3 - Port 465 SSL)
+// Email Transporter for OTP and Contact (v4.9.4 - Port 587 STARTTLS)
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 465,
-    secure: true, // Port 465 requires secure: true
+    port: 587,
+    secure: false, // Port 587 requires secure: false (it uses STARTTLS)
     auth: {
         user: process.env.EMAIL || 'contact@viswavignanavaaradhi.org',
         pass: (process.env.APP_PASSWORD || process.env.EMAIL_PASS || 'visogbgddtpztsbp').trim().replace(/\s/g, '')
