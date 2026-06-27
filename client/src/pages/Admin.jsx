@@ -54,6 +54,11 @@ const Admin = () => {
     const navigate = useNavigate();
     const [loggedIn, setLoggedIn] = useState(false);
     const [password, setPassword] = useState('');
+    const [totpToken, setTotpToken] = useState('');
+    const [requires2FA, setRequires2FA] = useState(false);
+    const [setupRequired, setSetupRequired] = useState(false);
+    const [qrCodeUrl, setQrCodeUrl] = useState('');
+    const [authError, setAuthError] = useState('');
     const [activeTab, setActiveTab] = useState('dashboard');
     const [donations, setDonations] = useState([]);
     const [volunteers, setVolunteers] = useState([]);
@@ -90,13 +95,49 @@ const Admin = () => {
         }
     }, [loggedIn, activeTab]);
 
-    const handleLogin = (e) => {
+    const handleLogin = async (e) => {
         e.preventDefault();
-        if (password === 'admin123') {
-            setLoggedIn(true);
-        } else {
-            alert('Invalid Password');
+        setAuthError('');
+        try {
+            const res = await axios.post('/api/admin/login', { password });
+            if (res.data.requiresSetup) {
+                setSetupRequired(true);
+                setQrCodeUrl(res.data.qrCodeUrl);
+            } else if (res.data.requires2FA) {
+                setRequires2FA(true);
+            } else if (res.data.mock) {
+                localStorage.setItem('admin_token', res.data.token);
+                setLoggedIn(true);
+            }
+        } catch (err) {
+            setAuthError(err.response?.data?.error || 'Authentication Failed');
         }
+    };
+
+    const handleVerify2FA = async (e) => {
+        e.preventDefault();
+        setAuthError('');
+        try {
+            const res = await axios.post('/api/admin/verify-2fa', { password, token: totpToken });
+            if (res.data.success) {
+                localStorage.setItem('admin_token', res.data.token);
+                setLoggedIn(true);
+                setSetupRequired(false);
+                setRequires2FA(false);
+            }
+        } catch (err) {
+            setAuthError(err.response?.data?.error || 'Invalid Authenticator Code');
+        }
+    };
+
+    const handleLogout = () => {
+        localStorage.removeItem('admin_token');
+        setLoggedIn(false);
+        setPassword('');
+        setTotpToken('');
+        setRequires2FA(false);
+        setSetupRequired(false);
+        setActiveTab('dashboard');
     };
 
     const fetchData = async () => {
@@ -190,17 +231,42 @@ const Admin = () => {
     if (!loggedIn) {
         return (
             <div className="h-screen bg-slate-50 flex items-center justify-center p-4">
-                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md bg-white p-12 rounded-[40px] shadow-2xl border border-slate-100 text-center">
+                <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} className="w-full max-w-md bg-white p-12 rounded-[40px] shadow-2xl border border-slate-100 text-center overflow-y-auto max-h-[90vh]">
                     <div className="w-20 h-20 bg-[#1e3a8a] rounded-3xl flex items-center justify-center text-3xl mx-auto mb-8 shadow-lg shadow-blue-100">🛡️</div>
                     <h2 className="text-4xl font-merriweather font-black text-slate-900 mb-2">Admin Portal</h2>
                     <p className="text-slate-400 mb-10 font-medium tracking-tight">Enterprise Access • NGO Management</p>
-                    <form onSubmit={handleLogin} className="space-y-6 text-left">
-                        <div className="space-y-2">
-                            <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Authentication Key</label>
-                            <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#1e3a8a] outline-none transition-all font-bold text-lg" placeholder="••••••••" />
+                    
+                    {authError && (
+                        <div className="mb-6 p-4 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold border border-rose-100">
+                            {authError}
                         </div>
-                        <button type="submit" className="w-full bg-[#1e3a8a] text-white font-black py-5 rounded-2xl shadow-xl hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-95">Verify & Access</button>
-                    </form>
+                    )}
+
+                    {!setupRequired && !requires2FA ? (
+                        <form onSubmit={handleLogin} className="space-y-6 text-left">
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Authentication Key</label>
+                                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#1e3a8a] outline-none transition-all font-bold text-lg" placeholder="••••••••" required />
+                            </div>
+                            <button type="submit" className="w-full bg-[#1e3a8a] text-white font-black py-5 rounded-2xl shadow-xl hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-95">Next Step</button>
+                        </form>
+                    ) : (
+                        <form onSubmit={handleVerify2FA} className="space-y-6 text-left">
+                            {setupRequired && (
+                                <div className="mb-8 text-center bg-slate-50 p-6 rounded-3xl border border-slate-100">
+                                    <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-4">Initial Setup Required</p>
+                                    <p className="text-xs font-bold text-slate-800 mb-6 leading-relaxed">Scan this secure QR code using Google Authenticator, Authy, or Microsoft Authenticator.</p>
+                                    <img src={qrCodeUrl} alt="2FA QR Code" className="mx-auto rounded-2xl border-4 border-white shadow-sm w-48 h-48" />
+                                </div>
+                            )}
+                            <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Authenticator Token</label>
+                                <input type="text" value={totpToken} onChange={(e) => setTotpToken(e.target.value.replace(/\D/g, ''))} className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#1e3a8a] outline-none transition-all font-black text-2xl text-center tracking-[0.5em] text-[#1e3a8a]" placeholder="000000" maxLength="6" required />
+                            </div>
+                            <button type="submit" className="w-full bg-[#1e3a8a] text-white font-black py-5 rounded-2xl shadow-xl hover:bg-[#1e40af] transition-all transform hover:-translate-y-1 active:scale-95">Verify Identity</button>
+                            <button type="button" onClick={() => { setSetupRequired(false); setRequires2FA(false); setTotpToken(''); setPassword(''); }} className="w-full bg-slate-50 text-slate-500 font-black py-4 rounded-2xl hover:bg-slate-100 transition-all text-xs uppercase tracking-widest">Cancel</button>
+                        </form>
+                    )}
                 </motion.div>
             </div>
         );

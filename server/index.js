@@ -108,6 +108,10 @@ const Donation = require('./models/Donation');
 const LegalRequest = require('./models/LegalRequest');
 const Subscription = require('./models/Subscription');
 const Patron = require('./models/Patron');
+const AdminConfig = require('./models/AdminConfig');
+const { authenticator } = require('otplib');
+const qrcode = require('qrcode');
+const jwt = require('jsonwebtoken');
 const galleryRouter = require('./routes/gallery');
 const { generateIDCard } = require('./utils/idCard');
 const { generateCertificate } = require('./utils/certificate');
@@ -1096,6 +1100,76 @@ app.post('/api/intern/upload-achievement', uploadDoc.single('document'), async (
     } catch (err) {
         console.error('[Upload Error] Intern Document:', err.message);
         res.status(500).json({ error: 'Document upload failed. Please verify Cloudinary settings.' });
+    }
+});
+
+// Admin Authentication Middleware & Endpoints
+const verifyAdminToken = (req, res, next) => {
+    if (req.path === '/login' || req.path === '/verify-2fa') return next();
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_development');
+        if (decoded.role !== 'admin') throw new Error('Invalid role');
+        next();
+    } catch (err) {
+        res.status(401).json({ error: 'Invalid or expired token.' });
+    }
+};
+
+app.use('/api/admin', verifyAdminToken);
+
+app.post('/api/admin/login', async (req, res) => {
+    const { password } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+    if (password !== adminPass) return res.status(401).json({ error: 'Invalid password' });
+
+    if (mongoose.connection.readyState !== 1) {
+        return res.json({ requiresSetup: false, requires2FA: false, mock: true, token: jwt.sign({ role: 'admin' }, 'fallback_secret_for_development') });
+    }
+
+    try {
+        let config = await AdminConfig.findOne({ singleton: 'admin_config' });
+        if (!config) {
+            config = await AdminConfig.create({ singleton: 'admin_config' });
+        }
+
+        if (!config.isTotpEnabled) {
+            const secret = authenticator.generateSecret();
+            config.totpSecret = secret;
+            await config.save();
+            const otpauthUrl = authenticator.keyuri('Admin', 'VVV Foundation', secret);
+            const qrCodeUrl = await qrcode.toDataURL(otpauthUrl);
+            return res.json({ requiresSetup: true, qrCodeUrl, secret });
+        }
+
+        res.json({ requires2FA: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.post('/api/admin/verify-2fa', async (req, res) => {
+    const { password, token } = req.body;
+    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+    if (password !== adminPass) return res.status(401).json({ error: 'Invalid password' });
+
+    try {
+        const config = await AdminConfig.findOne({ singleton: 'admin_config' });
+        if (!config) return res.status(400).json({ error: 'Admin config not found' });
+
+        const isValid = authenticator.check(token, config.totpSecret);
+        if (!isValid) return res.status(401).json({ error: 'Invalid authenticator code' });
+
+        if (!config.isTotpEnabled) {
+            config.isTotpEnabled = true;
+            await config.save();
+        }
+
+        const jwtToken = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'fallback_secret_for_development', { expiresIn: '24h' });
+        res.json({ success: true, token: jwtToken });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error' });
     }
 });
 
