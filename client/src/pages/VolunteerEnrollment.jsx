@@ -206,6 +206,9 @@ const VolunteerEnrollment = () => {
                 setShowMockPayment(true);
             } else {
                 const rzp = new window.Razorpay(options);
+                rzp.on('payment.failed', function (response) {
+                    alert(`Payment Failed: ${response.error.description || 'Payment authorization failed or was cancelled.'}`);
+                });
                 rzp.open();
             }
         } catch (err) {
@@ -568,7 +571,7 @@ const VolunteerEnrollment = () => {
                             </div>
 
                             {/* Modal Footer */}
-                            <div className="p-6 bg-slate-50 border-t border-slate-100 flex gap-3">
+                            <div className="p-6 bg-slate-50 border-t border-slate-100 flex flex-col sm:flex-row gap-3">
                                 <button
                                     onClick={() => {
                                         setShowMockPayment(false);
@@ -577,6 +580,15 @@ const VolunteerEnrollment = () => {
                                     className="flex-1 py-4 bg-white border border-slate-200 text-slate-600 rounded-xl text-[10px] font-black uppercase tracking-widest"
                                 >
                                     Cancel
+                                </button>
+                                <button
+                                    onClick={() => {
+                                        setShowMockPayment(false);
+                                        alert("Payment Simulation Failed: Insufficient funds or authorization declined.");
+                                    }}
+                                    className="flex-1 py-4 bg-red-500 hover:bg-red-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-red-100"
+                                >
+                                    Simulate Failure ✕
                                 </button>
                                 <button
                                     onClick={async () => {

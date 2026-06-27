@@ -776,10 +776,21 @@ const Navbar = ({ onDonateClick, mobileMenuOpen, setMobileMenuOpen }) => {
                 .nav-link:hover { color: var(--primary-royal) !important; }
                 .dropdown-item:hover { background: #f1f5f9 !important; color: var(--primary-royal) !important; }
                 
-                @media (max-width: 1100px) {
+                @media (max-width: 1380px) {
+                    .desktop-menu { gap: 1.2rem !important; }
+                    .nav-link { font-size: 0.85rem !important; }
+                    .logo-text { font-size: 1.1rem !important; }
+                    .logo-img { height: 52px !important; width: 52px !important; }
+                    .logo-container { gap: 15px !important; }
+                }
+                
+                @media (max-width: 1250px) {
                     .desktop-menu { display: none !important; }
                     .mobile-toggle { display: block !important; }
-                    nav { padding: 0.5rem 1rem !important; height: 70px !important; }
+                    nav { padding: 0.5rem 1.5rem !important; height: 75px !important; }
+                    .logo-img { height: 50px !important; width: 50px !important; }
+                    .logo-text { font-size: 1.05rem !important; }
+                    .logo-container { gap: 12px !important; }
                 }
 
                 @media (max-width: 600px) {

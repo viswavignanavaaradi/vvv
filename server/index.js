@@ -511,6 +511,20 @@ app.post('/api/razorpay-webhook', async (req, res) => {
                         },
                         { upsert: true, new: true }
                     );
+
+                    // Also activate Volunteer membership and role if the volunteer record exists
+                    await Volunteer.findOneAndUpdate(
+                        { email: sub.email },
+                        {
+                            contributed: true,
+                            payment_id: paymentId,
+                            subscription_id: subscriptionId
+                        }
+                    );
+                    await User.findOneAndUpdate(
+                        { email: sub.email },
+                        { role: 'volunteer' }
+                    );
                 }
                 break;
             }
@@ -702,11 +716,10 @@ app.post('/api/volunteer/enroll', async (req, res) => {
             date: new Date()
         });
 
-        // Update User info in mockDb
+        // Update User info in mockDb (but do NOT change role to 'volunteer' yet!)
         let user = mockDb.users.find(u => u.email === email);
         if (user) {
             user.name = fullName;
-            user.role = 'volunteer';
             if (profilePhoto) user.picture = profilePhoto;
         }
 
@@ -740,12 +753,11 @@ app.post('/api/volunteer/enroll', async (req, res) => {
             { upsert: true, new: true }
         );
 
-        // Update User info
+        // Update User info (but do NOT change role to 'volunteer' yet!)
         await User.findOneAndUpdate(
             { email },
             {
                 name: fullName,
-                role: 'volunteer',
                 ...(profilePhoto && { picture: profilePhoto })
             },
             { upsert: true }
@@ -766,16 +778,30 @@ app.post('/api/volunteer/payment-success', async (req, res) => {
             volunteer.contributed = true;
             volunteer.payment_id = razorpay_payment_id;
             volunteer.subscription_id = razorpay_subscription_id;
+
+            // Activate User role as volunteer in mockDb
+            let user = mockDb.users.find(u => u.email === volunteer.email);
+            if (user) {
+                user.role = 'volunteer';
+            }
         }
         return res.json({ status: 'success' });
     }
 
     try {
-        await Volunteer.findByIdAndUpdate(enrollmentId, {
+        const volunteer = await Volunteer.findByIdAndUpdate(enrollmentId, {
             contributed: true,
             payment_id: razorpay_payment_id,
             subscription_id: razorpay_subscription_id
-        });
+        }, { new: true });
+
+        if (volunteer) {
+            // Update User info role to 'volunteer'
+            await User.findOneAndUpdate(
+                { email: volunteer.email },
+                { role: 'volunteer' }
+            );
+        }
         res.json({ status: 'success' });
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -787,7 +813,7 @@ app.get('/api/user/profile', async (req, res) => {
     const { email } = req.query;
 
     if (mongoose.connection.readyState !== 1) {
-        const volunteer = mockDb.volunteers.find(v => v.email === email);
+        const volunteer = mockDb.volunteers.find(v => v.email === email && v.contributed === true);
         const user = mockDb.users.find(u => u.email === email);
         const donations = [];
         return res.json({
@@ -802,7 +828,7 @@ app.get('/api/user/profile', async (req, res) => {
     }
 
     try {
-        const volunteer = await Volunteer.findOne({ email });
+        const volunteer = await Volunteer.findOne({ email, contributed: true });
         const user = await User.findOne({ email });
         const donations = await Donation.find({ email });
         const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);

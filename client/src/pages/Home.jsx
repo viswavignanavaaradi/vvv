@@ -87,7 +87,7 @@ const Hero = ({ onDonate }) => {
                 }}
             >
                 {/* Visual Accent */}
-                <motion.span 
+                <motion.span
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6 }}
@@ -96,9 +96,9 @@ const Hero = ({ onDonate }) => {
                 >
                     Viswa Vignana Vaaradhi
                 </motion.span>
-                
+
                 {/* Headline */}
-                <motion.h1 
+                <motion.h1
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.15 }}
@@ -109,7 +109,7 @@ const Hero = ({ onDonate }) => {
                 </motion.h1>
 
                 {/* Call To Actions */}
-                <motion.div 
+                <motion.div
                     initial={{ opacity: 0, y: 15 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.6, delay: 0.3 }}
