@@ -114,6 +114,11 @@ const { generateCertificate } = require('./utils/certificate');
 
 dotenv.config();
 
+const dns = require('dns');
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
+
 // Email Transporter for OTP and Contact (v4.9.4 - Port 587 STARTTLS)
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
