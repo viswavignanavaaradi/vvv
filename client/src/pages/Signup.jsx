@@ -7,6 +7,8 @@ import axios from '../api/axios';
 const Signup = () => {
     const [userType, setUserType] = useState('patron');
     const navigate = useNavigate();
+    const redirectParams = new URLSearchParams(window.location.search);
+    const redirectUrl = redirectParams.get('redirect');
     const [formData, setFormData] = useState({
         fullName: '',
         username: '',
@@ -39,7 +41,9 @@ const Signup = () => {
             role: userType // 'patron' or 'volunteer'
         }));
 
-        if (userType === 'volunteer') {
+        if (redirectUrl) {
+            navigate(redirectUrl);
+        } else if (userType === 'volunteer') {
             navigate('/become-a-member');
         } else if (userType === 'intern') {
             navigate('/internship-enrollment');
@@ -63,7 +67,9 @@ const Signup = () => {
                 role: userType
             });
             localStorage.setItem('vvv_user', JSON.stringify(res.data.user));
-            if (userType === 'volunteer') {
+            if (redirectUrl) {
+                navigate(redirectUrl);
+            } else if (userType === 'volunteer') {
                 navigate('/become-a-member');
             } else if (userType === 'intern') {
                 navigate('/internship-enrollment');

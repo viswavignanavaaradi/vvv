@@ -186,8 +186,8 @@ const PatronEnrollment = () => {
                                 Join the elite circle of VVV Patrons. Please sign in to manage your contributions and join our advisory council meetings.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Link to="/login" className="px-10 py-5 bg-[#0f172a] text-white font-black rounded-2xl shadow-xl hover:bg-emerald-600 transition-all uppercase tracking-widest text-[10px]">Sign In to Join</Link>
-                                <Link to="/signup" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-[10px]">Create Profile</Link>
+                                <Link to="/login?redirect=/patron-enrollment" className="px-10 py-5 bg-[#0f172a] text-white font-black rounded-2xl shadow-xl hover:bg-emerald-600 transition-all uppercase tracking-widest text-[10px]">Sign In to Join</Link>
+                                <Link to="/signup?redirect=/patron-enrollment" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-[10px]">Create Profile</Link>
                             </div>
                         </motion.div>
                     ) : (

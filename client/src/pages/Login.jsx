@@ -11,8 +11,11 @@ const Login = () => {
     });
     const [showPassword, setShowPassword] = useState(false);
     const [error, setError] = useState('');
+    const [userType, setUserType] = useState('patron');
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
+    const redirectParams = new URLSearchParams(window.location.search);
+    const redirectUrl = redirectParams.get('redirect');
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -50,7 +53,11 @@ const Login = () => {
         }
 
         localStorage.setItem('vvv_user', JSON.stringify(userData));
-        navigate('/profile');
+        if (redirectUrl) {
+            navigate(redirectUrl);
+        } else {
+            navigate('/profile');
+        }
     };
 
     const handleLoginError = () => {
@@ -68,6 +75,8 @@ const Login = () => {
 
             if (res.data.user.role === 'admin') {
                 navigate('/admin');
+            } else if (redirectUrl) {
+                navigate(redirectUrl);
             } else {
                 navigate('/profile');
             }

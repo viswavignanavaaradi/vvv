@@ -302,10 +302,10 @@ const VolunteerEnrollment = () => {
                                 To become a member, please first create an account or sign in to your dashboard. This helps us maintain secure and accurate records.
                             </p>
                             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                                <Link to="/login" className="px-10 py-5 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs">Login to Continue</Link>
-                                <Link to="/signup" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-xs">Create Account</Link>
+                                <Link to="/login?redirect=/become-a-member" className="px-10 py-5 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-xl hover:bg-slate-800 transition-all uppercase tracking-widest text-xs">Login to Continue</Link>
+                                <Link to="/signup?redirect=/become-a-member" className="px-10 py-5 bg-white border-2 border-slate-200 text-slate-800 font-black rounded-2xl hover:bg-slate-50 transition-all uppercase tracking-widest text-xs">Create Account</Link>
                             </div>
-                            <p className="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Already have an account? <Link to="/login" className="text-blue-600 underline">Sign In Here</Link></p>
+                            <p className="mt-8 text-xs text-slate-400 font-bold uppercase tracking-widest">Already have an account? <Link to="/login?redirect=/become-a-member" className="text-blue-600 underline">Sign In Here</Link></p>
                         </motion.div>
                     ) : (
                         <div className="space-y-12">
