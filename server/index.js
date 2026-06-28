@@ -317,12 +317,20 @@ async function ensurePlans() {
 // Seed Super Admin
 async function ensureSuperAdmin() {
     try {
+        // Fix typo in previously seeded super admin if exists
+        const typoAdmin = await AdminUser.findOne({ email: 'viswavignanavaaradi@gmail.com' });
+        if (typoAdmin) {
+            typoAdmin.email = 'viswavignanavaaradhi@gmail.com';
+            await typoAdmin.save();
+            console.log('[AdminUser] Fixed typo in super admin email');
+        }
+
         const adminCount = await AdminUser.countDocuments();
         if (adminCount === 0) {
-            const adminEmail = process.env.ADMIN_EMAIL || 'viswavignanavaaradi@gmail.com';
+            const adminEmail = process.env.ADMIN_EMAIL || 'viswavignanavaaradhi@gmail.com';
             const adminPass = process.env.ADMIN_PASSWORD || 'Mission@2026';
             await AdminUser.create({
-                email: adminEmail,
+                email: adminEmail.toLowerCase().trim(),
                 password: adminPass,
                 role: 'superadmin',
                 permissions: ['manage_admins', 'view_payments', 'manage_interns', 'manage_volunteers_patrons', 'delete_users']
@@ -1160,12 +1168,13 @@ const checkPermission = (requiredPermission) => (req, res, next) => {
 app.use('/api/admin', verifyAdminToken);
 
 app.post('/api/admin/login', async (req, res) => {
-    const { email, password } = req.body;
+    let { email, password } = req.body;
     
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
+    email = email.toLowerCase().trim();
 
     if (mongoose.connection.readyState !== 1) {
-        const adminEmail = process.env.ADMIN_EMAIL || 'viswavignanavaaradi@gmail.com';
+        const adminEmail = (process.env.ADMIN_EMAIL || 'viswavignanavaaradhi@gmail.com').toLowerCase().trim();
         const adminPass = process.env.ADMIN_PASSWORD || 'Mission@2026';
         
         let mockEmail = null;
@@ -1204,9 +1213,10 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 app.post('/api/admin/verify-2fa', async (req, res) => {
-    const { email, password, token } = req.body;
+    let { email, password, token } = req.body;
     
     if (!email || !password || !token) return res.status(400).json({ error: 'Missing required fields' });
+    email = email.toLowerCase().trim();
 
     try {
         const adminUser = await AdminUser.findOne({ email });
