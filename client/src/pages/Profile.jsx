@@ -153,6 +153,7 @@ const Profile = () => {
 
     const isVolunteer = profileData?.volunteer;
     const isIntern = profileData?.intern;
+    const isPatron = profileData?.patron;
 
     return (
         <div className="bg-[#FFFDF5] min-h-screen pt-20 pb-20">
@@ -217,7 +218,7 @@ const Profile = () => {
                                 className="space-y-8"
                             >
                                 {/* Mission Enrollment Status */}
-                                {!isVolunteer && !isIntern && (
+                                {!isVolunteer && !isIntern && !isPatron && (
                                     <div className="bg-white rounded-[32px] lg:rounded-[40px] shadow-xl p-6 lg:p-8 border-l-8 border-[#F59E0B] relative overflow-hidden group">
                                         <div className="hidden lg:block absolute top-0 right-0 p-8 opacity-5 transition-opacity group-hover:opacity-10">
                                             <span className="text-8xl">🚀</span>

@@ -824,10 +824,14 @@ app.get('/api/user/profile', async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         const volunteer = mockDb.volunteers.find(v => v.email === email && v.contributed === true);
         const user = mockDb.users.find(u => u.email === email);
+        const intern = mockDb.interns ? mockDb.interns.find(i => i.email === email) : null;
+        const patron = null; // No mock patron data currently
         const donations = [];
         return res.json({
             user,
             volunteer,
+            intern,
+            patron,
             donations: {
                 total: 0,
                 count: 0,
@@ -839,12 +843,16 @@ app.get('/api/user/profile', async (req, res) => {
     try {
         const volunteer = await Volunteer.findOne({ email, contributed: true });
         const user = await User.findOne({ email });
+        const intern = await Intern.findOne({ email });
+        const patron = await Patron.findOne({ email, status: 'active' });
         const donations = await Donation.find({ email });
         const totalDonated = donations.reduce((sum, d) => sum + d.amount, 0);
 
         res.json({
             user,
             volunteer,
+            intern,
+            patron,
             donations: {
                 total: totalDonated,
                 count: donations.length,

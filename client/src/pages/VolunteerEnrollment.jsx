@@ -65,7 +65,7 @@ const VolunteerEnrollment = () => {
     const checkRegistration = async () => {
         try {
             const res = await axios.get(`/api/user/status?email=${user.email}`);
-            if (res.data.isVolunteer) {
+            if (res.data.isVolunteer || res.data.isPatron) {
                 setAlreadyRegistered(true);
             }
         } catch (err) {
@@ -231,7 +231,7 @@ const VolunteerEnrollment = () => {
                 <div className="max-w-md bg-white p-10 rounded-[40px] shadow-xl">
                     <div className="text-5xl mb-6 text-[#1e3a8a]">🛡️</div>
                     <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">Commander, You're Active!</h2>
-                    <p className="text-slate-500 mb-8">You are already registered as an active member. Your dedication to the mission is highly valued.</p>
+                    <p className="text-slate-500 mb-8">You have already became a member of the organization.</p>
                     <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Go to My Hub</button>
                 </div>
             </div>

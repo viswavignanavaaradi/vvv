@@ -42,7 +42,7 @@ const PatronEnrollment = () => {
     const checkRegistration = async () => {
         try {
             const res = await axios.get(`/api/user/status?email=${user.email}`);
-            if (res.data.isPatron) {
+            if (res.data.isPatron || res.data.isVolunteer) {
                 setAlreadyRegistered(true);
             }
         } catch (err) {
@@ -107,7 +107,7 @@ const PatronEnrollment = () => {
                 <div className="max-w-md bg-white p-10 rounded-[40px] shadow-xl">
                     <div className="text-5xl mb-6 text-emerald-500">🌟</div>
                     <h2 className="text-3xl font-merriweather font-black text-slate-800 mb-4">A Heartfelt Thank You!</h2>
-                    <p className="text-slate-500 mb-8">You are already registered as a Foundation Patron. Your sustained support is driving real change.</p>
+                    <p className="text-slate-500 mb-8">You have already became a member of the organization.</p>
                     <button onClick={() => navigate('/profile')} className="px-10 py-4 bg-[#1e3a8a] text-white font-black rounded-2xl shadow-lg hover:bg-slate-800 transition-all">Go to Dashboard</button>
                 </div>
             </div>
