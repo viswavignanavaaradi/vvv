@@ -1165,7 +1165,19 @@ app.post('/api/admin/login', async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
     if (mongoose.connection.readyState !== 1) {
-        return res.json({ requiresSetup: false, requires2FA: false, mock: true, token: jwt.sign({ role: 'superadmin', email: 'mock@vvv.com' }, 'fallback_secret_for_development') });
+        const adminEmail = process.env.ADMIN_EMAIL || 'admin@vvv.com';
+        const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+        
+        let mockEmail = null;
+        if (email === adminEmail && password === adminPass) {
+            mockEmail = adminEmail;
+        } else if (email === 'mock@vvv.com' && password === 'mockpassword') {
+            mockEmail = 'mock@vvv.com';
+        } else {
+            return res.status(401).json({ error: 'Database is offline. Invalid fallback credentials.' });
+        }
+
+        return res.json({ requiresSetup: false, requires2FA: false, mock: true, mockEmail: mockEmail, token: jwt.sign({ role: 'superadmin', email: mockEmail }, 'fallback_secret_for_development') });
     }
 
     try {
