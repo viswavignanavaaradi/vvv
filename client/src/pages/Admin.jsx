@@ -116,8 +116,10 @@ const Admin = () => {
             } else if (res.data.requires2FA) {
                 setRequires2FA(true);
             } else if (res.data.mock) {
+                const mockUser = { role: 'superadmin', email: 'mock@vvv.com', permissions: ['manage_admins', 'view_payments', 'manage_interns', 'manage_volunteers_patrons', 'delete_users'] };
                 localStorage.setItem('admin_token', res.data.token);
-                setAdminUser({ role: 'superadmin', permissions: ['manage_admins', 'view_payments', 'manage_interns', 'manage_volunteers_patrons', 'delete_users'] });
+                localStorage.setItem('admin_user', JSON.stringify(mockUser));
+                setAdminUser(mockUser);
                 setLoggedIn(true);
             }
         } catch (err) {
@@ -144,6 +146,12 @@ const Admin = () => {
             setAuthError(err.response?.data?.error || 'Invalid Authenticator Code');
         }
     };
+
+    useEffect(() => {
+        if (loggedIn && (!adminUser || !adminUser.role)) {
+            handleLogout();
+        }
+    }, [loggedIn, adminUser]);
 
     const handleLogout = () => {
         localStorage.removeItem('admin_token');
