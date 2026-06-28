@@ -319,8 +319,8 @@ async function ensureSuperAdmin() {
     try {
         const adminCount = await AdminUser.countDocuments();
         if (adminCount === 0) {
-            const adminEmail = process.env.ADMIN_EMAIL || 'admin@vvv.com';
-            const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+            const adminEmail = process.env.ADMIN_EMAIL || 'viswavignanavaaradi@gmail.com';
+            const adminPass = process.env.ADMIN_PASSWORD || 'Mission@2026';
             await AdminUser.create({
                 email: adminEmail,
                 password: adminPass,
@@ -1165,8 +1165,8 @@ app.post('/api/admin/login', async (req, res) => {
     if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
     if (mongoose.connection.readyState !== 1) {
-        const adminEmail = process.env.ADMIN_EMAIL || 'admin@vvv.com';
-        const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+        const adminEmail = process.env.ADMIN_EMAIL || 'viswavignanavaaradi@gmail.com';
+        const adminPass = process.env.ADMIN_PASSWORD || 'Mission@2026';
         
         let mockEmail = null;
         if (email === adminEmail && password === adminPass) {
