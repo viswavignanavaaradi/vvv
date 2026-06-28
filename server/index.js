@@ -1288,6 +1288,38 @@ app.post('/api/admin/create-admin', async (req, res) => {
     }
 });
 
+app.get('/api/admin/admins', async (req, res) => {
+    if (!req.adminUser || (req.adminUser.role !== 'superadmin' && !req.adminUser.permissions?.includes('manage_admins'))) {
+        return res.status(403).json({ error: 'Permission denied.' });
+    }
+    if (mongoose.connection.readyState !== 1) {
+        return res.json([{ _id: '1', email: 'mock@vvv.com', role: 'superadmin', permissions: ['manage_admins'] }]);
+    }
+    try {
+        const admins = await AdminUser.find().select('-password -totpSecret');
+        res.json(admins);
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+app.delete('/api/admin/admins/:id', async (req, res) => {
+    if (!req.adminUser || (req.adminUser.role !== 'superadmin' && !req.adminUser.permissions?.includes('manage_admins'))) {
+        return res.status(403).json({ error: 'Permission denied.' });
+    }
+    try {
+        const adminToDelete = await AdminUser.findById(req.params.id);
+        if (!adminToDelete) return res.status(404).json({ error: 'Admin not found.' });
+        if (adminToDelete.role === 'superadmin') {
+            return res.status(403).json({ error: 'Cannot delete superadmin.' });
+        }
+        await AdminUser.findByIdAndDelete(req.params.id);
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Admin APIs
 app.get('/api/admin/volunteers', checkPermission('manage_volunteers_patrons'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {

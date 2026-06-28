@@ -89,6 +89,7 @@ const Admin = () => {
     const [newAdminPerms, setNewAdminPerms] = useState([]);
     const [createAdminMsg, setCreateAdminMsg] = useState('');
     const [createAdminLoading, setCreateAdminLoading] = useState(false);
+    const [adminsList, setAdminsList] = useState([]);
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -159,36 +160,30 @@ const Admin = () => {
 
     const fetchData = async () => {
         setLoading(true);
-        try {
-            if (activeTab === 'donations' || activeTab === 'dashboard') {
-                const res = await axios.get('/api/admin/donations');
-                setDonations(res.data);
+        const hasPerm = (perm) => adminUser?.role === 'superadmin' || adminUser?.permissions?.includes(perm);
+
+        const fetchEndpoint = async (condition, endpoint, setter) => {
+            if (condition) {
+                try {
+                    const res = await axios.get(endpoint);
+                    setter(res.data);
+                } catch (err) {
+                    console.error(`Error fetching ${endpoint}:`, err);
+                }
             }
-            if (activeTab === 'requests' || activeTab === 'dashboard') {
-                const res = await axios.get('/api/admin/legal-requests');
-                setLegalRequests(res.data);
-            }
-            if (activeTab === 'volunteers' || activeTab === 'dashboard') {
-                const res = await axios.get('/api/admin/volunteers');
-                setVolunteers(res.data);
-            }
-            if (activeTab === 'interns' || activeTab === 'dashboard') {
-                const res = await axios.get('/api/admin/interns');
-                setInterns(res.data);
-            }
-            if (activeTab === 'patrons' || activeTab === 'dashboard') {
-                const res = await axios.get('/api/admin/patrons');
-                setPatrons(res.data);
-            }
-            if (activeTab === 'users' || activeTab === 'dashboard') {
-                const res = await axios.get('/api/admin/users');
-                setUsers(res.data);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setLoading(false);
-        }
+        };
+
+        await Promise.all([
+            fetchEndpoint((activeTab === 'donations' || activeTab === 'dashboard') && hasPerm('view_payments'), '/api/admin/donations', setDonations),
+            fetchEndpoint((activeTab === 'requests' || activeTab === 'dashboard') && hasPerm('manage_volunteers_patrons'), '/api/admin/legal-requests', setLegalRequests),
+            fetchEndpoint((activeTab === 'volunteers' || activeTab === 'dashboard') && hasPerm('manage_volunteers_patrons'), '/api/admin/volunteers', setVolunteers),
+            fetchEndpoint((activeTab === 'interns' || activeTab === 'dashboard') && hasPerm('manage_interns'), '/api/admin/interns', setInterns),
+            fetchEndpoint((activeTab === 'patrons' || activeTab === 'dashboard') && hasPerm('manage_volunteers_patrons'), '/api/admin/patrons', setPatrons),
+            fetchEndpoint((activeTab === 'users' || activeTab === 'dashboard') && hasPerm('manage_volunteers_patrons'), '/api/admin/users', setUsers),
+            fetchEndpoint((activeTab === 'team' || activeTab === 'dashboard') && hasPerm('manage_admins'), '/api/admin/admins', setAdminsList)
+        ]);
+
+        setLoading(false);
     };
 
     const handleUpdateInternStatus = async (id) => {
@@ -261,6 +256,18 @@ const Admin = () => {
         setPurgeConfirmEmail('');
         setPurgeTarget({ email, name });
         setShowPurgeModal(true);
+    };
+
+    const handleDeleteAdmin = async (id, email) => {
+        if (!window.confirm(`Are you sure you want to delete admin account ${email}?`)) return;
+        try {
+            await axios.delete(`/api/admin/admins/${id}`);
+            alert(`Admin ${email} deleted successfully.`);
+            fetchData();
+        } catch (err) {
+            console.error(err);
+            alert(err.response?.data?.error || 'Failed to delete admin');
+        }
     };
 
     const handleDownload = (url, name) => {
@@ -1069,6 +1076,52 @@ const Admin = () => {
                                                 )}
                                             </div>
                                         </form>
+                                    </div>
+                                    
+                                    <div className="bg-slate-50 rounded-3xl p-8 border border-slate-100">
+                                        <h3 className="text-xl font-black text-slate-800 mb-6">Active Administrators</h3>
+                                        <div className="overflow-x-auto">
+                                            <table className="w-full">
+                                                <thead>
+                                                    <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest text-left">
+                                                        <th className="pb-4">Email Address</th>
+                                                        <th className="pb-4">Role</th>
+                                                        <th className="pb-4">Permissions</th>
+                                                        <th className="pb-4 text-right">Actions</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody className="divide-y divide-slate-100">
+                                                    {adminsList.map(admin => (
+                                                        <tr key={admin._id} className="text-sm">
+                                                            <td className="py-4 font-bold text-slate-700">{admin.email}</td>
+                                                            <td className="py-4">
+                                                                <span className={`px-3 py-1 rounded-full text-xs font-bold ${admin.role === 'superadmin' ? 'bg-purple-100 text-purple-700' : 'bg-blue-100 text-blue-700'}`}>
+                                                                    {admin.role.toUpperCase()}
+                                                                </span>
+                                                            </td>
+                                                            <td className="py-4 text-slate-500 font-medium">
+                                                                {admin.role === 'superadmin' ? 'ALL ACCESS' : (admin.permissions?.length ? admin.permissions.join(', ') : 'None')}
+                                                            </td>
+                                                            <td className="py-4 text-right">
+                                                                {admin.role !== 'superadmin' && admin.email !== adminUser?.email && (
+                                                                    <button 
+                                                                        onClick={() => handleDeleteAdmin(admin._id, admin.email)}
+                                                                        className="px-4 py-2 bg-rose-50 text-rose-600 rounded-lg text-xs font-bold hover:bg-rose-100 transition-colors"
+                                                                    >
+                                                                        Revoke
+                                                                    </button>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    {adminsList.length === 0 && (
+                                                        <tr>
+                                                            <td colSpan="4" className="py-8 text-center text-slate-400 font-medium">No administrators found.</td>
+                                                        </tr>
+                                                    )}
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 </div>
                             </motion.div>
