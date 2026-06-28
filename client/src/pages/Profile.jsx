@@ -151,9 +151,9 @@ const Profile = () => {
         </div>
     );
 
-    const isVolunteer = profileData?.volunteer;
-    const isIntern = profileData?.intern;
-    const isPatron = profileData?.patron;
+    const isVolunteer = profileData?.volunteer || user?.role === 'volunteer';
+    const isIntern = profileData?.intern || user?.role === 'intern';
+    const isPatron = profileData?.patron || user?.role === 'patron' || user?.role === 'member';
 
     return (
         <div className="bg-[#FFFDF5] min-h-screen pt-20 pb-20">
