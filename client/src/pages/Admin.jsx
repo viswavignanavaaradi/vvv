@@ -52,7 +52,12 @@ const ActivityItem = ({ icon, title, subtitle, time, color }) => (
 
 const Admin = () => {
     const navigate = useNavigate();
-    const [loggedIn, setLoggedIn] = useState(false);
+    const [adminUser, setAdminUser] = useState(() => {
+        const stored = localStorage.getItem('admin_user');
+        return stored ? JSON.parse(stored) : null;
+    });
+    const [loggedIn, setLoggedIn] = useState(!!localStorage.getItem('admin_token'));
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [totpToken, setTotpToken] = useState('');
     const [requires2FA, setRequires2FA] = useState(false);
@@ -80,6 +85,10 @@ const Admin = () => {
     const [purgeConfirmEmail, setPurgeConfirmEmail] = useState('');
     const [users, setUsers] = useState([]);
     const [purgeTarget, setPurgeTarget] = useState(null);
+    const [newAdminEmail, setNewAdminEmail] = useState('');
+    const [newAdminPerms, setNewAdminPerms] = useState([]);
+    const [createAdminMsg, setCreateAdminMsg] = useState('');
+    const [createAdminLoading, setCreateAdminLoading] = useState(false);
 
     const formatDate = (dateString) => {
         if (!dateString) return 'N/A';
@@ -99,7 +108,7 @@ const Admin = () => {
         e.preventDefault();
         setAuthError('');
         try {
-            const res = await axios.post('/api/admin/login', { password });
+            const res = await axios.post('/api/admin/login', { email, password });
             if (res.data.requiresSetup) {
                 setSetupRequired(true);
                 setQrCodeUrl(res.data.qrCodeUrl);
@@ -107,6 +116,7 @@ const Admin = () => {
                 setRequires2FA(true);
             } else if (res.data.mock) {
                 localStorage.setItem('admin_token', res.data.token);
+                setAdminUser({ role: 'superadmin', permissions: ['manage_admins', 'view_payments', 'manage_interns', 'manage_volunteers_patrons', 'delete_users'] });
                 setLoggedIn(true);
             }
         } catch (err) {
@@ -118,9 +128,13 @@ const Admin = () => {
         e.preventDefault();
         setAuthError('');
         try {
-            const res = await axios.post('/api/admin/verify-2fa', { password, token: totpToken });
+            const res = await axios.post('/api/admin/verify-2fa', { email, password, token: totpToken });
             if (res.data.success) {
                 localStorage.setItem('admin_token', res.data.token);
+                if (res.data.user) {
+                    localStorage.setItem('admin_user', JSON.stringify(res.data.user));
+                    setAdminUser(res.data.user);
+                }
                 setLoggedIn(true);
                 setSetupRequired(false);
                 setRequires2FA(false);
@@ -132,8 +146,11 @@ const Admin = () => {
 
     const handleLogout = () => {
         localStorage.removeItem('admin_token');
+        localStorage.removeItem('admin_user');
+        setAdminUser(null);
         setLoggedIn(false);
         setPassword('');
+        setEmail('');
         setTotpToken('');
         setRequires2FA(false);
         setSetupRequired(false);
@@ -204,6 +221,42 @@ const Admin = () => {
         }
     };
 
+    const handleCreateAdmin = async (e) => {
+        e.preventDefault();
+        setCreateAdminLoading(true);
+        setCreateAdminMsg('');
+        try {
+            const res = await axios.post('/api/admin/create-admin', { email: newAdminEmail, permissions: newAdminPerms });
+            if (res.data.success) {
+                setCreateAdminMsg(`Successfully created admin. ${res.data.emailSent ? 'Welcome email sent.' : `Email failed to send. Temporary password is: ${res.data.tempPassword}`}`);
+                setNewAdminEmail('');
+                setNewAdminPerms([]);
+            }
+        } catch (err) {
+            setCreateAdminMsg(err.response?.data?.error || 'Failed to create admin');
+        } finally {
+            setCreateAdminLoading(false);
+        }
+    };
+
+    const handleDownloadDocument = async (url, filename) => {
+        try {
+            const response = await fetch(url);
+            const blob = await response.blob();
+            const blobUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = blobUrl;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            window.URL.revokeObjectURL(blobUrl);
+        } catch (err) {
+            console.error('Download failed:', err);
+            window.open(url, '_blank');
+        }
+    };
+
     const handleDeleteMember = (email, name) => {
         setPurgeConfirmEmail('');
         setPurgeTarget({ email, name });
@@ -245,6 +298,10 @@ const Admin = () => {
                     {!setupRequired && !requires2FA ? (
                         <form onSubmit={handleLogin} className="space-y-6 text-left">
                             <div className="space-y-2">
+                                <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Email Address</label>
+                                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#1e3a8a] outline-none transition-all font-bold text-lg" placeholder="admin@vvv.com" required />
+                            </div>
+                            <div className="space-y-2">
                                 <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Authentication Key</label>
                                 <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full px-8 py-5 rounded-2xl bg-slate-50 border border-slate-100 focus:bg-white focus:border-[#1e3a8a] outline-none transition-all font-bold text-lg" placeholder="••••••••" required />
                             </div>
@@ -272,16 +329,23 @@ const Admin = () => {
         );
     }
 
-    const menuItems = [
-        { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-        { id: 'requests', label: 'Legal Aid Requests', icon: '⚖️' },
-        { id: 'donations', label: 'Donations Ledger', icon: '🤝' },
-        { id: 'patrons', label: 'Patronage', icon: '🌟' },
-        { id: 'volunteers', label: 'Members Hub', icon: '👥' },
-        { id: 'interns', label: 'Intern Applications', icon: '🎓' },
-        { id: 'users', label: 'User Accounts', icon: '👤' },
-        { id: 'account', label: 'Admin Settings', icon: '⚙️' },
+    const allMenuItems = [
+        { id: 'dashboard', label: 'Dashboard', icon: '📊', alwaysShow: true },
+        { id: 'requests', label: 'Legal Aid Requests', icon: '⚖️', permission: 'manage_volunteers_patrons' },
+        { id: 'donations', label: 'Donations Ledger', icon: '🤝', permission: 'view_payments' },
+        { id: 'patrons', label: 'Patronage', icon: '🌟', permission: 'manage_volunteers_patrons' },
+        { id: 'volunteers', label: 'Members Hub', icon: '👥', permission: 'manage_volunteers_patrons' },
+        { id: 'interns', label: 'Intern Applications', icon: '🎓', permission: 'manage_interns' },
+        { id: 'users', label: 'User Accounts', icon: '👤', permission: 'manage_volunteers_patrons' },
+        { id: 'team', label: 'Manage Team', icon: '🛡️', permission: 'manage_admins' },
+        { id: 'account', label: 'Admin Settings', icon: '⚙️', alwaysShow: true },
     ];
+
+    const menuItems = allMenuItems.filter(item => {
+        if (item.alwaysShow) return true;
+        if (adminUser?.role === 'superadmin') return true;
+        return adminUser?.permissions?.includes(item.permission);
+    });
 
     return (
         <>
@@ -349,7 +413,7 @@ const Admin = () => {
                     <div className="flex items-center gap-6 ml-6">
                         <div className="hidden sm:block text-right">
                             <p className="text-[10px] font-black text-slate-300 uppercase tracking-widest leading-none mb-1">Authenticated</p>
-                            <p className="text-sm font-bold text-slate-700">Root Admin</p>
+                            <p className="text-sm font-bold text-slate-700">{adminUser?.email || 'Admin'}</p>
                         </div>
                         <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center border border-slate-200">🛡️</div>
                     </div>
@@ -941,6 +1005,75 @@ const Admin = () => {
                             </motion.div>
                         )}
 
+                        {activeTab === 'team' && (
+                            <motion.div key="team" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-4xl">
+                                <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-12">
+                                    <h1 className="text-4xl font-merriweather font-black text-slate-900 mb-2">Team Management</h1>
+                                    <p className="text-slate-400 font-medium mb-10">Add and configure administrators</p>
+                                    
+                                    <div className="bg-[#0F172A] rounded-3xl p-8 text-white relative overflow-hidden mb-12">
+                                        <div className="absolute top-0 right-0 w-48 h-48 bg-blue-500/10 rounded-bl-full" />
+                                        <h3 className="text-xl font-black mb-6 relative z-10">Provision New Administrator</h3>
+                                        
+                                        <form onSubmit={handleCreateAdmin} className="relative z-10 space-y-6">
+                                            <div className="space-y-2">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Admin Email</label>
+                                                <input 
+                                                    type="email" 
+                                                    value={newAdminEmail} 
+                                                    onChange={e => setNewAdminEmail(e.target.value)} 
+                                                    placeholder="admin@vvv.com" 
+                                                    required
+                                                    className="w-full px-6 py-4 rounded-xl bg-white/5 border border-white/10 focus:bg-white/10 focus:border-blue-500 outline-none transition-all text-white font-medium" 
+                                                />
+                                            </div>
+                                            
+                                            <div className="space-y-4">
+                                                <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Access Clearances</label>
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                                    {[
+                                                        { id: 'view_payments', label: 'View Payments & Donations' },
+                                                        { id: 'manage_interns', label: 'Manage Interns' },
+                                                        { id: 'manage_volunteers_patrons', label: 'Manage Members & Patrons' },
+                                                        { id: 'delete_users', label: 'Delete Users (Danger Zone)' },
+                                                        { id: 'manage_admins', label: 'Manage Admins (Superadmin)' }
+                                                    ].map(perm => (
+                                                        <label key={perm.id} className="flex items-center gap-3 p-4 rounded-xl bg-white/5 border border-white/10 cursor-pointer hover:bg-white/10 transition-colors">
+                                                            <input 
+                                                                type="checkbox" 
+                                                                checked={newAdminPerms.includes(perm.id)}
+                                                                onChange={(e) => {
+                                                                    if (e.target.checked) setNewAdminPerms([...newAdminPerms, perm.id]);
+                                                                    else setNewAdminPerms(newAdminPerms.filter(p => p !== perm.id));
+                                                                }}
+                                                                className="w-5 h-5 rounded border-white/20 text-blue-500 focus:ring-blue-500 focus:ring-offset-[#0F172A]"
+                                                            />
+                                                            <span className="text-sm font-medium text-slate-200">{perm.label}</span>
+                                                        </label>
+                                                    ))}
+                                                </div>
+                                            </div>
+
+                                            <div className="pt-4 flex items-center justify-between">
+                                                <button 
+                                                    type="submit" 
+                                                    disabled={createAdminLoading}
+                                                    className="bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white px-8 py-4 rounded-xl font-black text-sm uppercase tracking-wider transition-all active:scale-95"
+                                                >
+                                                    {createAdminLoading ? 'Provisioning...' : 'Provision Account'}
+                                                </button>
+                                                {createAdminMsg && (
+                                                    <span className={`text-sm font-bold ${createAdminMsg.includes('Failed') ? 'text-rose-400' : 'text-emerald-400'}`}>
+                                                        {createAdminMsg}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        )}
+
                         {activeTab === 'account' && (
                             <motion.div key="account" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="max-w-4xl">
                                 <div className="bg-white rounded-[40px] shadow-sm border border-slate-200 p-12">
@@ -950,11 +1083,11 @@ const Admin = () => {
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
                                             <div className="space-y-4">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Identity</p>
-                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black">viswavignanavaaradhi</div>
+                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black">{adminUser?.email || 'Unknown'}</div>
                                             </div>
                                             <div className="space-y-4">
                                                 <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Clearance</p>
-                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black text-blue-600">ROOT_ADMIN</div>
+                                                <div className="px-8 py-5 bg-slate-50 rounded-2xl border border-slate-100 font-black text-blue-600">{adminUser?.role === 'superadmin' ? 'ROOT_ADMIN' : 'ADMIN_TIER_2'}</div>
                                             </div>
                                         </div>
                                     </div>

@@ -109,6 +109,7 @@ const LegalRequest = require('./models/LegalRequest');
 const Subscription = require('./models/Subscription');
 const Patron = require('./models/Patron');
 const AdminConfig = require('./models/AdminConfig');
+const AdminUser = require('./models/AdminUser');
 const { authenticator } = require('otplib');
 const qrcode = require('qrcode');
 const jwt = require('jsonwebtoken');
@@ -209,6 +210,7 @@ mongoose.connect(MONGODB_URI, {
         console.log(`[MongoDB] Connected to host: ${host}`);
         console.log(`[MongoDB] Active Database: ${dbName}`);
         ensurePlans(); // Initialize Plans on DB connection
+        ensureSuperAdmin(); // Seed initial super admin if none exists
     })
     .catch(err => {
         console.error('MongoDB connection error:', err.message);
@@ -306,13 +308,33 @@ async function ensurePlans() {
                 console.warn(`[Razorpay] Keeping mock plan fallback for ₹${amount} due to creation/finding failure.`);
             }
         }
-        console.log('[Razorpay] Plans Ready:', plans);
+        console.log('[Setup] Seeded Razorpay plans successfully.');
     } catch (err) {
-        console.error('[Razorpay] Plan Error:', err.message);
+        console.error('[Setup] Error seeding plans:', err.message);
     }
 }
 
-// Verify Razorpay Config on startup
+// Seed Super Admin
+async function ensureSuperAdmin() {
+    try {
+        const adminCount = await AdminUser.countDocuments();
+        if (adminCount === 0) {
+            const adminEmail = process.env.ADMIN_EMAIL || 'admin@vvv.com';
+            const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
+            await AdminUser.create({
+                email: adminEmail,
+                password: adminPass,
+                role: 'superadmin',
+                permissions: ['manage_admins', 'view_payments', 'manage_interns', 'manage_volunteers_patrons', 'delete_users']
+            });
+            console.log(`[AdminUser] Seeded Super Admin: ${adminEmail}`);
+        }
+    } catch (err) {
+        console.error('[AdminUser] Error seeding super admin:', err.message);
+    }
+}
+
+// Nodemailer Config for Mail Services
 if (process.env.RAZORPAY_KEY_ID && !process.env.RAZORPAY_KEY_ID.includes('YourKeyID')) {
     console.log('[Razorpay] Configured with key ID:', process.env.RAZORPAY_KEY_ID.substring(0, 10) + '...');
 } else {
@@ -1118,35 +1140,46 @@ const verifyAdminToken = (req, res, next) => {
     if (!token) return res.status(401).json({ error: 'Access denied. No token provided.' });
     try {
         const decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret_for_development');
-        if (decoded.role !== 'admin') throw new Error('Invalid role');
+        if (decoded.role !== 'admin' && decoded.role !== 'superadmin') throw new Error('Invalid role');
+        req.adminUser = decoded;
         next();
     } catch (err) {
         res.status(401).json({ error: 'Invalid or expired token.' });
     }
 };
 
+const checkPermission = (requiredPermission) => (req, res, next) => {
+    if (!req.adminUser) return res.status(401).json({ error: 'Not authenticated' });
+    if (req.adminUser.role === 'superadmin') return next();
+    if (!req.adminUser.permissions?.includes(requiredPermission)) {
+        return res.status(403).json({ error: `Permission denied. Requires ${requiredPermission}` });
+    }
+    next();
+};
+
 app.use('/api/admin', verifyAdminToken);
 
 app.post('/api/admin/login', async (req, res) => {
-    const { password } = req.body;
-    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
-    if (password !== adminPass) return res.status(401).json({ error: 'Invalid password' });
+    const { email, password } = req.body;
+    
+    if (!email || !password) return res.status(400).json({ error: 'Email and password required' });
 
     if (mongoose.connection.readyState !== 1) {
-        return res.json({ requiresSetup: false, requires2FA: false, mock: true, token: jwt.sign({ role: 'admin' }, 'fallback_secret_for_development') });
+        return res.json({ requiresSetup: false, requires2FA: false, mock: true, token: jwt.sign({ role: 'superadmin', email: 'mock@vvv.com' }, 'fallback_secret_for_development') });
     }
 
     try {
-        let config = await AdminConfig.findOne({ singleton: 'admin_config' });
-        if (!config) {
-            config = await AdminConfig.create({ singleton: 'admin_config' });
-        }
+        const adminUser = await AdminUser.findOne({ email });
+        if (!adminUser) return res.status(401).json({ error: 'Invalid credentials' });
 
-        if (!config.isTotpEnabled) {
+        const isMatch = await adminUser.comparePassword(password);
+        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+        if (!adminUser.isTotpEnabled) {
             const secret = authenticator.generateSecret();
-            config.totpSecret = secret;
-            await config.save();
-            const otpauthUrl = authenticator.keyuri('Admin', 'VVV Foundation', secret);
+            adminUser.totpSecret = secret;
+            await adminUser.save();
+            const otpauthUrl = authenticator.keyuri(adminUser.email, 'VVV Foundation', secret);
             const qrCodeUrl = await qrcode.toDataURL(otpauthUrl);
             return res.json({ requiresSetup: true, qrCodeUrl, secret });
         }
@@ -1159,31 +1192,104 @@ app.post('/api/admin/login', async (req, res) => {
 });
 
 app.post('/api/admin/verify-2fa', async (req, res) => {
-    const { password, token } = req.body;
-    const adminPass = process.env.ADMIN_PASSWORD || 'admin123';
-    if (password !== adminPass) return res.status(401).json({ error: 'Invalid password' });
+    const { email, password, token } = req.body;
+    
+    if (!email || !password || !token) return res.status(400).json({ error: 'Missing required fields' });
 
     try {
-        const config = await AdminConfig.findOne({ singleton: 'admin_config' });
-        if (!config) return res.status(400).json({ error: 'Admin config not found' });
+        const adminUser = await AdminUser.findOne({ email });
+        if (!adminUser) return res.status(401).json({ error: 'Invalid credentials' });
 
-        const isValid = authenticator.check(token, config.totpSecret);
+        const isMatch = await adminUser.comparePassword(password);
+        if (!isMatch) return res.status(401).json({ error: 'Invalid credentials' });
+
+        const isValid = authenticator.check(token, adminUser.totpSecret);
         if (!isValid) return res.status(401).json({ error: 'Invalid authenticator code' });
 
-        if (!config.isTotpEnabled) {
-            config.isTotpEnabled = true;
-            await config.save();
+        if (!adminUser.isTotpEnabled) {
+            adminUser.isTotpEnabled = true;
+            await adminUser.save();
         }
 
-        const jwtToken = jwt.sign({ role: 'admin' }, process.env.JWT_SECRET || 'fallback_secret_for_development', { expiresIn: '24h' });
-        res.json({ success: true, token: jwtToken });
+        const jwtToken = jwt.sign(
+            { role: adminUser.role, email: adminUser.email, permissions: adminUser.permissions },
+            process.env.JWT_SECRET || 'fallback_secret_for_development',
+            { expiresIn: '24h' }
+        );
+        res.json({ success: true, token: jwtToken, user: { email: adminUser.email, role: adminUser.role, permissions: adminUser.permissions } });
     } catch (err) {
         res.status(500).json({ error: 'Internal server error' });
     }
 });
 
+// Admin Team Management
+app.post('/api/admin/create-admin', async (req, res) => {
+    if (!req.adminUser || (req.adminUser.role !== 'superadmin' && !req.adminUser.permissions?.includes('manage_admins'))) {
+        return res.status(403).json({ error: 'Permission denied. Must be superadmin or have manage_admins permission.' });
+    }
+
+    const { email, permissions } = req.body;
+    if (!email) return res.status(400).json({ error: 'Email is required.' });
+
+    try {
+        const existing = await AdminUser.findOne({ email });
+        if (existing) return res.status(400).json({ error: 'Admin with this email already exists.' });
+
+        // Generate a random temporary password
+        const tempPassword = Math.random().toString(36).slice(-10) + 'aA1!';
+
+        const newAdmin = await AdminUser.create({
+            email,
+            password: tempPassword,
+            role: 'admin',
+            permissions: permissions || []
+        });
+
+        // Send email with credentials
+        const mailOptions = {
+            from: process.env.EMAIL_USER || 'no-reply@viswavignanavaaradhi.org',
+            to: email,
+            subject: 'Welcome to the VVV Foundation Admin Team!',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+                    <h2 style="color: #1e3a8a;">Welcome to the VVV Foundation Admin Team!</h2>
+                    <p>An administrator account has been created for you.</p>
+                    <p><strong>Your login details:</strong></p>
+                    <ul style="list-style: none; padding-left: 0;">
+                        <li><strong>Email (Username):</strong> ${email}</li>
+                        <li><strong>Temporary Password:</strong> ${tempPassword}</li>
+                    </ul>
+                    <p><strong>Security Setup Required:</strong></p>
+                    <ol>
+                        <li>Go to the <a href="https://vvv.vercel.app/admin">VVV Admin Portal</a> (or your local /admin).</li>
+                        <li>Log in using the credentials above.</li>
+                        <li>You will be immediately prompted to set up Two-Factor Authentication (2FA).</li>
+                        <li>Download the <strong>Google Authenticator</strong> app on your phone.</li>
+                        <li>Scan the QR code shown on the screen and enter the 6-digit code to verify and secure your account.</li>
+                    </ol>
+                    <p>Welcome aboard!</p>
+                </div>
+            `
+        };
+
+        try {
+            await transporter.sendMail(mailOptions);
+            console.log(`[Admin] Sent welcome email to ${email}`);
+        } catch (mailErr) {
+            console.error('[Admin] Failed to send welcome email:', mailErr);
+            // We still return success but notify frontend that email failed
+            return res.json({ success: true, user: newAdmin, emailSent: false, tempPassword }); 
+        }
+
+        res.json({ success: true, user: newAdmin, emailSent: true });
+    } catch (err) {
+        console.error('[Admin] Create Admin Error:', err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
 // Admin APIs
-app.get('/api/admin/volunteers', async (req, res) => {
+app.get('/api/admin/volunteers', checkPermission('manage_volunteers_patrons'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         return res.json(mockDb.volunteers);
     }
@@ -1195,7 +1301,7 @@ app.get('/api/admin/volunteers', async (req, res) => {
     }
 });
 
-app.delete('/api/admin/volunteers/:email', async (req, res) => {
+app.delete('/api/admin/volunteers/:email', checkPermission('delete_users'), async (req, res) => {
     const { email } = req.params;
     try {
         console.log(`[Admin] Purging member records for: ${email}`);
@@ -1227,7 +1333,7 @@ app.delete('/api/admin/volunteers/:email', async (req, res) => {
     }
 });
 
-app.get('/api/admin/users', async (req, res) => {
+app.get('/api/admin/users', checkPermission('manage_volunteers_patrons'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         return res.json(mockDb.users);
     }
@@ -1282,7 +1388,7 @@ app.get('/api/admin/users', async (req, res) => {
     }
 });
 
-app.delete('/api/admin/users/:email', async (req, res) => {
+app.delete('/api/admin/users/:email', checkPermission('delete_users'), async (req, res) => {
     const { email } = req.params;
     try {
         console.log(`[Admin] Purging user account and records for: ${email}`);
@@ -1312,7 +1418,7 @@ app.delete('/api/admin/users/:email', async (req, res) => {
     }
 });
 
-app.get('/api/admin/donations', async (req, res) => {
+app.get('/api/admin/donations', checkPermission('view_payments'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         return res.json(mockDb.donations || []);
     }
@@ -1324,7 +1430,7 @@ app.get('/api/admin/donations', async (req, res) => {
     }
 });
 
-app.get('/api/admin/patrons', async (req, res) => {
+app.get('/api/admin/patrons', checkPermission('manage_volunteers_patrons'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         return res.json(mockDb.patrons);
     }
@@ -1337,7 +1443,7 @@ app.get('/api/admin/patrons', async (req, res) => {
 });
 
 // Intern Admin APIs
-app.get('/api/admin/interns', async (req, res) => {
+app.get('/api/admin/interns', checkPermission('manage_interns'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         return res.json(mockDb.interns);
     }
@@ -1349,7 +1455,7 @@ app.get('/api/admin/interns', async (req, res) => {
     }
 });
 
-app.put('/api/admin/interns/:id/status', async (req, res) => {
+app.put('/api/admin/interns/:id/status', checkPermission('manage_interns'), async (req, res) => {
     const { status, adminMessage } = req.body;
     if (mongoose.connection.readyState !== 1) {
         const intern = mockDb.interns.find(i => i._id === req.params.id);
@@ -1413,7 +1519,7 @@ app.post('/api/legal/submit', uploadDoc.array('files'), async (req, res) => {
     }
 });
 
-app.get('/api/admin/legal-requests', async (req, res) => {
+app.get('/api/admin/legal-requests', checkPermission('manage_volunteers_patrons'), async (req, res) => {
     if (mongoose.connection.readyState !== 1) {
         return res.json(mockDb.legalRequests);
     }
@@ -1425,7 +1531,7 @@ app.get('/api/admin/legal-requests', async (req, res) => {
     }
 });
 
-app.put('/api/admin/legal-requests/:id/status', async (req, res) => {
+app.put('/api/admin/legal-requests/:id/status', checkPermission('manage_volunteers_patrons'), async (req, res) => {
     const { status, adminMessage } = req.body;
     if (mongoose.connection.readyState !== 1) {
         const request = mockDb.legalRequests.find(r => r._id === req.params.id || r.requestId === req.params.id);
